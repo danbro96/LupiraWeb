@@ -9,7 +9,10 @@ export default function Landing() {
         background.
       </p>
 
-      <ContactCard />
+    <div className="space-y-2">
+        <h3 className="text-lg font-medium">Contact</h3>
+        <ContactCard />
+      </div>
     </section>
   );
 }

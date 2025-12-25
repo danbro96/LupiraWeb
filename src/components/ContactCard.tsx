@@ -6,8 +6,6 @@ import Link from "./Link.tsx";
 
 export default function ContactCard() {
   return (
-    <div className="space-y-2">
-      <h3 className="text-lg font-medium">Contact</h3>
       <div className="space-y-1 text-sm">
         <div className="flex items-center">
           <EmailIcon className="w-4 h-4 mr-2 text-slate-400" />
@@ -30,6 +28,5 @@ export default function ContactCard() {
           </Link>
         </div>
       </div>
-    </div>
   );
 }
