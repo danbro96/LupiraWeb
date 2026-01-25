@@ -1,12 +1,12 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Layout from "./components/Layout.tsx";
-import Landing from "./pages/Landing.tsx";
-import About from "./pages/About.tsx";
-import Projects from "./pages/Projects.tsx";
-import ProjectExample from "./pages/ProjectExample.tsx";
-import Kokos from "./pages/Kokos.tsx";
-import Cookies from "./pages/Cookies.tsx";
-import NotFound from "./pages/NotFound.tsx";
+import Layout from "./components/Layout";
+import Landing from "./pages/Landing";
+import About from "./pages/About";
+import Projects from "./pages/Projects";
+import ProjectExample from "./pages/ProjectExample";
+import Kokos from "./pages/Kokos";
+import Cookies from "./pages/Cookies";
+import NotFound from "./pages/NotFound";
 
 export default function App() {
   return (

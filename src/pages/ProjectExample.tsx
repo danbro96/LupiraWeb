@@ -1,4 +1,4 @@
-export default function ProjectExample() {
+export default function ProjectExample(): React.ReactElement {
   return (
     <div>
       <h2 className="text-2xl font-semibold">Example Project</h2>

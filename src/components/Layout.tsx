@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
-import Topbar from "./Topbar.tsx";
-import Footer from "./Footer.tsx";
+import Topbar from "./Topbar";
+import Footer from "./Footer";
 
 export default function Layout() {
   const location = useLocation();

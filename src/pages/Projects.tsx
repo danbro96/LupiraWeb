@@ -1,6 +1,6 @@
-import Link from "../components/Link.tsx";
+import Link from "../components/Link";
 
-export default function Projects() {
+export default function Projects(): React.ReactElement {
   const projects = [
     {
       id: "example",

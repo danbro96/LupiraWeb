@@ -1,4 +1,4 @@
-export default function Cookies() {
+export default function Cookies(): React.ReactElement {
   return (
     <section className="space-y-2">
       <h2 className="text-2xl font-semibold">Cookies</h2>

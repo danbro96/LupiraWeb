@@ -1,8 +1,8 @@
-import EmailIcon from "./icons/EmailIcon.tsx";
-import PhoneIcon from "./icons/PhoneIcon.tsx";
-import GitHubIcon from "./icons/GitHubIcon.tsx";
-import LinkedInIcon from "./icons/LinkedInIcon.tsx";
-import Link from "./Link.tsx";
+import EmailIcon from "./icons/EmailIcon";
+import PhoneIcon from "./icons/PhoneIcon";
+import GitHubIcon from "./icons/GitHubIcon";
+import LinkedInIcon from "./icons/LinkedInIcon";
+import Link from "./Link";
 
 export default function ContactCard() {
   return (
@@ -15,7 +15,7 @@ export default function ContactCard() {
         </div>
         <div className="flex items-center">
           <PhoneIcon className="w-4 h-4 mr-2 text-slate-400" />
-          <Link href="tel:+46735028811">+46 735 028 811</Link>
+          <Link href="tel:+46735028811">+46 (0)73 502 88 11</Link>
         </div>
         <div className="flex items-center">
           <GitHubIcon className="w-4 h-4 mr-2 text-slate-400" />

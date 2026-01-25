@@ -1,6 +1,6 @@
-import Link from "../components/Link.tsx";
+import Link from "../components/Link";
 
-export default function NotFound() {
+export default function NotFound(): React.ReactElement {
   return (
     <section className="flex flex-col items-center justify-center min-h-[50vh] text-center space-y-4">
       <h1 className="text-4xl font-bold text-slate-200">404</h1>

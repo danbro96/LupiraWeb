@@ -1,6 +1,6 @@
-import ImageCard from "../components/ImageCard.tsx";
+import ImageCard from "../components/ImageCard";
 
-export default function Kokos() {
+export default function Kokos(): React.ReactElement {
   const images = Array.from({ length: 8 }, (_, i) => `kokos_${i + 1}.jpg`);
 
   return (

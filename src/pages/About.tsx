@@ -1,30 +1,48 @@
+import React from "react";
 import ContactCard from "../components/ContactCard";
+import SectionCard from "../components/SectionCard";
+import SkillBadge from "../components/SkillBadge";
 
-function SectionCard({
-  title,
-  children,
-}: {
+interface Experience {
   title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="relative rounded-xl border border-slate-700 bg-slate-900/40 p-6">
-      <div className="absolute left-0 top-0 h-full w-1 rounded-l-xl bg-teal-500/60" />
-      <h3 className="mb-4 text-lg font-semibold text-gray-100">{title}</h3>
-      {children}
-    </section>
-  );
+  company: string;
+  description: string;
 }
 
-function SkillBadge({ label }: { label: string }) {
-  return (
-    <span className="rounded-md border border-slate-600 px-2 py-1 text-sm text-slate-300">
-      {label}
-    </span>
-  );
+interface SkillCategory {
+  title: string;
+  skills: string[];
 }
 
-export default function About() {
+export default function About(): React.ReactElement {
+  const experiences: Experience[] = [
+    {
+      title: "Founder & CTO",
+      company: "RapAdd MFG AB",
+      description: "Led R&D and development of an automated 3D-printing manufacturing platform. System architecture, full-stack development, DevOps, and technical leadership."
+    },
+    {
+      title: "Design Engineer / Production Technician",
+      company: "Firefly AB",
+      description: "Mechanical and mechatronics development of fire-prevention systems. Hardware design, PLC automation, and production tooling."
+    }
+  ];
+
+  const skillCategories: SkillCategory[] = [
+    {
+      title: "Software",
+      skills: ["React", "Blazor", "Razor Pages", "TypeScript", ".NET", "Python", "Java", "UML design", "Git workflows"]
+    },
+    {
+      title: "Infrastructure & DevOps",
+      skills: ["Linux", "Windows Server", "AWS EC2/RDS/S3/Amplify", "Azure WebApp Services", "CI/CD", "Azure DevOps", "Yaml-pipelines"]
+    },
+    {
+      title: "Hardware & Engineering",
+      skills: ["SolidWorks", "Autodesk Inventor", "PLC (TIA Portal)", "Codesys", "KiCad", "CNC machining", "3D printing"]
+    }
+  ];
+
   return (
     <article className="mx-auto max-w-5xl space-y-12">
       {/* Header */}
@@ -48,7 +66,7 @@ export default function About() {
         <ul className="mt-3 list-disc list-inside space-y-1 text-slate-400">
           <li>.NET backend (controllers & minimal APIs)</li>
           <li>React, Blazor, Razor Pages</li>
-          <li>Company-wide DevOps responsibility</li>
+          <li>DevOps responsibility</li>
           <li>On-prem → cloud migration</li>
         </ul>
       </SectionCard>
@@ -56,91 +74,34 @@ export default function About() {
       {/* Experience timeline */}
       <SectionCard title="Previous Experience">
         <div className="space-y-6">
-          <div>
-            <p className="font-medium text-gray-200">
-              Founder & CTO — RapAdd MFG AB
-            </p>
-            <p className="mt-1 text-slate-400">
-              Led R&amp;D and development of an automated 3D-printing manufacturing
-              platform. System architecture, full-stack development, DevOps, and
-              technical leadership.
-            </p>
-          </div>
-
-          <div>
-            <p className="font-medium text-gray-200">
-              Design Engineer / Production Technician — Firefly AB
-            </p>
-            <p className="mt-1 text-slate-400">
-              Mechanical and mechatronics development of fire-prevention systems.
-              Hardware design, PLC automation, and production tooling.
-            </p>
-          </div>
+          {experiences.map((exp, index) => (
+            <div key={index}>
+              <p className="font-medium text-gray-200">
+                {exp.title} — {exp.company}
+              </p>
+              <p className="mt-1 text-slate-400">
+                {exp.description}
+              </p>
+            </div>
+          ))}
         </div>
       </SectionCard>
 
       {/* Skills */}
       <SectionCard title="Core Skills">
         <div className="space-y-6">
-          <div>
-            <p className="mb-2 text-sm uppercase tracking-wide text-slate-500">
-              Software
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {[
-                "React",
-                "Blazor",
-                "Razor Pages",
-                "TypeScript",
-                ".NET",
-                "Python",
-                "Java",
-                "API design",
-                "Git workflows",
-              ].map((s) => (
-                <SkillBadge key={s} label={s} />
-              ))}
+          {skillCategories.map((category, index) => (
+            <div key={index}>
+              <p className="mb-2 text-sm uppercase tracking-wide text-slate-500">
+                {category.title}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {category.skills.map((skill) => (
+                  <SkillBadge key={skill} label={skill} />
+                ))}
+              </div>
             </div>
-          </div>
-
-          <div>
-            <p className="mb-2 text-sm uppercase tracking-wide text-slate-500">
-              Infrastructure & DevOps
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {[
-                "Linux",
-                "FreeBSD",
-                "AWS EC2",
-                "RDS",
-                "S3",
-                "Amplify",
-                "CI/CD",
-                "Cloud migration",
-              ].map((s) => (
-                <SkillBadge key={s} label={s} />
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <p className="mb-2 text-sm uppercase tracking-wide text-slate-500">
-              Hardware & Engineering
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {[
-                "SolidWorks",
-                "Inventor",
-                "PLC (TIA Portal)",
-                "Codesys",
-                "KiCad",
-                "Mechatronics",
-                "Automation",
-              ].map((s) => (
-                <SkillBadge key={s} label={s} />
-              ))}
-            </div>
-          </div>
+          ))}
         </div>
       </SectionCard>
 
@@ -149,7 +110,7 @@ export default function About() {
         <p className="text-slate-400">
           Mechanical Engineering — KTH Royal Institute of Technology, Stockholm
           <br />
-          Two years completed in the Master of Science program.
+          Two years completed.
         </p>
       </SectionCard>
 
@@ -172,7 +133,7 @@ export default function About() {
             transition-colors
           "
         >
-          Download résumé (PDF)
+          Download resumé (PDF)
         </a>
       </div>
     </article>
