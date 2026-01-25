@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="lupiraweb.client/lupiraweb.client.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="LupiraWeb.Server/LupiraWeb.Server.csproj" />
+</Solution>

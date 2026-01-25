@@ -1,0 +1,6 @@
+@LupiraWeb.Server_HostAddress = http://localhost:5188
+
+GET {{LupiraWeb.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
