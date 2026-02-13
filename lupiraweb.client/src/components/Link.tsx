@@ -11,7 +11,7 @@ export default function Link({
   children,
   className = "",
   ...props
-}: LinkProps) {
+}: LinkProps): React.ReactElement {
   const isInternal = href.startsWith("/");
 
   if (isInternal) {

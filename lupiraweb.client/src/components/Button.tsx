@@ -1,4 +1,4 @@
-interface ButtonProps {
+export interface ButtonProps {
   children: React.ReactNode;
   onClick?: () => void;
   className?: string;
@@ -11,7 +11,7 @@ export default function Button({
   className = "",
   type = "button",
   ...props
-}: ButtonProps) {
+}: ButtonProps): React.ReactElement {
   return (
     <button
       type={type}

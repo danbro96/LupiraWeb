@@ -1,0 +1,22 @@
+﻿version: "3.9"
+
+services:
+  backend:
+    image: yourrepo/backend:latest
+    container_name: backend
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
+  frontend:
+    image: yourrepo/frontend:latest
+    container_name: frontend
+    environment:
+      VITE_DEV_API: http://backend:80
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

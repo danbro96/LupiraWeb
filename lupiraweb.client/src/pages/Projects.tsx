@@ -7,9 +7,8 @@ export default function Projects(): React.ReactElement {
       name: "Example Project",
       description:
         "A sample project showcasing various technologies and features.",
-      image: "https://via.placeholder.com/300x200?text=Project+Image", // Placeholder image
+      image: "https://via.placeholder.com/300x200?text=Project+Image",
     },
-    // Add more projects here as needed
   ];
 
   return (

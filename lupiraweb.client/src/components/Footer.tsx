@@ -1,6 +1,6 @@
 import Link from "./Link";
 
-export default function Footer() {
+export default function Footer(): React.ReactElement {
   return (
     <footer className="border-t border-slate-700 text-sm text-slate-400">
       <div className="max-w-5xl mx-auto px-6 py-4 space-y-2">

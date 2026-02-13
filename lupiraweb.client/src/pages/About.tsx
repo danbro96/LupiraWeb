@@ -19,28 +19,56 @@ export default function About(): React.ReactElement {
     {
       title: "Founder & CTO",
       company: "RapAdd MFG AB",
-      description: "Led R&D and development of an automated 3D-printing manufacturing platform. System architecture, full-stack development, DevOps, and technical leadership."
+      description:
+        "Led R&D and development of an automated 3D-printing manufacturing platform. System architecture, full-stack development, DevOps, and technical leadership.",
     },
     {
       title: "Design Engineer / Production Technician",
       company: "Firefly AB",
-      description: "Mechanical and mechatronics development of fire-prevention systems. Hardware design, PLC automation, and production tooling."
-    }
+      description:
+        "Mechanical and mechatronics development of fire-prevention systems. Hardware design, PLC automation, and production tooling.",
+    },
   ];
 
   const skillCategories: SkillCategory[] = [
     {
       title: "Software",
-      skills: ["React", "Blazor", "Razor Pages", "TypeScript", ".NET", "Python", "Java", "UML design", "Git workflows"]
+      skills: [
+        "React",
+        "Blazor",
+        "Razor Pages",
+        "TypeScript",
+        ".NET",
+        "Python",
+        "Java",
+        "UML design",
+        "Git workflows",
+      ],
     },
     {
       title: "Infrastructure & DevOps",
-      skills: ["Linux", "Windows Server", "AWS EC2/RDS/S3/Amplify", "Azure WebApp Services", "CI/CD", "Azure DevOps", "Yaml-pipelines"]
+      skills: [
+        "Linux",
+        "Windows Server",
+        "AWS EC2/RDS/S3/Amplify",
+        "Azure WebApp Services",
+        "CI/CD",
+        "Azure DevOps",
+        "Yaml-pipelines",
+      ],
     },
     {
       title: "Hardware & Engineering",
-      skills: ["SolidWorks", "Autodesk Inventor", "PLC (TIA Portal)", "Codesys", "KiCad", "CNC machining", "3D printing"]
-    }
+      skills: [
+        "SolidWorks",
+        "Autodesk Inventor",
+        "PLC (TIA Portal)",
+        "Codesys",
+        "KiCad",
+        "CNC machining",
+        "3D printing",
+      ],
+    },
   ];
 
   return (
@@ -79,9 +107,7 @@ export default function About(): React.ReactElement {
               <p className="font-medium text-gray-200">
                 {exp.title} — {exp.company}
               </p>
-              <p className="mt-1 text-slate-400">
-                {exp.description}
-              </p>
+              <p className="mt-1 text-slate-400">{exp.description}</p>
             </div>
           ))}
         </div>

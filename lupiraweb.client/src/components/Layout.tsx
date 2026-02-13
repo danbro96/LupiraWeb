@@ -3,7 +3,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import Topbar from "./Topbar";
 import Footer from "./Footer";
 
-export default function Layout() {
+export default function Layout(): React.ReactElement {
   const location = useLocation();
 
   useEffect(() => {

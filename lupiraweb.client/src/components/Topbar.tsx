@@ -1,7 +1,7 @@
 import logo from "../assets/logo.svg";
 import Link from "./Link";
 
-export default function Topbar() {
+export default function Topbar(): React.ReactElement {
   return (
     <header className="border-b border-slate-700">
       <div className="max-w-5xl mx-auto flex items-center gap-6 px-6 py-4">

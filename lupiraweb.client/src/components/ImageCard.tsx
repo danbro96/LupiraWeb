@@ -5,7 +5,10 @@ interface ImageCardProps {
   alt: string;
 }
 
-export default function ImageCard({ src, alt }: ImageCardProps) {
+export default function ImageCard({
+  src,
+  alt,
+}: ImageCardProps): React.ReactElement {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
