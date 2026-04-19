@@ -5,4 +5,5 @@
     <File Path="ReadmeDocker.md" />
   </Folder>
   <Project Path="LupiraWeb.Server/LupiraWeb.Server.csproj" />
+  <Project Path="LupiraWeb.Server.Tests/LupiraWeb.Server.Tests.csproj" />
 </Solution>
