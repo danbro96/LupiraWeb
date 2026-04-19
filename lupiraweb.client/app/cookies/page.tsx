@@ -1,4 +1,10 @@
-export default function Cookies(): React.ReactElement {
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Cookies",
+};
+
+export default function CookiesPage() {
   return (
     <section className="space-y-2">
       <h2 className="text-2xl font-semibold">Cookies</h2>

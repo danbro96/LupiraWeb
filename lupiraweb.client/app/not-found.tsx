@@ -1,6 +1,6 @@
-import Link from "../components/Link";
+import Link from "@/src/components/Link";
 
-export default function NotFound(): React.ReactElement {
+export default function NotFound() {
   return (
     <section className="flex flex-col items-center justify-center min-h-[50vh] text-center space-y-4">
       <h1 className="text-4xl font-bold text-slate-200">404</h1>

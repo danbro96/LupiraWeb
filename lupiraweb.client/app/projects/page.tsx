@@ -1,6 +1,11 @@
-import Link from "../components/Link";
+import type { Metadata } from "next";
+import Link from "@/src/components/Link";
 
-export default function Projects(): React.ReactElement {
+export const metadata: Metadata = {
+  title: "Projects",
+};
+
+export default function ProjectsPage() {
   const projects = [
     {
       id: "example",

@@ -1,4 +1,10 @@
-export default function ProjectExample(): React.ReactElement {
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Project Example",
+};
+
+export default function ProjectExamplePage() {
   return (
     <div>
       <h2 className="text-2xl font-semibold">Example Project</h2>

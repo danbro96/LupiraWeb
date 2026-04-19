@@ -1,6 +1,11 @@
-import ImageCard from "../components/ImageCard";
+import type { Metadata } from "next";
+import ImageCard from "@/src/components/ImageCard";
 
-export default function Kokos(): React.ReactElement {
+export const metadata: Metadata = {
+  title: "Kokos",
+};
+
+export default function KokosPage() {
   const images = Array.from({ length: 8 }, (_, i) => `kokos_${i + 1}.jpg`);
 
   return (

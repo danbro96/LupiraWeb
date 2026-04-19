@@ -21,18 +21,17 @@ services:
       - lupira-net
 
   frontend:
-    image: node:20
+    image: node:22
     container_name: lupiraweb-frontend-dev
     working_dir: /app
     volumes:
       - ./lupiraweb.client:/app:cached
       - /app/node_modules
-    # start frontend immediately; Vite proxy will forward `/api` to backend when available
-    command: ["sh", "-c", "npm ci && npm run dev -- --host"]
+    command: ["sh", "-c", "npm ci && npm run dev"]
     environment:
-      - VITE_DEV_API=http://backend:80
+      - API_BASE_URL=http://backend:80
     ports:
-      - "5173:5173"
+      - "3000:3000"
     depends_on:
       - backend
     restart: unless-stopped

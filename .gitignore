@@ -1,5 +1,5 @@
-# Logs
-logs
+# ---- Logs ----
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,38 +7,33 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# ---- OS / editor junk ----
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
+Thumbs.db
 *.swp
+*.sw?
 *.*~
-project.lock.json
-.DS_Store
 *.pyc
-nupkg/
 
-# Visual Studio Code
+# VS Code (allow settings.json + extensions.json to be shared)
 .vscode/*
 !.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/tasks.json
+!.vscode/launch.json
 
-# Rider
+# JetBrains / Rider
 .idea/
 
 # Visual Studio
 .vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.ntvs*
+*.njsproj
+*.VisualState.xml
 
 # Fleet
 .fleet/
@@ -46,13 +41,36 @@ nupkg/
 # Code Rush
 .cr/
 
-# User-specific files
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
+# ---- Node / Next.js ----
+node_modules/
+.next/
+out/
+.turbo/
+.vercel/
+.eslintcache
+.swc/
+*.tsbuildinfo
+next-env.d.ts.bak
 
-# Build results
+# ---- Test artifacts ----
+coverage/
+.nyc_output/
+.vitest-cache/
+playwright-report/
+test-results/
+blob-report/
+playwright/.cache/
+LupiraWeb.Server.Tests/TestResults/
+**/TestResults/
+
+# ---- Env files (keep .env.example if present) ----
+.env
+.env.local
+.env.*.local
+*.env
+!.env.example
+
+# ---- .NET build output ----
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
@@ -67,8 +85,20 @@ bld/
 msbuild.log
 msbuild.err
 msbuild.wrn
+project.lock.json
+*.nupkg
+nupkg/
 
-# Node.js build artifacts
-node_modules/
-package-lock.json
-package.json
+# NuGet
+*.nuget.props
+*.nuget.targets
+
+# ASP.NET / Kestrel local dev
+*.pidb
+*.booproj
+*.svd
+appsettings.Development.local.json
+
+# ---- Claude Code ----
+.claude/settings.local.json
+.claude/.history/

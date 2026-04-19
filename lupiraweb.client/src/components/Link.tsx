@@ -1,4 +1,4 @@
-import { Link as RouterLink } from "react-router-dom";
+import NextLink from "next/link";
 
 interface LinkProps {
   href: string;
@@ -13,25 +13,18 @@ export default function Link({
   ...props
 }: LinkProps): React.ReactElement {
   const isInternal = href.startsWith("/");
+  const classes = `text-slate-400 hover:text-teal-300 ${className}`;
 
   if (isInternal) {
     return (
-      <RouterLink
-        to={href}
-        className={`text-slate-400 hover:text-teal-300 ${className}`}
-        {...props}
-      >
+      <NextLink href={href} className={classes} {...props}>
         {children}
-      </RouterLink>
+      </NextLink>
     );
   }
 
   return (
-    <a
-      href={href}
-      className={`text-slate-400 hover:text-teal-300 ${className}`}
-      {...props}
-    >
+    <a href={href} className={classes} {...props}>
       {children}
     </a>
   );

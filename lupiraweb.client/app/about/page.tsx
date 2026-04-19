@@ -1,7 +1,11 @@
-import React from "react";
-import ContactCard from "../components/ContactCard";
-import SectionCard from "../components/SectionCard";
-import SkillBadge from "../components/SkillBadge";
+import type { Metadata } from "next";
+import ContactCard from "@/src/components/ContactCard";
+import SectionCard from "@/src/components/SectionCard";
+import SkillBadge from "@/src/components/SkillBadge";
+
+export const metadata: Metadata = {
+  title: "About",
+};
 
 interface Experience {
   title: string;
@@ -14,7 +18,7 @@ interface SkillCategory {
   skills: string[];
 }
 
-export default function About(): React.ReactElement {
+export default function AboutPage() {
   const experiences: Experience[] = [
     {
       title: "Founder & CTO",
@@ -73,7 +77,6 @@ export default function About(): React.ReactElement {
 
   return (
     <article className="mx-auto max-w-5xl space-y-12">
-      {/* Header */}
       <header className="space-y-4">
         <h2 className="text-3xl font-semibold tracking-tight text-gray-100">
           About
@@ -85,7 +88,6 @@ export default function About(): React.ReactElement {
         </p>
       </header>
 
-      {/* Current role */}
       <SectionCard title="Current Role">
         <p className="font-medium text-gray-200">
           Full-stack Web Developer — Strivo AB
@@ -99,7 +101,6 @@ export default function About(): React.ReactElement {
         </ul>
       </SectionCard>
 
-      {/* Experience timeline */}
       <SectionCard title="Previous Experience">
         <div className="space-y-6">
           {experiences.map((exp, index) => (
@@ -113,7 +114,6 @@ export default function About(): React.ReactElement {
         </div>
       </SectionCard>
 
-      {/* Skills */}
       <SectionCard title="Core Skills">
         <div className="space-y-6">
           {skillCategories.map((category, index) => (
@@ -131,7 +131,6 @@ export default function About(): React.ReactElement {
         </div>
       </SectionCard>
 
-      {/* Education */}
       <SectionCard title="Education">
         <p className="text-slate-400">
           Mechanical Engineering — KTH Royal Institute of Technology, Stockholm
@@ -140,24 +139,15 @@ export default function About(): React.ReactElement {
         </p>
       </SectionCard>
 
-      {/* Contact */}
       <SectionCard title="Contact">
         <ContactCard />
       </SectionCard>
 
-      {/* Resume */}
       <div className="flex justify-end border-t border-slate-800 pt-6">
         <a
           href="/Resume_Daniel_Brostrom.pdf"
           download
-          className="
-            inline-flex items-center gap-2
-            rounded-md border border-slate-600
-            px-4 py-2 text-sm
-            text-gray-200
-            hover:border-teal-400 hover:text-teal-400
-            transition-colors
-          "
+          className="inline-flex items-center gap-2 rounded-md border border-slate-600 px-4 py-2 text-sm text-gray-200 hover:border-teal-400 hover:text-teal-400 transition-colors"
         >
           Download resumé (PDF)
         </a>
