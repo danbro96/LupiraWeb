@@ -1,0 +1,120 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches-ignore:
+      - main
+  workflow_call:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend-test:
+    name: Backend test (xUnit + Testcontainers)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Cache NuGet
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test --configuration Release --no-build --logger "trx;LogFileName=test-results.trx"
+
+      - name: Upload regenerated OpenAPI spec
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi-spec
+          path: lupiraweb.client/backend-openapi.json
+          retention-days: 1
+
+  contract-drift:
+    name: OpenAPI contract drift
+    needs: backend-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: openapi-spec
+          path: lupiraweb.client
+
+      - name: Diff against committed spec
+        run: |
+          if ! git diff --exit-code -- lupiraweb.client/backend-openapi.json; then
+            echo "::error::backend-openapi.json is out of date. Run 'dotnet build LupiraWeb.Server' and commit the regenerated spec."
+            exit 1
+          fi
+
+  client-drift:
+    name: Orval client drift
+    needs: contract-drift
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: lupiraweb.client
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: openapi-spec
+          path: lupiraweb.client
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: lupiraweb.client/package-lock.json
+
+      - run: npm ci
+
+      - name: Regenerate API client
+        run: npm run generate:api
+
+      - name: Diff against committed client
+        run: |
+          if ! git diff --exit-code -- src/api/lupiraWebServerApi.ts src/api/models; then
+            echo "::error::Generated API client is out of date. Run 'npm run generate:api' and commit the result."
+            exit 1
+          fi
+
+  frontend-test:
+    name: Frontend test (Vitest + lint)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: lupiraweb.client
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: lupiraweb.client/package-lock.json
+
+      - run: npm ci
+
+      - run: npm run lint
+
+      - run: npm test

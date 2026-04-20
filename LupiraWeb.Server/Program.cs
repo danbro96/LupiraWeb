@@ -30,7 +30,9 @@ builder.Services.AddMarten(sp =>
         ?? DefaultConnectionString);
     opts.UseSystemTextJsonForSerialization();
     opts.DatabaseSchemaName = "marten";
-    opts.AutoCreateSchemaObjects = AutoCreate.CreateOrUpdate;
+    opts.AutoCreateSchemaObjects = builder.Environment.IsProduction()
+        ? AutoCreate.None
+        : AutoCreate.CreateOrUpdate;
 
     opts.Projections.Snapshot<Skill>(SnapshotLifecycle.Inline);
     opts.Projections.Snapshot<Engagement>(SnapshotLifecycle.Inline);

@@ -1,3 +1,5 @@
+# Local development stack. Pairs with docker-compose.override.yml for live-mount + hot reload.
+# Production on TrueNAS uses the split stacks under deploy/db/ and deploy/web/, not this file.
 services:
   postgres:
     image: postgres:17-alpine
@@ -16,7 +18,7 @@ services:
     restart: unless-stopped
 
   backend:
-    image: yourrepo/backend:latest
+    image: danbro96/lupiraweb-backend:latest
     container_name: backend
     environment:
       ASPNETCORE_ENVIRONMENT: Production
@@ -34,7 +36,7 @@ services:
     restart: unless-stopped
 
   frontend:
-    image: yourrepo/frontend:latest
+    image: danbro96/lupiraweb-frontend:latest
     container_name: frontend
     environment:
       API_BASE_URL: http://backend:80

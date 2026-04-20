@@ -1,0 +1,41 @@
+services:
+  backend:
+    image: danbro96/lupiraweb-backend:${IMAGE_TAG:-latest}
+    container_name: lupira-backend
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:80
+      ConnectionStrings__AppDb: Host=${POSTGRES_HOST:-postgres};Port=5432;Database=${POSTGRES_DB:?POSTGRES_DB is required};Username=${POSTGRES_USER:?POSTGRES_USER is required};Password=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    ports:
+      - "${BACKEND_PORT:-40081}:80"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/health || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+    networks:
+      - lupira_data
+      - lupira_web
+
+  frontend:
+    image: danbro96/lupiraweb-frontend:${IMAGE_TAG:-latest}
+    container_name: lupira-frontend
+    environment:
+      API_BASE_URL: http://backend:80
+    ports:
+      - "${FRONTEND_PORT:-40080}:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - lupira_web
+
+networks:
+  lupira_data:
+    external: true
+    name: lupira_data
+  lupira_web:
+    driver: bridge

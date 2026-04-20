@@ -6,7 +6,7 @@ Personal portfolio site by Daniel Broström. The code doubles as a DevOps showca
 - **Backend** — [LupiraWeb.Server/](LupiraWeb.Server/) — .NET 10 minimal API, emits OpenAPI at build time.
 - **Containers** — [docker-compose.yml](docker-compose.yml) (base / prod) + [docker-compose.override.yml](docker-compose.override.yml) (dev override) + [docker-compose.dcproj](docker-compose.dcproj) (VS integration).
 
-Architecture overview and working rules live in [CLAUDE.md](CLAUDE.md). Deployment details live in [ReadmeDocker.md](ReadmeDocker.md). Roadmap in [docs/ROADMAP.md](docs/ROADMAP.md).
+Architecture overview and working rules live in [CLAUDE.md](CLAUDE.md). Deployment details live in [ReadmeDocker.md](ReadmeDocker.md). CI/CD and TrueNAS deployment guide in [docs/CICD.md](docs/CICD.md). Roadmap in [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Run from the command line
 
