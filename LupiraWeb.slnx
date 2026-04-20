@@ -10,4 +10,5 @@
   <Project Path="LupiraWeb.Domain/LupiraWeb.Domain.csproj" />
   <Project Path="LupiraWeb.Server/LupiraWeb.Server.csproj" />
   <Project Path="LupiraWeb.Server.Tests/LupiraWeb.Server.Tests.csproj" />
+  <Project Path="LupiraWeb.Admin.Server/LupiraWeb.Admin.Server.csproj" />
 </Solution>

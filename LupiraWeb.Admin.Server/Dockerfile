@@ -1,0 +1,22 @@
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+
+COPY LupiraWeb.Domain/ ./LupiraWeb.Domain/
+COPY LupiraWeb.Admin.Server/ ./LupiraWeb.Admin.Server/
+
+WORKDIR /src/LupiraWeb.Admin.Server
+
+ARG BUILD_CONFIGURATION=Release
+RUN dotnet restore "./LupiraWeb.Admin.Server.csproj"
+RUN dotnet publish "./LupiraWeb.Admin.Server.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+WORKDIR /app
+
+ENV ASPNETCORE_URLS=http://+:80
+COPY --from=build /app/publish .
+
+USER app
+
+EXPOSE 80
+ENTRYPOINT ["dotnet", "LupiraWeb.Admin.Server.dll"]
