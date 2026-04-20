@@ -5,10 +5,32 @@
  * OpenAPI spec version: 1.0.0
  */
 import type {
-  Employment,
+  AbandonGoalRequest,
+  AchieveGoalRequest,
+  ArtifactDto,
+  Engagement,
+  ExperienceDto,
+  GoalDto,
+  LinkArtifactToEngagementRequest,
+  LinkArtifactToProjectRequest,
+  LinkArtifactToSkillRequest,
+  LinkMediaToProjectRequest,
+  LinkMediaToSkillsRequest,
+  ListExperiencesParams,
+  MediaAssetDto,
+  MediaUploadResponse,
   MyInfo,
   Project,
-  Skill
+  RecordProgressRequest,
+  RegisterArtifactRequest,
+  RegisterArtifactResponse,
+  SetGoalRequest,
+  SetGoalResponse,
+  Skill,
+  SkillMaturityResponse,
+  SkillRelatedResponse,
+  SkillTimelineResponse,
+  UploadMediaBody
 } from './models';
 
 import { customFetch } from './fetcher';
@@ -52,29 +74,29 @@ export const getMyInfo = async ( options?: RequestInit): Promise<getMyInfoRespon
 
 
 
-export type getEmploymentsResponse200 = {
-  data: Employment[]
+export type getEngagementsResponse200 = {
+  data: Engagement[]
   status: 200
 }
 
-export type getEmploymentsResponseSuccess = (getEmploymentsResponse200) & {
+export type getEngagementsResponseSuccess = (getEngagementsResponse200) & {
   headers: Headers;
 };
 ;
 
-export type getEmploymentsResponse = (getEmploymentsResponseSuccess)
+export type getEngagementsResponse = (getEngagementsResponseSuccess)
 
-export const getGetEmploymentsUrl = () => {
-
-
+export const getGetEngagementsUrl = () => {
 
 
-  return `/api/resume/employments`
+
+
+  return `/api/resume/engagements`
 }
 
-export const getEmployments = async ( options?: RequestInit): Promise<getEmploymentsResponse> => {
+export const getEngagements = async ( options?: RequestInit): Promise<getEngagementsResponse> => {
 
-  return customFetch<getEmploymentsResponse>(getGetEmploymentsUrl(),
+  return customFetch<getEngagementsResponse>(getGetEngagementsUrl(),
   {
     ...options,
     method: 'GET'
@@ -85,36 +107,36 @@ export const getEmployments = async ( options?: RequestInit): Promise<getEmploym
 
 
 
-export type getEmploymentResponse200 = {
-  data: Employment
+export type getEngagementResponse200 = {
+  data: Engagement
   status: 200
 }
 
-export type getEmploymentResponse404 = {
+export type getEngagementResponse404 = {
   data: void
   status: 404
 }
 
-export type getEmploymentResponseSuccess = (getEmploymentResponse200) & {
+export type getEngagementResponseSuccess = (getEngagementResponse200) & {
   headers: Headers;
 };
-export type getEmploymentResponseError = (getEmploymentResponse404) & {
+export type getEngagementResponseError = (getEngagementResponse404) & {
   headers: Headers;
 };
 
-export type getEmploymentResponse = (getEmploymentResponseSuccess | getEmploymentResponseError)
+export type getEngagementResponse = (getEngagementResponseSuccess | getEngagementResponseError)
 
-export const getGetEmploymentUrl = (id: string,) => {
-
-
+export const getGetEngagementUrl = (id: string,) => {
 
 
-  return `/api/resume/employments/${id}`
+
+
+  return `/api/resume/engagements/${id}`
 }
 
-export const getEmployment = async (id: string, options?: RequestInit): Promise<getEmploymentResponse> => {
+export const getEngagement = async (id: string, options?: RequestInit): Promise<getEngagementResponse> => {
 
-  return customFetch<getEmploymentResponse>(getGetEmploymentUrl(id),
+  return customFetch<getEngagementResponse>(getGetEngagementUrl(id),
   {
     ...options,
     method: 'GET'
@@ -221,6 +243,890 @@ export const getGetSkillsUrl = () => {
 export const getSkills = async ( options?: RequestInit): Promise<getSkillsResponse> => {
 
   return customFetch<getSkillsResponse>(getGetSkillsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export type getSkillTimelineResponse200 = {
+  data: SkillTimelineResponse
+  status: 200
+}
+
+export type getSkillTimelineResponse404 = {
+  data: void
+  status: 404
+}
+
+export type getSkillTimelineResponseSuccess = (getSkillTimelineResponse200) & {
+  headers: Headers;
+};
+export type getSkillTimelineResponseError = (getSkillTimelineResponse404) & {
+  headers: Headers;
+};
+
+export type getSkillTimelineResponse = (getSkillTimelineResponseSuccess | getSkillTimelineResponseError)
+
+export const getGetSkillTimelineUrl = (id: string,) => {
+
+
+
+
+  return `/api/skills/${id}/timeline`
+}
+
+export const getSkillTimeline = async (id: string, options?: RequestInit): Promise<getSkillTimelineResponse> => {
+
+  return customFetch<getSkillTimelineResponse>(getGetSkillTimelineUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export type getSkillRelatedResponse200 = {
+  data: SkillRelatedResponse
+  status: 200
+}
+
+export type getSkillRelatedResponse404 = {
+  data: void
+  status: 404
+}
+
+export type getSkillRelatedResponseSuccess = (getSkillRelatedResponse200) & {
+  headers: Headers;
+};
+export type getSkillRelatedResponseError = (getSkillRelatedResponse404) & {
+  headers: Headers;
+};
+
+export type getSkillRelatedResponse = (getSkillRelatedResponseSuccess | getSkillRelatedResponseError)
+
+export const getGetSkillRelatedUrl = (id: string,) => {
+
+
+
+
+  return `/api/skills/${id}/related`
+}
+
+export const getSkillRelated = async (id: string, options?: RequestInit): Promise<getSkillRelatedResponse> => {
+
+  return customFetch<getSkillRelatedResponse>(getGetSkillRelatedUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export type getSkillMaturityResponse200 = {
+  data: SkillMaturityResponse
+  status: 200
+}
+
+export type getSkillMaturityResponse404 = {
+  data: void
+  status: 404
+}
+
+export type getSkillMaturityResponseSuccess = (getSkillMaturityResponse200) & {
+  headers: Headers;
+};
+export type getSkillMaturityResponseError = (getSkillMaturityResponse404) & {
+  headers: Headers;
+};
+
+export type getSkillMaturityResponse = (getSkillMaturityResponseSuccess | getSkillMaturityResponseError)
+
+export const getGetSkillMaturityUrl = (id: string,) => {
+
+
+
+
+  return `/api/skills/${id}/maturity`
+}
+
+export const getSkillMaturity = async (id: string, options?: RequestInit): Promise<getSkillMaturityResponse> => {
+
+  return customFetch<getSkillMaturityResponse>(getGetSkillMaturityUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export type listMediaResponse200 = {
+  data: MediaAssetDto[]
+  status: 200
+}
+
+export type listMediaResponseSuccess = (listMediaResponse200) & {
+  headers: Headers;
+};
+;
+
+export type listMediaResponse = (listMediaResponseSuccess)
+
+export const getListMediaUrl = () => {
+
+
+
+
+  return `/api/media`
+}
+
+export const listMedia = async ( options?: RequestInit): Promise<listMediaResponse> => {
+
+  return customFetch<listMediaResponse>(getListMediaUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export type uploadMediaResponse200 = {
+  data: MediaUploadResponse
+  status: 200
+}
+
+export type uploadMediaResponse400 = {
+  data: string
+  status: 400
+}
+
+export type uploadMediaResponseSuccess = (uploadMediaResponse200) & {
+  headers: Headers;
+};
+export type uploadMediaResponseError = (uploadMediaResponse400) & {
+  headers: Headers;
+};
+
+export type uploadMediaResponse = (uploadMediaResponseSuccess | uploadMediaResponseError)
+
+export const getUploadMediaUrl = () => {
+
+
+
+
+  return `/api/media`
+}
+
+export const uploadMedia = async (uploadMediaBody: UploadMediaBody, options?: RequestInit): Promise<uploadMediaResponse> => {
+    const formData = new FormData();
+if(uploadMediaBody.file !== undefined) {
+ formData.append(`file`, uploadMediaBody.file);
+ }
+
+if(uploadMediaBody.altText !== undefined) {
+ formData.append(`altText`, uploadMediaBody.altText);
+ }
+
+if(uploadMediaBody.caption !== undefined) {
+ formData.append(`caption`, uploadMediaBody.caption);
+ }
+
+  return customFetch<uploadMediaResponse>(getUploadMediaUrl(),
+  {
+    ...options,
+    method: 'POST'
+    ,
+    body:
+      formData,
+  }
+);}
+
+
+
+export type getMediaResponse200 = {
+  data: MediaAssetDto
+  status: 200
+}
+
+export type getMediaResponse404 = {
+  data: void
+  status: 404
+}
+
+export type getMediaResponseSuccess = (getMediaResponse200) & {
+  headers: Headers;
+};
+export type getMediaResponseError = (getMediaResponse404) & {
+  headers: Headers;
+};
+
+export type getMediaResponse = (getMediaResponseSuccess | getMediaResponseError)
+
+export const getGetMediaUrl = (id: string,) => {
+
+
+
+
+  return `/api/media/${id}`
+}
+
+export const getMedia = async (id: string, options?: RequestInit): Promise<getMediaResponse> => {
+
+  return customFetch<getMediaResponse>(getGetMediaUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export type downloadMediaResponse404 = {
+  data: void
+  status: 404
+}
+
+;
+export type downloadMediaResponseError = (downloadMediaResponse404) & {
+  headers: Headers;
+};
+
+export type downloadMediaResponse = (downloadMediaResponseError)
+
+export const getDownloadMediaUrl = (id: string,) => {
+
+
+
+
+  return `/api/media/${id}/blob`
+}
+
+export const downloadMedia = async (id: string, options?: RequestInit): Promise<downloadMediaResponse> => {
+
+  return customFetch<downloadMediaResponse>(getDownloadMediaUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export type linkMediaToProjectResponse204 = {
+  data: void
+  status: 204
+}
+
+export type linkMediaToProjectResponse404 = {
+  data: void
+  status: 404
+}
+
+export type linkMediaToProjectResponseSuccess = (linkMediaToProjectResponse204) & {
+  headers: Headers;
+};
+export type linkMediaToProjectResponseError = (linkMediaToProjectResponse404) & {
+  headers: Headers;
+};
+
+export type linkMediaToProjectResponse = (linkMediaToProjectResponseSuccess | linkMediaToProjectResponseError)
+
+export const getLinkMediaToProjectUrl = (id: string,) => {
+
+
+
+
+  return `/api/media/${id}/links/projects`
+}
+
+export const linkMediaToProject = async (id: string,
+    linkMediaToProjectRequest: LinkMediaToProjectRequest, options?: RequestInit): Promise<linkMediaToProjectResponse> => {
+
+  return customFetch<linkMediaToProjectResponse>(getLinkMediaToProjectUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      linkMediaToProjectRequest,)
+  }
+);}
+
+
+
+export type linkMediaToSkillsResponse204 = {
+  data: void
+  status: 204
+}
+
+export type linkMediaToSkillsResponse404 = {
+  data: void
+  status: 404
+}
+
+export type linkMediaToSkillsResponseSuccess = (linkMediaToSkillsResponse204) & {
+  headers: Headers;
+};
+export type linkMediaToSkillsResponseError = (linkMediaToSkillsResponse404) & {
+  headers: Headers;
+};
+
+export type linkMediaToSkillsResponse = (linkMediaToSkillsResponseSuccess | linkMediaToSkillsResponseError)
+
+export const getLinkMediaToSkillsUrl = (id: string,) => {
+
+
+
+
+  return `/api/media/${id}/links/skills`
+}
+
+export const linkMediaToSkills = async (id: string,
+    linkMediaToSkillsRequest: LinkMediaToSkillsRequest, options?: RequestInit): Promise<linkMediaToSkillsResponse> => {
+
+  return customFetch<linkMediaToSkillsResponse>(getLinkMediaToSkillsUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      linkMediaToSkillsRequest,)
+  }
+);}
+
+
+
+export type listArtifactsResponse200 = {
+  data: ArtifactDto[]
+  status: 200
+}
+
+export type listArtifactsResponseSuccess = (listArtifactsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type listArtifactsResponse = (listArtifactsResponseSuccess)
+
+export const getListArtifactsUrl = () => {
+
+
+
+
+  return `/api/artifacts`
+}
+
+export const listArtifacts = async ( options?: RequestInit): Promise<listArtifactsResponse> => {
+
+  return customFetch<listArtifactsResponse>(getListArtifactsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export type registerArtifactResponse200 = {
+  data: RegisterArtifactResponse
+  status: 200
+}
+
+export type registerArtifactResponseSuccess = (registerArtifactResponse200) & {
+  headers: Headers;
+};
+;
+
+export type registerArtifactResponse = (registerArtifactResponseSuccess)
+
+export const getRegisterArtifactUrl = () => {
+
+
+
+
+  return `/api/artifacts`
+}
+
+export const registerArtifact = async (registerArtifactRequest: RegisterArtifactRequest, options?: RequestInit): Promise<registerArtifactResponse> => {
+
+  return customFetch<registerArtifactResponse>(getRegisterArtifactUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      registerArtifactRequest,)
+  }
+);}
+
+
+
+export type getArtifactResponse200 = {
+  data: ArtifactDto
+  status: 200
+}
+
+export type getArtifactResponse404 = {
+  data: void
+  status: 404
+}
+
+export type getArtifactResponseSuccess = (getArtifactResponse200) & {
+  headers: Headers;
+};
+export type getArtifactResponseError = (getArtifactResponse404) & {
+  headers: Headers;
+};
+
+export type getArtifactResponse = (getArtifactResponseSuccess | getArtifactResponseError)
+
+export const getGetArtifactUrl = (id: string,) => {
+
+
+
+
+  return `/api/artifacts/${id}`
+}
+
+export const getArtifact = async (id: string, options?: RequestInit): Promise<getArtifactResponse> => {
+
+  return customFetch<getArtifactResponse>(getGetArtifactUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export type linkArtifactToProjectResponse204 = {
+  data: void
+  status: 204
+}
+
+export type linkArtifactToProjectResponse404 = {
+  data: void
+  status: 404
+}
+
+export type linkArtifactToProjectResponseSuccess = (linkArtifactToProjectResponse204) & {
+  headers: Headers;
+};
+export type linkArtifactToProjectResponseError = (linkArtifactToProjectResponse404) & {
+  headers: Headers;
+};
+
+export type linkArtifactToProjectResponse = (linkArtifactToProjectResponseSuccess | linkArtifactToProjectResponseError)
+
+export const getLinkArtifactToProjectUrl = (id: string,) => {
+
+
+
+
+  return `/api/artifacts/${id}/links/project`
+}
+
+export const linkArtifactToProject = async (id: string,
+    linkArtifactToProjectRequest: LinkArtifactToProjectRequest, options?: RequestInit): Promise<linkArtifactToProjectResponse> => {
+
+  return customFetch<linkArtifactToProjectResponse>(getLinkArtifactToProjectUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      linkArtifactToProjectRequest,)
+  }
+);}
+
+
+
+export type linkArtifactToEngagementResponse204 = {
+  data: void
+  status: 204
+}
+
+export type linkArtifactToEngagementResponse404 = {
+  data: void
+  status: 404
+}
+
+export type linkArtifactToEngagementResponseSuccess = (linkArtifactToEngagementResponse204) & {
+  headers: Headers;
+};
+export type linkArtifactToEngagementResponseError = (linkArtifactToEngagementResponse404) & {
+  headers: Headers;
+};
+
+export type linkArtifactToEngagementResponse = (linkArtifactToEngagementResponseSuccess | linkArtifactToEngagementResponseError)
+
+export const getLinkArtifactToEngagementUrl = (id: string,) => {
+
+
+
+
+  return `/api/artifacts/${id}/links/engagement`
+}
+
+export const linkArtifactToEngagement = async (id: string,
+    linkArtifactToEngagementRequest: LinkArtifactToEngagementRequest, options?: RequestInit): Promise<linkArtifactToEngagementResponse> => {
+
+  return customFetch<linkArtifactToEngagementResponse>(getLinkArtifactToEngagementUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      linkArtifactToEngagementRequest,)
+  }
+);}
+
+
+
+export type linkArtifactToSkillResponse204 = {
+  data: void
+  status: 204
+}
+
+export type linkArtifactToSkillResponse404 = {
+  data: void
+  status: 404
+}
+
+export type linkArtifactToSkillResponseSuccess = (linkArtifactToSkillResponse204) & {
+  headers: Headers;
+};
+export type linkArtifactToSkillResponseError = (linkArtifactToSkillResponse404) & {
+  headers: Headers;
+};
+
+export type linkArtifactToSkillResponse = (linkArtifactToSkillResponseSuccess | linkArtifactToSkillResponseError)
+
+export const getLinkArtifactToSkillUrl = (id: string,) => {
+
+
+
+
+  return `/api/artifacts/${id}/links/skill`
+}
+
+export const linkArtifactToSkill = async (id: string,
+    linkArtifactToSkillRequest: LinkArtifactToSkillRequest, options?: RequestInit): Promise<linkArtifactToSkillResponse> => {
+
+  return customFetch<linkArtifactToSkillResponse>(getLinkArtifactToSkillUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      linkArtifactToSkillRequest,)
+  }
+);}
+
+
+
+export type listGoalsResponse200 = {
+  data: GoalDto[]
+  status: 200
+}
+
+export type listGoalsResponseSuccess = (listGoalsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type listGoalsResponse = (listGoalsResponseSuccess)
+
+export const getListGoalsUrl = () => {
+
+
+
+
+  return `/api/goals`
+}
+
+export const listGoals = async ( options?: RequestInit): Promise<listGoalsResponse> => {
+
+  return customFetch<listGoalsResponse>(getListGoalsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export type setGoalResponse200 = {
+  data: SetGoalResponse
+  status: 200
+}
+
+export type setGoalResponseSuccess = (setGoalResponse200) & {
+  headers: Headers;
+};
+;
+
+export type setGoalResponse = (setGoalResponseSuccess)
+
+export const getSetGoalUrl = () => {
+
+
+
+
+  return `/api/goals`
+}
+
+export const setGoal = async (setGoalRequest: SetGoalRequest, options?: RequestInit): Promise<setGoalResponse> => {
+
+  return customFetch<setGoalResponse>(getSetGoalUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      setGoalRequest,)
+  }
+);}
+
+
+
+export type getGoalResponse200 = {
+  data: GoalDto
+  status: 200
+}
+
+export type getGoalResponse404 = {
+  data: void
+  status: 404
+}
+
+export type getGoalResponseSuccess = (getGoalResponse200) & {
+  headers: Headers;
+};
+export type getGoalResponseError = (getGoalResponse404) & {
+  headers: Headers;
+};
+
+export type getGoalResponse = (getGoalResponseSuccess | getGoalResponseError)
+
+export const getGetGoalUrl = (id: string,) => {
+
+
+
+
+  return `/api/goals/${id}`
+}
+
+export const getGoal = async (id: string, options?: RequestInit): Promise<getGoalResponse> => {
+
+  return customFetch<getGoalResponse>(getGetGoalUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export type recordGoalProgressResponse204 = {
+  data: void
+  status: 204
+}
+
+export type recordGoalProgressResponse400 = {
+  data: string
+  status: 400
+}
+
+export type recordGoalProgressResponse404 = {
+  data: void
+  status: 404
+}
+
+export type recordGoalProgressResponseSuccess = (recordGoalProgressResponse204) & {
+  headers: Headers;
+};
+export type recordGoalProgressResponseError = (recordGoalProgressResponse400 | recordGoalProgressResponse404) & {
+  headers: Headers;
+};
+
+export type recordGoalProgressResponse = (recordGoalProgressResponseSuccess | recordGoalProgressResponseError)
+
+export const getRecordGoalProgressUrl = (id: string,) => {
+
+
+
+
+  return `/api/goals/${id}/progress`
+}
+
+export const recordGoalProgress = async (id: string,
+    recordProgressRequest: RecordProgressRequest, options?: RequestInit): Promise<recordGoalProgressResponse> => {
+
+  return customFetch<recordGoalProgressResponse>(getRecordGoalProgressUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      recordProgressRequest,)
+  }
+);}
+
+
+
+export type achieveGoalResponse204 = {
+  data: void
+  status: 204
+}
+
+export type achieveGoalResponse400 = {
+  data: string
+  status: 400
+}
+
+export type achieveGoalResponse404 = {
+  data: void
+  status: 404
+}
+
+export type achieveGoalResponseSuccess = (achieveGoalResponse204) & {
+  headers: Headers;
+};
+export type achieveGoalResponseError = (achieveGoalResponse400 | achieveGoalResponse404) & {
+  headers: Headers;
+};
+
+export type achieveGoalResponse = (achieveGoalResponseSuccess | achieveGoalResponseError)
+
+export const getAchieveGoalUrl = (id: string,) => {
+
+
+
+
+  return `/api/goals/${id}/achieve`
+}
+
+export const achieveGoal = async (id: string,
+    achieveGoalRequest: AchieveGoalRequest, options?: RequestInit): Promise<achieveGoalResponse> => {
+
+  return customFetch<achieveGoalResponse>(getAchieveGoalUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      achieveGoalRequest,)
+  }
+);}
+
+
+
+export type abandonGoalResponse204 = {
+  data: void
+  status: 204
+}
+
+export type abandonGoalResponse400 = {
+  data: string
+  status: 400
+}
+
+export type abandonGoalResponse404 = {
+  data: void
+  status: 404
+}
+
+export type abandonGoalResponseSuccess = (abandonGoalResponse204) & {
+  headers: Headers;
+};
+export type abandonGoalResponseError = (abandonGoalResponse400 | abandonGoalResponse404) & {
+  headers: Headers;
+};
+
+export type abandonGoalResponse = (abandonGoalResponseSuccess | abandonGoalResponseError)
+
+export const getAbandonGoalUrl = (id: string,) => {
+
+
+
+
+  return `/api/goals/${id}/abandon`
+}
+
+export const abandonGoal = async (id: string,
+    abandonGoalRequest: AbandonGoalRequest, options?: RequestInit): Promise<abandonGoalResponse> => {
+
+  return customFetch<abandonGoalResponse>(getAbandonGoalUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      abandonGoalRequest,)
+  }
+);}
+
+
+
+export type listExperiencesResponse200 = {
+  data: ExperienceDto[]
+  status: 200
+}
+
+export type listExperiencesResponseSuccess = (listExperiencesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type listExperiencesResponse = (listExperiencesResponseSuccess)
+
+export const getListExperiencesUrl = (params?: ListExperiencesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/experiences?${stringifiedParams}` : `/api/experiences`
+}
+
+export const listExperiences = async (params?: ListExperiencesParams, options?: RequestInit): Promise<listExperiencesResponse> => {
+
+  return customFetch<listExperiencesResponse>(getListExperiencesUrl(params),
   {
     ...options,
     method: 'GET'

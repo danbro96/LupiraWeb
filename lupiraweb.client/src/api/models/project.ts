@@ -4,22 +4,26 @@
  * LupiraWeb.Server | v1
  * OpenAPI spec version: 1.0.0
  */
+import type { ProjectKind } from './projectKind';
+import type { ProjectStatus } from './projectStatus';
 import type { Skill } from './skill';
 
 export interface Project {
   id: string;
+  kind: ProjectKind;
   title: string;
   /** @nullable */
   description?: string | null;
   /** @nullable */
   url?: string | null;
   /** @nullable */
-  startDate?: string | null;
+  start?: string | null;
   /** @nullable */
-  endDate?: string | null;
+  end?: string | null;
+  status?: ProjectStatus;
   /** @nullable */
-  employmentId?: string | null;
+  engagementId?: string | null;
   /** @nullable */
-  employmentCompany?: string | null;
+  engagementInstitution?: string | null;
   skills: Skill[];
 }
