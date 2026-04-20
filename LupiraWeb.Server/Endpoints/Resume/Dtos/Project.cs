@@ -1,5 +1,5 @@
-using LupiraWeb.Server.Domain;
-using ProjectDocument = LupiraWeb.Server.Domain.Project;
+using LupiraWeb.Domain;
+using ProjectDocument = LupiraWeb.Domain.Project;
 
 namespace LupiraWeb.Server.Endpoints.Resume.Dtos;
 

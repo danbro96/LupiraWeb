@@ -1,4 +1,4 @@
-using LupiraWeb.Server.Domain;
+using LupiraWeb.Domain;
 using LupiraWeb.Server.Endpoints.Media.Dtos;
 using LupiraWeb.Server.Infrastructure.BlobStorage;
 using Marten;

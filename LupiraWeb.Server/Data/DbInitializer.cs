@@ -1,6 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using LupiraWeb.Server.Domain;
+using LupiraWeb.Domain;
 using Marten;
 
 namespace LupiraWeb.Server.Data;

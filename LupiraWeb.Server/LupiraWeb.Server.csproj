@@ -30,6 +30,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\LupiraWeb.Domain\LupiraWeb.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Update="Data\seed.dev.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

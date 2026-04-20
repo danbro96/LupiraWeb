@@ -7,6 +7,7 @@
   <Project Path="docker-compose.dcproj">
     <Build />
   </Project>
+  <Project Path="LupiraWeb.Domain/LupiraWeb.Domain.csproj" />
   <Project Path="LupiraWeb.Server/LupiraWeb.Server.csproj" />
   <Project Path="LupiraWeb.Server.Tests/LupiraWeb.Server.Tests.csproj" />
 </Solution>

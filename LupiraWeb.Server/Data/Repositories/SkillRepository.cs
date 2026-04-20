@@ -1,4 +1,4 @@
-using LupiraWeb.Server.Domain;
+using LupiraWeb.Domain;
 using Marten;
 
 namespace LupiraWeb.Server.Data.Repositories;

@@ -1,6 +1,6 @@
 using Marten;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using LupiraWeb.Server.Domain;
+using LupiraWeb.Domain;
 
 namespace LupiraWeb.Server.Observability;
 

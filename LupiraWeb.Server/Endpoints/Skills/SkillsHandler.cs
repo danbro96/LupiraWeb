@@ -1,8 +1,8 @@
-using LupiraWeb.Server.Domain;
+using LupiraWeb.Domain;
 using LupiraWeb.Server.Endpoints.Skills.Dtos;
 using Marten;
 using Microsoft.AspNetCore.Http.HttpResults;
-using SkillDocument = LupiraWeb.Server.Domain.Skill;
+using SkillDocument = LupiraWeb.Domain.Skill;
 
 namespace LupiraWeb.Server.Endpoints.Skills;
 

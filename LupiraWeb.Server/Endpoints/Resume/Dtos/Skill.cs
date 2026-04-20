@@ -1,5 +1,5 @@
-using LupiraWeb.Server.Domain;
-using SkillDocument = LupiraWeb.Server.Domain.Skill;
+using LupiraWeb.Domain;
+using SkillDocument = LupiraWeb.Domain.Skill;
 
 namespace LupiraWeb.Server.Endpoints.Resume.Dtos;
 

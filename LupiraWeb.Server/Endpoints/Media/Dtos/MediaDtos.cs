@@ -1,4 +1,4 @@
-using LupiraWeb.Server.Domain;
+using LupiraWeb.Domain;
 
 namespace LupiraWeb.Server.Endpoints.Media.Dtos;
 

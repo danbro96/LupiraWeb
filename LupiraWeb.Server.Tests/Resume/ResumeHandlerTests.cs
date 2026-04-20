@@ -1,14 +1,14 @@
 using LupiraWeb.Server.Data.Repositories;
-using LupiraWeb.Server.Domain;
+using LupiraWeb.Domain;
 using LupiraWeb.Server.Endpoints.Resume;
 using Microsoft.AspNetCore.Http.HttpResults;
 using NSubstitute;
 using Xunit;
 using Dtos = LupiraWeb.Server.Endpoints.Resume.Dtos;
-using EngagementDocument = LupiraWeb.Server.Domain.Engagement;
-using ProjectDocument = LupiraWeb.Server.Domain.Project;
-using SkillDocument = LupiraWeb.Server.Domain.Skill;
-using MyInfoDocument = LupiraWeb.Server.Domain.MyInfo;
+using EngagementDocument = LupiraWeb.Domain.Engagement;
+using ProjectDocument = LupiraWeb.Domain.Project;
+using SkillDocument = LupiraWeb.Domain.Skill;
+using MyInfoDocument = LupiraWeb.Domain.MyInfo;
 
 namespace LupiraWeb.Server.Tests.Resume;
 

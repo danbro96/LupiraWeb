@@ -1,5 +1,5 @@
-using LupiraWeb.Server.Domain;
-using EngagementDocument = LupiraWeb.Server.Domain.Engagement;
+using LupiraWeb.Domain;
+using EngagementDocument = LupiraWeb.Domain.Engagement;
 
 namespace LupiraWeb.Server.Endpoints.Resume.Dtos;
 

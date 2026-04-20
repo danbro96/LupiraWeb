@@ -1,9 +1,9 @@
 using LupiraWeb.Server.Data.Repositories;
 using LupiraWeb.Server.Endpoints.Resume.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
-using EngagementDocument = LupiraWeb.Server.Domain.Engagement;
-using ProjectDocument = LupiraWeb.Server.Domain.Project;
-using SkillDocument = LupiraWeb.Server.Domain.Skill;
+using EngagementDocument = LupiraWeb.Domain.Engagement;
+using ProjectDocument = LupiraWeb.Domain.Project;
+using SkillDocument = LupiraWeb.Domain.Skill;
 
 namespace LupiraWeb.Server.Endpoints.Resume;
 

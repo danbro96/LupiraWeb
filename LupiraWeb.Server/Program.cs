@@ -1,6 +1,6 @@
 using LupiraWeb.Server.Data;
 using LupiraWeb.Server.Data.Repositories;
-using LupiraWeb.Server.Domain;
+using LupiraWeb.Domain;
 using LupiraWeb.Server.Endpoints.Artifacts;
 using LupiraWeb.Server.Endpoints.Experiences;
 using LupiraWeb.Server.Endpoints.Goals;

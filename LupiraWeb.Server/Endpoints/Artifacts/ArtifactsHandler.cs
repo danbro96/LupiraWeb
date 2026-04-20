@@ -1,4 +1,4 @@
-using LupiraWeb.Server.Domain;
+using LupiraWeb.Domain;
 using LupiraWeb.Server.Endpoints.Artifacts.Dtos;
 using Marten;
 using Microsoft.AspNetCore.Http.HttpResults;

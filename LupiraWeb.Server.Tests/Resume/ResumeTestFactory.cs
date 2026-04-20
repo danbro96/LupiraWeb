@@ -1,4 +1,4 @@
-using LupiraWeb.Server.Domain;
+using LupiraWeb.Domain;
 using Marten;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;

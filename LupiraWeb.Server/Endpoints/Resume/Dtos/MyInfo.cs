@@ -1,4 +1,4 @@
-using MyInfoDocument = LupiraWeb.Server.Domain.MyInfo;
+using MyInfoDocument = LupiraWeb.Domain.MyInfo;
 
 namespace LupiraWeb.Server.Endpoints.Resume.Dtos;
 
