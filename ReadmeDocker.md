@@ -1,12 +1,12 @@
-﻿# Docker Deployment Strategy (TrueNAS SCALE 25.10)
+# Docker Deployment Strategy (TrueNAS SCALE 25.10)
 
-This project is deployed using **two separate Docker images**:
-- **backend**: ASP.NET Core API
-- **frontend**: Vite + React SPA
+This project is deployed as **two separate Docker images**:
+- **backend** — ASP.NET Core 10 minimal API
+- **frontend** — Next.js 16 (standalone Node runtime)
 
-They are orchestrated together using **docker-compose**, which is the recommended and supported approach on **TrueNAS SCALE**.
+They are orchestrated together using **Docker Compose**, the recommended and supported approach on **TrueNAS SCALE**.
 
-This document explains how the pieces fit together, why certain settings exist, and how to deploy safely.
+This document explains how the pieces fit together, why certain settings exist, and how to deploy and develop safely — including from Visual Studio.
 
 ---
 
@@ -15,7 +15,7 @@ This document explains how the pieces fit together, why certain settings exist, 
 ```
 ┌────────────┐        http://backend:80/api
 │  Frontend  │  ───────────────────────────▶  Backend API
-│  (Vite)    │
+│ (Next.js)  │
 │            │  Browser access
 └─────▲──────┘        http(s)://frontend-host
       │
@@ -24,10 +24,10 @@ User Browser
 ```
 
 Key points:
-- Frontend and backend run in **separate containers**
-- Containers communicate over the **internal Docker network**
-- The browser only talks to the **frontend**
-- The frontend proxies `/api` calls to the backend
+- Frontend and backend run in **separate containers**.
+- Containers communicate over the **internal Docker network**.
+- The browser only talks to the **frontend**.
+- The frontend proxies `/api` calls to the backend via Next.js rewrites.
 
 ---
 
@@ -38,9 +38,9 @@ Key points:
 The backend supports three execution modes:
 - Local HTTP
 - Local HTTPS
-- Docker
+- Docker (Visual Studio "Container (Dockerfile)" profile)
 
-Relevant Docker profile:
+Relevant Docker profile — see [LupiraWeb.Server/Properties/launchSettings.json](LupiraWeb.Server/Properties/launchSettings.json):
 
 ```json
 "Container (Dockerfile)": {
@@ -57,123 +57,123 @@ Relevant Docker profile:
 
 ### Why this works in Docker
 
-- `ASPNETCORE_URLS=http://+:80` allows Kestrel to bind to **all interfaces**
-- Docker exposes port `80` internally
-- No hardcoded hostnames or ports
-- HTTPS can be terminated externally (recommended)
+- `ASPNETCORE_URLS=http://+:80` lets Kestrel bind to **all interfaces**.
+- Docker exposes port `80` internally.
+- No hardcoded hostnames or ports.
+- HTTPS can be terminated externally (recommended).
 
 ### API structure
 
-All endpoints are grouped under `/api`:
+All endpoints are grouped under `/api` (mapped per feature via endpoint extension classes — see [CLAUDE.md](CLAUDE.md) → Backend conventions).
 
-```csharp
-var api = app.MapGroup("/api");
-
-api.MapGet("/weatherforecast", () => { ... });
-```
-
-This is intentional:
-- Makes reverse proxying simple
-- Clean separation between API and SPA routing
-- Required for Vite proxying
-
-The OpenAPI document is generated from this API and consumed by **orval**.
+The OpenAPI document is emitted at build time to [lupiraweb.client/backend-openapi.json](lupiraweb.client/backend-openapi.json) and consumed by **Orval** to generate the typed client.
 
 ---
 
-## Frontend (Vite + React)
+## Frontend (Next.js)
 
-### Vite dev proxy
+### Dev proxy
+
+`/api/*` is rewritten to `API_BASE_URL` in [lupiraweb.client/next.config.ts](lupiraweb.client/next.config.ts):
 
 ```ts
-const devApiTarget = process.env.VITE_DEV_API || "http://localhost:5188";
-
-server: {
-  host: true,
-  port: 5173,
-  proxy: {
-    "/api": {
-      target: devApiTarget,
-      changeOrigin: true,
-      secure: false
-    }
-  }
-}
+// default: http://localhost:5188 (local dev)
+// in Docker:  http://backend:80   (service name DNS)
 ```
+
+The custom fetcher at [lupiraweb.client/src/api/fetcher.ts](lupiraweb.client/src/api/fetcher.ts) resolves the base URL based on `typeof window` — absolute URL on the server (RSC/route handlers), relative `/api` in the browser.
 
 ### What this achieves
 
-- During development:
-  - Frontend runs on `localhost:5173`
-  - API runs on `localhost:5188`
-  - Vite transparently proxies `/api` requests
-- Inside Docker:
-  - `VITE_DEV_API=http://backend:80`
-  - Frontend talks to backend via Docker DNS
+- During local dev: frontend on `localhost:3000`, API on `localhost:5188`, Next.js proxies `/api`.
+- Inside Docker: `API_BASE_URL=http://backend:80`; frontend talks to backend via Docker DNS.
 
-No CORS.
-No environment-specific code.
-Same `/api` paths everywhere.
+No CORS. No environment-specific code. Same `/api` paths everywhere.
 
 ---
 
 ## Orval Integration
 
-- Orval consumes the backend OpenAPI definition
-- Generates typed API clients for the frontend
-- Uses relative `/api` paths
+- Orval consumes the backend OpenAPI definition emitted at `dotnet build`.
+- Generates a typed API client for the frontend.
+- Uses relative `/api` paths.
 
-Because `/api` is stable across environments:
-- Generated clients work locally
-- Generated clients work in Docker
-- Generated clients work in production
-
-No regeneration is required for deployment.
+Because `/api` is stable across environments, the generated client works locally, in Docker, and in production with no regeneration for deployment.
 
 ---
 
-## Docker Compose Strategy
+## Docker Compose
 
-### Why docker-compose
+Two layered files following the standard Compose convention:
 
-- Native support in TrueNAS SCALE
-- Simple service discovery (`backend`, `frontend`)
-- Clear separation of concerns
-- Independent image updates
+### Base / prod — [docker-compose.yml](docker-compose.yml)
 
-### Recommended docker-compose.yml
+- Backend + frontend run from prebuilt images (`yourrepo/backend:latest`, `yourrepo/frontend:latest`).
+- Backend env `ASPNETCORE_ENVIRONMENT=Production`; frontend env `API_BASE_URL=http://backend:80`.
+- Backend data volume `lupira-db`.
+- Both services `restart: unless-stopped`.
 
-```yaml
-version: "3.9"
+Run prod-style (ignores the dev override):
+```bash
+docker compose -f docker-compose.yml up
+```
 
-services:
-  backend:
-    image: yourrepo/backend:latest
-    container_name: backend
-    environment:
-      ASPNETCORE_ENVIRONMENT: Production
-    ports:
-      - "8080:80"
-    restart: unless-stopped
+### Dev override — [docker-compose.override.yml](docker-compose.override.yml)
 
-  frontend:
-    image: yourrepo/frontend:latest
-    container_name: frontend
-    environment:
-      VITE_DEV_API: http://backend:80
-    ports:
-      - "3000:80"
-    depends_on:
-      - backend
-    restart: unless-stopped
+- Backend built from [LupiraWeb.Server/Dockerfile](LupiraWeb.Server/Dockerfile), exposed on `localhost:5188`.
+- Frontend runs `node:22` with [lupiraweb.client/](lupiraweb.client/) bind-mounted at `/app` and `npm run dev`, exposed on `localhost:3000`.
+- SQLite volume `lupira-db-dev` persisted at `/app/data` inside the backend.
+- Backend healthcheck hits `/health`; compose waits before the frontend starts.
+
+Plain `docker compose up` merges both files automatically — this is the default dev command:
+```bash
+docker compose up --build
 ```
 
 ### Notes
 
-- `backend` is reachable internally as `http://backend:80`
-- `frontend` exposes port `80` to the host
-- Browser only connects to frontend
-- Backend does **not** need to be public
+- `backend` is reachable internally as `http://backend:80`.
+- `frontend` exposes port `3000` to the host.
+- Browser only connects to the frontend.
+- Backend does **not** need to be public.
+- In production, don't ship the `override.yml` alongside the base file — it's the dev override by Docker convention.
+
+---
+
+## Running from Visual Studio 2022
+
+The solution [LupiraWeb.slnx](LupiraWeb.slnx) ships a **Docker Compose project** — [docker-compose.dcproj](docker-compose.dcproj) — that wraps the hand-authored compose files. Requires **Docker Desktop** running and the **Container Tools** workload installed via the Visual Studio Installer.
+
+### Option A — One-key full stack (recommended)
+
+1. Right-click **docker-compose** in Solution Explorer → **Set as Startup Project**.
+2. Press **F5**.
+
+Visual Studio:
+- Merges [docker-compose.yml](docker-compose.yml) + [docker-compose.override.yml](docker-compose.override.yml) and layers its own debug override on top (volume-mounts the backend build output, injects the remote debugger).
+- Builds images, starts both services, attaches the backend debugger.
+- Opens the browser at <http://localhost:3000> (configured via `DockerServiceUrl` in the dcproj).
+
+Breakpoints in controllers/handlers hit on the next request. Frontend code hot-reloads via the bind mount. When you edit backend code, Stop (Shift+F5) and F5 again — VS does an incremental rebuild, not a full image rebuild.
+
+### Option B — Backend only, containerized, with the debugger attached
+
+1. Set `LupiraWeb.Server` as the startup project.
+2. Launch profile: **Container (Dockerfile)**.
+3. Press **F5**.
+
+Same fast-mode debugging, but only the backend runs. Start the frontend separately with `npm run dev` in [lupiraweb.client/](lupiraweb.client/). Use this when you're doing backend-only work and don't want to wait for the frontend container.
+
+### Option C — Skip VS tooling, use the terminal
+
+1. Open **View → Terminal** (`` Ctrl+` ``).
+2. From the solution root:
+   ```bash
+   docker compose up --build
+   ```
+3. Backend: <http://localhost:5188> · Frontend: <http://localhost:3000>.
+
+No debugger attach, but useful when you want to inspect the exact behavior VS would see, without its injected debug override.
 
 ---
 
@@ -182,39 +182,40 @@ services:
 ### HTTPS
 
 Recommended:
-- Terminate TLS at a reverse proxy (Traefik, Nginx, TrueNAS ingress)
-- Run containers over HTTP internally
+- Terminate TLS at a reverse proxy (Traefik, Nginx, TrueNAS ingress).
+- Run containers over HTTP internally.
 
 Avoid:
-- Managing certificates inside containers
-- Exposing Kestrel HTTPS directly
+- Managing certificates inside containers.
+- Exposing Kestrel HTTPS directly.
 
 ### Environment variables
 
-- Use `Production` for backend in deployment
-- Do **not** use `launchSettings.json` in production
-- Dockerfile + environment variables define runtime behavior
+- Use `Production` for the backend in deployment.
+- Do **not** rely on `launchSettings.json` in production.
+- `Dockerfile` + environment variables define runtime behavior.
 
 ---
 
 ## Why This Strategy Is Solid
 
-- Clear API boundary (`/api`)
-- No CORS complexity
-- Docker-native networking
-- Works identically in dev and prod
-- Compatible with TrueNAS SCALE app model
-- Frontend and backend can scale independently
+- Clear API boundary (`/api`).
+- No CORS complexity.
+- Docker-native networking.
+- Works identically in dev and prod.
+- Compatible with the TrueNAS SCALE app model.
+- Frontend and backend can scale independently.
 
 ---
 
 ## Summary
 
 This setup provides:
-- Clean separation of frontend and backend
-- Predictable networking
-- Simple deployment on TrueNAS SCALE
-- Zero environment-specific frontend code
-- Safe OpenAPI-driven client generation
+- Clean separation of frontend and backend.
+- Predictable networking.
+- Simple deployment on TrueNAS SCALE.
+- Zero environment-specific frontend code.
+- Safe OpenAPI-driven client generation.
+- First-class Visual Studio debugging via the `docker-compose.dcproj` (full stack) or `Container (Dockerfile)` (backend only) profiles.
 
-This is a production-grade Docker deployment pattern for ASP.NET Core + Vite.
+A production-grade Docker deployment pattern for ASP.NET Core + Next.js.
