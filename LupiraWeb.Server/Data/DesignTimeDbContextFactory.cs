@@ -8,7 +8,7 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<AppDbConte
     public AppDbContext CreateDbContext(string[] args)
     {
         var opts = new DbContextOptionsBuilder<AppDbContext>()
-            .UseSqlite("Data Source=./app_data/lupiraweb.db")
+            .UseNpgsql("Host=localhost;Port=5432;Database=lupiraweb;Username=lupira;Password=lupira")
             .Options;
         return new AppDbContext(opts);
     }

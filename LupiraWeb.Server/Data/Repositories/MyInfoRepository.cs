@@ -1,10 +1,10 @@
-using LupiraWeb.Server.Data.Entities;
-using Microsoft.EntityFrameworkCore;
+using LupiraWeb.Server.Domain;
+using Marten;
 
 namespace LupiraWeb.Server.Data.Repositories;
 
-internal sealed class MyInfoRepository(AppDbContext db) : IMyInfoRepository
+internal sealed class MyInfoRepository(IQuerySession session) : IMyInfoRepository
 {
-    public Task<MyInfoEntity?> GetAsync(CancellationToken ct) =>
-        db.MyInfo.AsNoTracking().FirstOrDefaultAsync(ct);
+    public Task<MyInfo?> GetAsync(CancellationToken ct) =>
+        session.LoadAsync<MyInfo>(MyInfo.SingletonId, ct);
 }

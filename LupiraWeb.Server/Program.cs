@@ -2,6 +2,7 @@ using LupiraWeb.Server.Data;
 using LupiraWeb.Server.Data.Repositories;
 using LupiraWeb.Server.Endpoints.Resume;
 using LupiraWeb.Server.Observability;
+using Marten;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
@@ -10,10 +11,22 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
 
-var connectionString = builder.Configuration.GetConnectionString("AppDb")
-    ?? "Data Source=./app_data/lupiraweb.db;Cache=Shared";
+const string DefaultConnectionString =
+    "Host=localhost;Port=5432;Database=lupiraweb;Username=lupira;Password=lupira";
 
-builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlite(connectionString));
+builder.Services.AddDbContext<AppDbContext>((sp, o) =>
+    o.UseNpgsql(sp.GetRequiredService<IConfiguration>().GetConnectionString("AppDb")
+        ?? DefaultConnectionString));
+
+builder.Services.AddMarten(sp =>
+{
+    var opts = new Marten.StoreOptions();
+    opts.Connection(sp.GetRequiredService<IConfiguration>().GetConnectionString("AppDb")
+        ?? DefaultConnectionString);
+    opts.UseSystemTextJsonForSerialization();
+    opts.DatabaseSchemaName = "marten";
+    return opts;
+}).UseLightweightSessions();
 
 builder.Services.AddScoped<IMyInfoRepository, MyInfoRepository>();
 builder.Services.AddScoped<IEmploymentRepository, EmploymentRepository>();

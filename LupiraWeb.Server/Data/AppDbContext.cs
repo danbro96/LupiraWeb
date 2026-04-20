@@ -5,22 +5,14 @@ namespace LupiraWeb.Server.Data;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
-    public DbSet<MyInfoEntity> MyInfo => Set<MyInfoEntity>();
     public DbSet<EmploymentEntity> Employments => Set<EmploymentEntity>();
     public DbSet<ProjectEntity> Projects => Set<ProjectEntity>();
     public DbSet<SkillEntity> Skills => Set<SkillEntity>();
     public DbSet<EmploymentSkillEntity> EmploymentSkills => Set<EmploymentSkillEntity>();
     public DbSet<ProjectSkillEntity> ProjectSkills => Set<ProjectSkillEntity>();
-    public DbSet<EventEntity> Events => Set<EventEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<MyInfoEntity>(b =>
-        {
-            b.ToTable("MyInfo");
-            b.HasKey(x => x.Id);
-        });
-
         modelBuilder.Entity<EmploymentEntity>(b =>
         {
             b.ToTable("Employments");
@@ -68,15 +60,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             b.HasOne(x => x.Skill)
                 .WithMany(s => s.ProjectSkills)
                 .HasForeignKey(x => x.SkillId);
-        });
-
-        modelBuilder.Entity<EventEntity>(b =>
-        {
-            b.ToTable("Events");
-            b.HasKey(x => x.Id);
-            b.HasIndex(x => new { x.AggregateId, x.Sequence }).IsUnique();
-            b.HasIndex(x => x.OccurredAt);
-            b.Property(x => x.PayloadJson).HasColumnType("TEXT");
         });
     }
 }

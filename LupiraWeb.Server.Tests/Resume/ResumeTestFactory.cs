@@ -1,11 +1,13 @@
 using LupiraWeb.Server.Data;
 using LupiraWeb.Server.Data.Entities;
+using LupiraWeb.Server.Domain;
+using Marten;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+using Testcontainers.PostgreSql;
 
 namespace LupiraWeb.Server.Tests.Resume;
 
@@ -15,47 +17,68 @@ public class ResumeTestFactory : WebApplicationFactory<Program>
     public static readonly Guid SeededProjectId = Guid.Parse("20000000-0000-0000-0000-000000000001");
     public static readonly Guid SeededSkillId = Guid.Parse("30000000-0000-0000-0000-000000000001");
 
-    private readonly SqliteConnection _connection = new("DataSource=:memory:");
+    private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder()
+        .WithImage("postgres:17-alpine")
+        .Build();
+
+    public ResumeTestFactory()
+    {
+        _postgres.StartAsync().GetAwaiter().GetResult();
+    }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        _connection.Open();
-
         builder.UseEnvironment("Testing");
+
+        var connectionString = _postgres.GetConnectionString();
+
+        builder.ConfigureAppConfiguration(cfg =>
+        {
+            cfg.AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ConnectionStrings:AppDb"] = connectionString,
+            });
+        });
 
         builder.ConfigureServices(services =>
         {
-            services.RemoveAll<DbContextOptions<AppDbContext>>();
-            services.RemoveAll<AppDbContext>();
+            using var sp = services.BuildServiceProvider();
+            using var scope = sp.CreateScope();
 
-            services.AddDbContext<AppDbContext>(o => o.UseSqlite(_connection));
-
-            using var scope = services.BuildServiceProvider().CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             db.Database.EnsureCreated();
-            SeedFixture(db);
+
+            var store = scope.ServiceProvider.GetRequiredService<IDocumentStore>();
+            SeedFixture(db, store).GetAwaiter().GetResult();
         });
     }
 
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
-        if (disposing) _connection.Dispose();
+        if (disposing)
+        {
+            _postgres.DisposeAsync().AsTask().GetAwaiter().GetResult();
+        }
     }
 
-    private static void SeedFixture(AppDbContext db)
+    private static async Task SeedFixture(AppDbContext db, IDocumentStore store)
     {
-        if (db.MyInfo.Any()) return;
+        if (db.Employments.Any()) return;
 
         var now = DateTimeOffset.UtcNow;
 
-        db.MyInfo.Add(new MyInfoEntity
+        await using (var session = store.LightweightSession())
         {
-            Id = MyInfoEntity.SingletonId,
-            FullName = "Test User",
-            Email = "test@example.com",
-            Tagline = "Tester",
-        });
+            session.Store(new MyInfo
+            {
+                Id = MyInfo.SingletonId,
+                FullName = "Test User",
+                Email = "test@example.com",
+                Tagline = "Tester",
+            });
+            await session.SaveChangesAsync();
+        }
 
         var skill = new SkillEntity
         {
@@ -94,6 +117,6 @@ public class ResumeTestFactory : WebApplicationFactory<Program>
             GainedAt = now,
         });
 
-        db.SaveChanges();
+        await db.SaveChangesAsync();
     }
 }

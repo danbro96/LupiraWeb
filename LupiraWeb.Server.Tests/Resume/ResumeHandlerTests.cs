@@ -5,6 +5,7 @@ using LupiraWeb.Server.Endpoints.Resume.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
 using NSubstitute;
 using Xunit;
+using MyInfoDocument = LupiraWeb.Server.Domain.MyInfo;
 
 namespace LupiraWeb.Server.Tests.Resume;
 
@@ -25,7 +26,7 @@ public class ResumeHandlerTests
     public async Task GetMeAsync_returns_NotFound_when_repository_is_empty()
     {
         var myInfoRepository = Substitute.For<IMyInfoRepository>();
-        myInfoRepository.GetAsync(Arg.Any<CancellationToken>()).Returns((MyInfoEntity?)null);
+        myInfoRepository.GetAsync(Arg.Any<CancellationToken>()).Returns((MyInfoDocument?)null);
         var handler = CreateHandler(myInfoRepository: myInfoRepository);
 
         var result = await handler.GetMeAsync(CancellationToken.None);
@@ -37,9 +38,9 @@ public class ResumeHandlerTests
     public async Task GetMeAsync_returns_Ok_with_dto_when_present()
     {
         var myInfoRepository = Substitute.For<IMyInfoRepository>();
-        myInfoRepository.GetAsync(Arg.Any<CancellationToken>()).Returns(new MyInfoEntity
+        myInfoRepository.GetAsync(Arg.Any<CancellationToken>()).Returns(new MyInfoDocument
         {
-            Id = MyInfoEntity.SingletonId,
+            Id = MyInfoDocument.SingletonId,
             FullName = "Daniel Broström",
             Email = "daniel.brostrom@strivo.se",
         });

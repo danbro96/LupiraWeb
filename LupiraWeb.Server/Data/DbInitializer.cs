@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using LupiraWeb.Server.Data.Entities;
+using LupiraWeb.Server.Domain;
+using Marten;
 using Microsoft.EntityFrameworkCore;
 
 namespace LupiraWeb.Server.Data;
@@ -17,14 +19,9 @@ public static class DbInitializer
     {
         await using var scope = services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var store = scope.ServiceProvider.GetRequiredService<IDocumentStore>();
 
-        EnsureSqliteDirectoryExists(db.Database.GetConnectionString());
-
-        await db.Database.MigrateAsync();
-        await db.Database.ExecuteSqlRawAsync("PRAGMA journal_mode=WAL;");
-
-        if (await db.MyInfo.AnyAsync())
-            return;
+        await db.Database.EnsureCreatedAsync();
 
         var seedPath = Path.Combine(AppContext.BaseDirectory, "Data", "seed.dev.json");
         if (!File.Exists(seedPath))
@@ -34,31 +31,34 @@ public static class DbInitializer
         var seed = JsonSerializer.Deserialize<SeedPayload>(json, JsonOptions)
             ?? throw new InvalidOperationException("Failed to parse seed.dev.json");
 
-        await SeedAsync(db, seed);
+        await SeedMyInfoAsync(store, seed.MyInfo);
+        await SeedRelationalAsync(db, seed);
     }
 
-    private static async Task SeedAsync(AppDbContext db, SeedPayload seed)
+    private static async Task SeedMyInfoAsync(IDocumentStore store, SeedMyInfo seed)
     {
-        var now = DateTimeOffset.UtcNow;
-        long sequence = 0;
+        await using var session = store.LightweightSession();
+        var existing = await session.LoadAsync<MyInfo>(MyInfo.SingletonId);
+        if (existing is not null) return;
 
-        var myInfo = new MyInfoEntity
+        session.Store(new MyInfo
         {
-            Id = MyInfoEntity.SingletonId,
-            FullName = seed.MyInfo.FullName,
-            Email = seed.MyInfo.Email,
-            Tagline = seed.MyInfo.Tagline,
-            Bio = seed.MyInfo.Bio,
-            Location = seed.MyInfo.Location,
-            GithubUrl = seed.MyInfo.GithubUrl,
-            LinkedInUrl = seed.MyInfo.LinkedInUrl,
-            WebsiteUrl = seed.MyInfo.WebsiteUrl,
-        };
-        db.MyInfo.Add(myInfo);
-        db.Events.Add(EventFor(myInfo.Id, "MyInfo", "MyInfoSet",
-            new { myInfo.Id, myInfo.FullName, myInfo.Email, myInfo.Tagline, myInfo.Bio,
-                  myInfo.Location, myInfo.GithubUrl, myInfo.LinkedInUrl, myInfo.WebsiteUrl },
-            now, ++sequence));
+            Id = MyInfo.SingletonId,
+            FullName = seed.FullName,
+            Email = seed.Email,
+            Tagline = seed.Tagline,
+            Bio = seed.Bio,
+            Location = seed.Location,
+            GithubUrl = seed.GithubUrl,
+            LinkedInUrl = seed.LinkedInUrl,
+            WebsiteUrl = seed.WebsiteUrl,
+        });
+        await session.SaveChangesAsync();
+    }
+
+    private static async Task SeedRelationalAsync(AppDbContext db, SeedPayload seed)
+    {
+        if (db.Skills.Any()) return;
 
         var skillsByName = new Dictionary<string, SkillEntity>(StringComparer.OrdinalIgnoreCase);
         foreach (var s in seed.Skills)
@@ -71,9 +71,6 @@ public static class DbInitializer
             };
             skillsByName[s.Name] = skill;
             db.Skills.Add(skill);
-            db.Events.Add(EventFor(skill.Id, "Skill", "SkillAdded",
-                new { skill.Id, skill.Name, skill.Category },
-                now, ++sequence));
         }
 
         var employmentsByCompany = new Dictionary<string, EmploymentEntity>(StringComparer.OrdinalIgnoreCase);
@@ -91,10 +88,6 @@ public static class DbInitializer
             };
             employmentsByCompany[e.Company] = employment;
             db.Employments.Add(employment);
-            db.Events.Add(EventFor(employment.Id, "Employment", "EmploymentAdded",
-                new { employment.Id, employment.Company, employment.Title,
-                      employment.StartDate, employment.EndDate, employment.Summary, employment.Location },
-                now, ++sequence));
 
             foreach (var skillName in e.Skills)
             {
@@ -106,10 +99,6 @@ public static class DbInitializer
                     SkillId = skill.Id,
                     GainedAt = DeriveGainedAt(employment.StartDate),
                 });
-                db.Events.Add(EventFor(
-                    employment.Id, "Employment", "SkillTaggedToEmployment",
-                    new { EmploymentId = employment.Id, SkillId = skill.Id, GainedAt = DeriveGainedAt(employment.StartDate) },
-                    now, ++sequence));
             }
         }
 
@@ -133,10 +122,6 @@ public static class DbInitializer
                 EmploymentId = employmentId,
             };
             db.Projects.Add(project);
-            db.Events.Add(EventFor(project.Id, "Project", "ProjectAdded",
-                new { project.Id, project.Title, project.Description, project.Url,
-                      project.StartDate, project.EndDate, project.EmploymentId },
-                now, ++sequence));
 
             var gainedAt = DeriveGainedAt(p.StartDate);
             foreach (var skillName in p.Skills)
@@ -149,10 +134,6 @@ public static class DbInitializer
                     SkillId = skill.Id,
                     GainedAt = gainedAt,
                 });
-                db.Events.Add(EventFor(
-                    project.Id, "Project", "SkillTaggedToProject",
-                    new { ProjectId = project.Id, SkillId = skill.Id, GainedAt = gainedAt },
-                    now, ++sequence));
             }
         }
 
@@ -163,32 +144,6 @@ public static class DbInitializer
         sourceDate is DateOnly d
             ? new DateTimeOffset(d.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero)
             : DateTimeOffset.UtcNow;
-
-    private static EventEntity EventFor(
-        Guid aggregateId, string aggregateType, string eventType,
-        object payload, DateTimeOffset occurredAt, long sequence) => new()
-    {
-        Id = Guid.CreateVersion7(),
-        AggregateId = aggregateId,
-        AggregateType = aggregateType,
-        EventType = eventType,
-        PayloadJson = JsonSerializer.Serialize(
-            new { schemaVersion = 1, data = payload },
-            JsonOptions),
-        OccurredAt = occurredAt,
-        Sequence = sequence,
-    };
-
-    private static void EnsureSqliteDirectoryExists(string? connectionString)
-    {
-        if (string.IsNullOrWhiteSpace(connectionString)) return;
-        var builder = new Microsoft.Data.Sqlite.SqliteConnectionStringBuilder(connectionString);
-        if (string.IsNullOrWhiteSpace(builder.DataSource)) return;
-        if (builder.DataSource.StartsWith(":memory:", StringComparison.OrdinalIgnoreCase)) return;
-        var dir = Path.GetDirectoryName(Path.GetFullPath(builder.DataSource));
-        if (!string.IsNullOrWhiteSpace(dir))
-            Directory.CreateDirectory(dir);
-    }
 
     private sealed record SeedPayload(
         SeedMyInfo MyInfo,

@@ -1,4 +1,4 @@
-using LupiraWeb.Server.Data.Entities;
+using MyInfoDocument = LupiraWeb.Server.Domain.MyInfo;
 
 namespace LupiraWeb.Server.Endpoints.Resume.Dtos;
 
@@ -14,7 +14,7 @@ public sealed record MyInfo
     public string? LinkedInUrl { get; set; }
     public string? WebsiteUrl { get; set; }
 
-    public static MyInfo From(MyInfoEntity m) => new()
+    public static MyInfo From(MyInfoDocument m) => new()
     {
         Id = m.Id,
         FullName = m.FullName,

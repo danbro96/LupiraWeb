@@ -1,6 +1,6 @@
-namespace LupiraWeb.Server.Data.Entities;
+namespace LupiraWeb.Server.Domain;
 
-public class MyInfoEntity
+public sealed class MyInfo
 {
     public static readonly Guid SingletonId = Guid.Parse("00000000-0000-0000-0000-000000000001");
 

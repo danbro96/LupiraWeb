@@ -1,13 +1,31 @@
 services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: lupira-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-lupiraweb}
+      POSTGRES_USER: ${POSTGRES_USER:-lupira}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - lupira-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-lupira} -d ${POSTGRES_DB:-lupiraweb}"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
   backend:
     image: yourrepo/backend:latest
     container_name: backend
     environment:
       ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__AppDb: Host=postgres;Port=5432;Database=${POSTGRES_DB:-lupiraweb};Username=${POSTGRES_USER:-lupira};Password=${POSTGRES_PASSWORD}
     ports:
       - "8080:80"
-    volumes:
-      - lupira-db:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:80/health || exit 1"]
       interval: 10s
@@ -27,4 +45,4 @@ services:
     restart: unless-stopped
 
 volumes:
-  lupira-db:
+  lupira-pg:

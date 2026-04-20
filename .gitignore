@@ -103,8 +103,3 @@ appsettings.Development.local.json
 .claude/settings.local.json
 .claude/.history/
 
-# ---- Local SQLite database ----
-LupiraWeb.Server/app_data/
-*.db
-*.db-shm
-*.db-wal

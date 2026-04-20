@@ -15,7 +15,6 @@ WORKDIR /app
 ENV ASPNETCORE_URLS=http://+:80;https://+:443
 COPY --from=build /app/publish .
 
-RUN mkdir -p /app/data && chown -R app:app /app/data
 USER app
 
 EXPOSE 80
