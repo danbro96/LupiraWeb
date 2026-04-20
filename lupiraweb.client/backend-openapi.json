@@ -164,6 +164,108 @@
           }
         }
       }
+    },
+    "/api/skills/{id}/timeline": {
+      "get": {
+        "tags": [
+          "Skills"
+        ],
+        "operationId": "GetSkillTimeline",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SkillTimelineResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/skills/{id}/related": {
+      "get": {
+        "tags": [
+          "Skills"
+        ],
+        "operationId": "GetSkillRelated",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SkillRelatedResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/skills/{id}/maturity": {
+      "get": {
+        "tags": [
+          "Skills"
+        ],
+        "operationId": "GetSkillMaturity",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SkillMaturityResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -246,6 +348,9 @@
       "EngagementKind": {
         "type": "integer"
       },
+      "Intensity": {
+        "type": "integer"
+      },
       "Location": {
         "required": [
           "kind",
@@ -272,6 +377,9 @@
         }
       },
       "LocationKind": {
+        "type": "integer"
+      },
+      "Maturity": {
         "type": "integer"
       },
       "MyInfo": {
@@ -428,6 +536,207 @@
       "SkillCategory": {
         "type": "integer"
       },
+      "SkillContextKind": {
+        "type": "integer"
+      },
+      "SkillMaturityPointDto": {
+        "required": [
+          "occurredOn",
+          "maturity"
+        ],
+        "type": "object",
+        "properties": {
+          "occurredOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "maturity": {
+            "$ref": "#/components/schemas/Maturity"
+          },
+          "reason": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "SkillMaturityResponse": {
+        "required": [
+          "skillId",
+          "current",
+          "trajectory"
+        ],
+        "type": "object",
+        "properties": {
+          "skillId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "current": {
+            "$ref": "#/components/schemas/Maturity"
+          },
+          "trajectory": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SkillMaturityPointDto"
+            }
+          }
+        }
+      },
+      "SkillRelatedEntry": {
+        "required": [
+          "skillId",
+          "name",
+          "count"
+        ],
+        "type": "object",
+        "properties": {
+          "skillId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "count": {
+            "pattern": "^-?(?:0|[1-9]\\d*)$",
+            "type": [
+              "integer",
+              "string"
+            ],
+            "format": "int32"
+          },
+          "firstSeen": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          },
+          "lastSeen": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          }
+        }
+      },
+      "SkillRelatedResponse": {
+        "required": [
+          "skillId",
+          "related"
+        ],
+        "type": "object",
+        "properties": {
+          "skillId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "related": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SkillRelatedEntry"
+            }
+          }
+        }
+      },
+      "SkillTimelineEntryDto": {
+        "required": [
+          "kind",
+          "occurredOn"
+        ],
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "occurredOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "contextKind": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SkillContextKind"
+              }
+            ]
+          },
+          "contextId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "contextLabel": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "intensity": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Intensity"
+              }
+            ]
+          },
+          "maturity": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Maturity"
+              }
+            ]
+          },
+          "otherSkillId": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "uuid"
+          },
+          "note": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "SkillTimelineResponse": {
+        "required": [
+          "skillId",
+          "name",
+          "entries"
+        ],
+        "type": "object",
+        "properties": {
+          "skillId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SkillTimelineEntryDto"
+            }
+          }
+        }
+      },
       "TitleEpochDto": {
         "required": [
           "titleId",
@@ -461,6 +770,9 @@
   "tags": [
     {
       "name": "Resume"
+    },
+    {
+      "name": "Skills"
     }
   ]
 }

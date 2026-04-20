@@ -58,6 +58,8 @@ public static class DbInitializer
                 new SkillRegistered(skillId, s.Name, s.Category, null, null));
         }
 
+        var learned = new HashSet<Guid>();
+
         var engagementIdsByCompany = new Dictionary<string, Guid>(StringComparer.OrdinalIgnoreCase);
         foreach (var e in seed.Employments)
         {
@@ -75,20 +77,28 @@ public static class DbInitializer
                     Summary: e.Summary),
                 new TitleAssumed(engagementId, titleId, e.Title, e.StartDate));
 
-            if (e.EndDate is DateOnly end)
+            if (e.EndDate is DateOnly endDate)
             {
                 session.Events.Append(engagementId,
-                    new TitleRetired(engagementId, titleId, end),
-                    new EngagementEnded(engagementId, end, Reason: null));
+                    new TitleRetired(engagementId, titleId, endDate),
+                    new EngagementEnded(engagementId, endDate, Reason: null));
             }
 
+            var engagementSkillIds = new List<Guid>();
             foreach (var skillName in e.Skills)
             {
                 if (!skillIdsByName.TryGetValue(skillName, out var skillId))
                     continue;
+                engagementSkillIds.Add(skillId);
                 session.Events.Append(engagementId,
                     new EngagementSkillAttached(engagementId, skillId, e.StartDate));
+
+                EmitSkillEdgeEvent(session, skillId, e.StartDate,
+                    SkillEdgeContext.InEngagement(engagementId), learned);
             }
+
+            EmitPairCombinations(session, engagementSkillIds, e.StartDate,
+                ctx => SkillEdgeContext.InEngagement(engagementId));
         }
 
         foreach (var p in seed.Projects)
@@ -102,6 +112,7 @@ public static class DbInitializer
             }
 
             var kind = engagementId.HasValue ? ProjectKind.Professional : ProjectKind.Personal;
+            var occurredOn = p.StartDate ?? DateOnly.FromDateTime(DateTime.UtcNow);
 
             session.Events.StartStream<Project>(projectId,
                 new ProjectStarted(
@@ -113,22 +124,73 @@ public static class DbInitializer
                     p.Url,
                     p.StartDate));
 
-            if (p.EndDate is DateOnly end)
+            if (p.EndDate is DateOnly projectEnd)
             {
                 session.Events.Append(projectId,
-                    new ProjectShipped(projectId, end, Outcome: null));
+                    new ProjectShipped(projectId, projectEnd, Outcome: null));
             }
 
+            var projectSkillIds = new List<Guid>();
             foreach (var skillName in p.Skills)
             {
                 if (!skillIdsByName.TryGetValue(skillName, out var skillId))
                     continue;
+                projectSkillIds.Add(skillId);
                 session.Events.Append(projectId,
                     new ProjectSkillAttached(projectId, skillId, p.StartDate));
+
+                EmitSkillEdgeEvent(session, skillId, occurredOn,
+                    SkillEdgeContext.InProject(projectId), learned);
             }
+
+            EmitPairCombinations(session, projectSkillIds, occurredOn,
+                ctx => SkillEdgeContext.InProject(projectId));
         }
 
         await session.SaveChangesAsync();
+    }
+
+    private static void EmitSkillEdgeEvent(
+        IDocumentSession session,
+        Guid skillId,
+        DateOnly occurredOn,
+        SkillEdgeContext context,
+        HashSet<Guid> learned)
+    {
+        if (learned.Add(skillId))
+        {
+            session.Events.Append(skillId,
+                new SkillLearned(skillId, occurredOn, Maturity.Working, context, Evidence: null, Location: null));
+        }
+        else
+        {
+            session.Events.Append(skillId,
+                new SkillApplied(skillId, occurredOn, Intensity.Regular, context, Evidence: null, Location: null));
+        }
+    }
+
+    private static void EmitPairCombinations(
+        IDocumentSession session,
+        IReadOnlyList<Guid> skillIds,
+        DateOnly occurredOn,
+        Func<object, SkillEdgeContext> contextFactory)
+    {
+        for (var i = 0; i < skillIds.Count; i++)
+        {
+            for (var j = i + 1; j < skillIds.Count; j++)
+            {
+                var a = skillIds[i];
+                var b = skillIds[j];
+                var (primary, secondary) = a.CompareTo(b) < 0 ? (a, b) : (b, a);
+
+                session.Events.Append(primary,
+                    new SkillsCombined(primary, secondary, occurredOn, IsPrimary: true,
+                        contextFactory(null!), Evidence: null));
+                session.Events.Append(secondary,
+                    new SkillsCombined(secondary, primary, occurredOn, IsPrimary: false,
+                        contextFactory(null!), Evidence: null));
+            }
+        }
     }
 
     private sealed record SeedPayload(

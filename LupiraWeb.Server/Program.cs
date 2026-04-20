@@ -2,6 +2,7 @@ using LupiraWeb.Server.Data;
 using LupiraWeb.Server.Data.Repositories;
 using LupiraWeb.Server.Domain;
 using LupiraWeb.Server.Endpoints.Resume;
+using LupiraWeb.Server.Endpoints.Skills;
 using LupiraWeb.Server.Observability;
 using JasperFx;
 using JasperFx.Events.Projections;
@@ -30,6 +31,9 @@ builder.Services.AddMarten(sp =>
     opts.Projections.Snapshot<Engagement>(SnapshotLifecycle.Inline);
     opts.Projections.Snapshot<Project>(SnapshotLifecycle.Inline);
     opts.Projections.Add<EngagementTitleHistoryProjection>(ProjectionLifecycle.Inline);
+    opts.Projections.Add<SkillTimelineProjection>(ProjectionLifecycle.Inline);
+    opts.Projections.Add<SkillMaturityProjection>(ProjectionLifecycle.Inline);
+    opts.Projections.Add<SkillAdjacencyProjection>(ProjectionLifecycle.Inline);
 
     return opts;
 }).UseLightweightSessions();
@@ -40,6 +44,7 @@ builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<ISkillRepository, SkillRepository>();
 
 builder.Services.AddScoped<ResumeHandler>();
+builder.Services.AddScoped<LupiraWeb.Server.Endpoints.Skills.SkillsHandler>();
 
 builder.Services.AddHealthChecks()
     .AddCheck<MartenHealthCheck>("marten", tags: new[] { "ready" });
@@ -65,6 +70,7 @@ app.MapHealthChecks("/health", new HealthCheckOptions { Predicate = _ => false }
 app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = r => r.Tags.Contains("ready") });
 
 app.MapResumeEndpoints();
+app.MapSkillsEndpoints();
 
 app.Run();
 

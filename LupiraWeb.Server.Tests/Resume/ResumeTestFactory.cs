@@ -73,7 +73,9 @@ public class ResumeTestFactory : WebApplicationFactory<Program>
         var start = new DateOnly(2023, 1, 1);
 
         session.Events.StartStream<Skill>(SeededSkillId,
-            new SkillRegistered(SeededSkillId, "C#", SkillCategory.Language, null, null));
+            new SkillRegistered(SeededSkillId, "C#", SkillCategory.Language, null, null),
+            new SkillLearned(SeededSkillId, start, Maturity.Working,
+                SkillEdgeContext.InEngagement(SeededEngagementId), null, null));
 
         session.Events.StartStream<Engagement>(SeededEngagementId,
             new EngagementStarted(SeededEngagementId, EngagementKind.Employment, "Strivo", start, null, null),
@@ -83,6 +85,10 @@ public class ResumeTestFactory : WebApplicationFactory<Program>
         session.Events.StartStream<Project>(SeededProjectId,
             new ProjectStarted(SeededProjectId, ProjectKind.Professional, "LupiraWeb", null, SeededEngagementId, null, start),
             new ProjectSkillAttached(SeededProjectId, SeededSkillId, start));
+
+        session.Events.Append(SeededSkillId,
+            new SkillApplied(SeededSkillId, start, Intensity.Regular,
+                SkillEdgeContext.InProject(SeededProjectId), null, null));
 
         await session.SaveChangesAsync();
     }

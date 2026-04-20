@@ -22,6 +22,9 @@ public class Skill
     public Guid? ParentSkillId { get; set; }
     public bool Retired { get; set; }
 
+    public DateOnly? FirstLearnedOn { get; set; }
+    public Maturity CurrentMaturity { get; set; } = Maturity.Aware;
+
     public void Apply(SkillRegistered e)
     {
         Id = e.SkillId;
@@ -42,4 +45,12 @@ public class Skill
 
     public void Apply(SkillReparented e) => ParentSkillId = e.NewParentSkillId;
     public void Apply(SkillRetired e) => Retired = true;
+
+    public void Apply(SkillLearned e)
+    {
+        FirstLearnedOn ??= e.OccurredOn;
+        CurrentMaturity = e.InitialMaturity;
+    }
+
+    public void Apply(SkillDeepened e) => CurrentMaturity = e.ToMaturity;
 }
