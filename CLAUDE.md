@@ -72,11 +72,11 @@ Rules every backend change must follow. These exist to keep the OpenAPI contract
 1. **Endpoints grouped in endpoint extension classes, one folder per feature.** Structure:
    ```
    LupiraWeb.Server/Endpoints/
-     WeatherForecast/
-       WeatherForecastEndpoints.cs   // static class with MapWeatherForecastEndpoints(this IEndpointRouteBuilder)
-       WeatherForecastHandler.cs     // handler methods
+     Resume/
+       ResumeEndpoints.cs   // static class with MapResumeEndpoints(this IEndpointRouteBuilder)
+       ResumeHandler.cs     // handler methods
    ```
-   `Program.cs` wires groups by calling the extension: `app.MapWeatherForecastEndpoints();`. No inline `app.MapGet(...)` in `Program.cs`.
+   `Program.cs` wires groups by calling the extension: `app.MapResumeEndpoints();`. No inline `app.MapGet(...)` in `Program.cs`.
 
 2. **Endpoints delegate to handler classes.** The endpoint class only maps routes, applies filters/auth/tags. The handler class contains the logic and takes its dependencies via DI parameters. Handlers are unit-testable without booting the web host.
 

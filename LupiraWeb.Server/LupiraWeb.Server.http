@@ -1,6 +1,29 @@
 @LupiraWeb.Server_HostAddress = http://localhost:5188
 
-GET {{LupiraWeb.Server_HostAddress}}/weatherforecast/
+GET {{LupiraWeb.Server_HostAddress}}/api/resume/me
 Accept: application/json
+
+###
+
+GET {{LupiraWeb.Server_HostAddress}}/api/resume/employments
+Accept: application/json
+
+###
+
+GET {{LupiraWeb.Server_HostAddress}}/api/resume/projects
+Accept: application/json
+
+###
+
+GET {{LupiraWeb.Server_HostAddress}}/api/resume/skills
+Accept: application/json
+
+###
+
+GET {{LupiraWeb.Server_HostAddress}}/health
+
+###
+
+GET {{LupiraWeb.Server_HostAddress}}/health/ready
 
 ###

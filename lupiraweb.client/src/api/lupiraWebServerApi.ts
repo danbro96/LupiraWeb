@@ -5,33 +5,222 @@
  * OpenAPI spec version: 1.0.0
  */
 import type {
-  WeatherForecast
+  Employment,
+  MyInfo,
+  Project,
+  Skill
 } from './models';
 
 import { customFetch } from './fetcher';
-export type getWeatherForecastResponse200 = {
-  data: WeatherForecast[]
+export type getMyInfoResponse200 = {
+  data: MyInfo
   status: 200
 }
 
-export type getWeatherForecastResponseSuccess = (getWeatherForecastResponse200) & {
+export type getMyInfoResponse404 = {
+  data: void
+  status: 404
+}
+
+export type getMyInfoResponseSuccess = (getMyInfoResponse200) & {
+  headers: Headers;
+};
+export type getMyInfoResponseError = (getMyInfoResponse404) & {
+  headers: Headers;
+};
+
+export type getMyInfoResponse = (getMyInfoResponseSuccess | getMyInfoResponseError)
+
+export const getGetMyInfoUrl = () => {
+
+
+
+
+  return `/api/resume/me`
+}
+
+export const getMyInfo = async ( options?: RequestInit): Promise<getMyInfoResponse> => {
+
+  return customFetch<getMyInfoResponse>(getGetMyInfoUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export type getEmploymentsResponse200 = {
+  data: Employment[]
+  status: 200
+}
+
+export type getEmploymentsResponseSuccess = (getEmploymentsResponse200) & {
   headers: Headers;
 };
 ;
 
-export type getWeatherForecastResponse = (getWeatherForecastResponseSuccess)
+export type getEmploymentsResponse = (getEmploymentsResponseSuccess)
 
-export const getGetWeatherForecastUrl = () => {
-
-
+export const getGetEmploymentsUrl = () => {
 
 
-  return `/api/weatherforecast`
+
+
+  return `/api/resume/employments`
 }
 
-export const getWeatherForecast = async ( options?: RequestInit): Promise<getWeatherForecastResponse> => {
+export const getEmployments = async ( options?: RequestInit): Promise<getEmploymentsResponse> => {
 
-  return customFetch<getWeatherForecastResponse>(getGetWeatherForecastUrl(),
+  return customFetch<getEmploymentsResponse>(getGetEmploymentsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export type getEmploymentResponse200 = {
+  data: Employment
+  status: 200
+}
+
+export type getEmploymentResponse404 = {
+  data: void
+  status: 404
+}
+
+export type getEmploymentResponseSuccess = (getEmploymentResponse200) & {
+  headers: Headers;
+};
+export type getEmploymentResponseError = (getEmploymentResponse404) & {
+  headers: Headers;
+};
+
+export type getEmploymentResponse = (getEmploymentResponseSuccess | getEmploymentResponseError)
+
+export const getGetEmploymentUrl = (id: string,) => {
+
+
+
+
+  return `/api/resume/employments/${id}`
+}
+
+export const getEmployment = async (id: string, options?: RequestInit): Promise<getEmploymentResponse> => {
+
+  return customFetch<getEmploymentResponse>(getGetEmploymentUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export type getProjectsResponse200 = {
+  data: Project[]
+  status: 200
+}
+
+export type getProjectsResponseSuccess = (getProjectsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getProjectsResponse = (getProjectsResponseSuccess)
+
+export const getGetProjectsUrl = () => {
+
+
+
+
+  return `/api/resume/projects`
+}
+
+export const getProjects = async ( options?: RequestInit): Promise<getProjectsResponse> => {
+
+  return customFetch<getProjectsResponse>(getGetProjectsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export type getProjectResponse200 = {
+  data: Project
+  status: 200
+}
+
+export type getProjectResponse404 = {
+  data: void
+  status: 404
+}
+
+export type getProjectResponseSuccess = (getProjectResponse200) & {
+  headers: Headers;
+};
+export type getProjectResponseError = (getProjectResponse404) & {
+  headers: Headers;
+};
+
+export type getProjectResponse = (getProjectResponseSuccess | getProjectResponseError)
+
+export const getGetProjectUrl = (id: string,) => {
+
+
+
+
+  return `/api/resume/projects/${id}`
+}
+
+export const getProject = async (id: string, options?: RequestInit): Promise<getProjectResponse> => {
+
+  return customFetch<getProjectResponse>(getGetProjectUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export type getSkillsResponse200 = {
+  data: Skill[]
+  status: 200
+}
+
+export type getSkillsResponseSuccess = (getSkillsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getSkillsResponse = (getSkillsResponseSuccess)
+
+export const getGetSkillsUrl = () => {
+
+
+
+
+  return `/api/resume/skills`
+}
+
+export const getSkills = async ( options?: RequestInit): Promise<getSkillsResponse> => {
+
+  return customFetch<getSkillsResponse>(getGetSkillsUrl(),
   {
     ...options,
     method: 'GET'

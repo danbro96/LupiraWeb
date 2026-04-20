@@ -1,0 +1,62 @@
+{
+  "myInfo": {
+    "fullName": "Daniel Broström",
+    "email": "daniel.brostrom@strivo.se",
+    "tagline": "Full-stack developer",
+    "bio": "Hi, I'm Daniel. I build web apps across the stack — .NET on the backend, React/Next.js on the frontend — with a soft spot for DevOps, observability, and keeping things reproducible.",
+    "location": "Sweden",
+    "githubUrl": "https://github.com/DanielBrostrom",
+    "linkedInUrl": null,
+    "websiteUrl": null
+  },
+  "skills": [
+    { "name": "C#", "category": "Language" },
+    { "name": "TypeScript", "category": "Language" },
+    { "name": ".NET", "category": "Framework" },
+    { "name": "React", "category": "Framework" },
+    { "name": "Next.js", "category": "Framework" },
+    { "name": "Entity Framework Core", "category": "Framework" },
+    { "name": "Docker", "category": "Tool" },
+    { "name": "Azure", "category": "Platform" }
+  ],
+  "employments": [
+    {
+      "company": "Strivo",
+      "title": "Consultant",
+      "startDate": "2023-01-01",
+      "endDate": null,
+      "location": "Sweden",
+      "summary": "Consulting work across .NET and modern frontend stacks.",
+      "skills": ["C#", ".NET", "TypeScript", "React", "Azure"]
+    },
+    {
+      "company": "Previous Employer",
+      "title": "Software Developer",
+      "startDate": "2020-06-01",
+      "endDate": "2022-12-31",
+      "location": "Sweden",
+      "summary": "Full-stack development on internal products.",
+      "skills": ["C#", ".NET", "Docker"]
+    }
+  ],
+  "projects": [
+    {
+      "title": "LupiraWeb",
+      "description": "Personal portfolio site doubling as a DevOps showcase: reproducible builds, build-time OpenAPI contract, containerized dev/prod, tests across every layer.",
+      "url": "https://github.com/DanielBrostrom/LupiraWeb",
+      "startDate": "2025-01-01",
+      "endDate": null,
+      "employmentCompany": null,
+      "skills": ["C#", ".NET", "TypeScript", "Next.js", "Docker"]
+    },
+    {
+      "title": "Client dashboard rewrite",
+      "description": "Rebuilt a legacy dashboard on Next.js + .NET minimal APIs.",
+      "url": null,
+      "startDate": "2024-03-01",
+      "endDate": "2024-10-01",
+      "employmentCompany": "Strivo",
+      "skills": ["React", "Next.js", ".NET", "Entity Framework Core"]
+    }
+  ]
+}

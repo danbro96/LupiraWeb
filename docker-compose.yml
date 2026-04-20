@@ -8,6 +8,13 @@ services:
       ASPNETCORE_ENVIRONMENT: Production
     ports:
       - "8080:80"
+    volumes:
+      - lupira-db:/app/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/health || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
     restart: unless-stopped
 
   frontend:
@@ -20,3 +27,6 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+
+volumes:
+  lupira-db:

@@ -12,8 +12,10 @@ services:
       - ASPNETCORE_URLS=http://+:80
     ports:
       - "5188:80"
+    volumes:
+      - lupira-db-dev:/app/data
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:80/api/weatherforecast || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:80/health || exit 1"]
       interval: 5s
       timeout: 2s
       retries: 20
@@ -41,3 +43,6 @@ services:
 networks:
   lupira-net:
     driver: bridge
+
+volumes:
+  lupira-db-dev:
