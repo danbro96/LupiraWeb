@@ -28,12 +28,12 @@
         }
       }
     },
-    "/api/resume/employments": {
+    "/api/resume/engagements": {
       "get": {
         "tags": [
           "Resume"
         ],
-        "operationId": "GetEmployments",
+        "operationId": "GetEngagements",
         "responses": {
           "200": {
             "description": "OK",
@@ -42,7 +42,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/Employment"
+                    "$ref": "#/components/schemas/Engagement"
                   }
                 }
               }
@@ -51,12 +51,12 @@
         }
       }
     },
-    "/api/resume/employments/{id}": {
+    "/api/resume/engagements/{id}": {
       "get": {
         "tags": [
           "Resume"
         ],
-        "operationId": "GetEmployment",
+        "operationId": "GetEngagement",
         "parameters": [
           {
             "name": "id",
@@ -74,7 +74,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Employment"
+                  "$ref": "#/components/schemas/Engagement"
                 }
               }
             }
@@ -168,12 +168,13 @@
   },
   "components": {
     "schemas": {
-      "Employment": {
+      "Engagement": {
         "required": [
           "id",
-          "company",
-          "title",
-          "startDate",
+          "kind",
+          "institution",
+          "titles",
+          "start",
           "skills",
           "projects"
         ],
@@ -183,17 +184,29 @@
             "type": "string",
             "format": "uuid"
           },
-          "company": {
+          "kind": {
+            "$ref": "#/components/schemas/EngagementKind"
+          },
+          "institution": {
             "type": "string"
           },
           "title": {
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           },
-          "startDate": {
+          "titles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TitleEpochDto"
+            }
+          },
+          "start": {
             "type": "string",
             "format": "date"
           },
-          "endDate": {
+          "end": {
             "type": [
               "null",
               "string"
@@ -207,9 +220,13 @@
             ]
           },
           "location": {
-            "type": [
-              "null",
-              "string"
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Location"
+              }
             ]
           },
           "skills": {
@@ -225,6 +242,37 @@
             }
           }
         }
+      },
+      "EngagementKind": {
+        "type": "integer"
+      },
+      "Location": {
+        "required": [
+          "kind",
+          "city",
+          "country"
+        ],
+        "type": "object",
+        "properties": {
+          "kind": {
+            "$ref": "#/components/schemas/LocationKind"
+          },
+          "city": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "country": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "LocationKind": {
+        "type": "integer"
       },
       "MyInfo": {
         "required": [
@@ -285,6 +333,7 @@
       "Project": {
         "required": [
           "id",
+          "kind",
           "title",
           "skills"
         ],
@@ -293,6 +342,9 @@
           "id": {
             "type": "string",
             "format": "uuid"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/ProjectKind"
           },
           "title": {
             "type": "string"
@@ -309,28 +361,31 @@
               "string"
             ]
           },
-          "startDate": {
+          "start": {
             "type": [
               "null",
               "string"
             ],
             "format": "date"
           },
-          "endDate": {
+          "end": {
             "type": [
               "null",
               "string"
             ],
             "format": "date"
           },
-          "employmentId": {
+          "status": {
+            "$ref": "#/components/schemas/ProjectStatus"
+          },
+          "engagementId": {
             "type": [
               "null",
               "string"
             ],
             "format": "uuid"
           },
-          "employmentCompany": {
+          "engagementInstitution": {
             "type": [
               "null",
               "string"
@@ -343,6 +398,12 @@
             }
           }
         }
+      },
+      "ProjectKind": {
+        "type": "integer"
+      },
+      "ProjectStatus": {
+        "type": "integer"
       },
       "Skill": {
         "required": [
@@ -366,6 +427,34 @@
       },
       "SkillCategory": {
         "type": "integer"
+      },
+      "TitleEpochDto": {
+        "required": [
+          "titleId",
+          "text",
+          "from"
+        ],
+        "type": "object",
+        "properties": {
+          "titleId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "text": {
+            "type": "string"
+          },
+          "from": {
+            "type": "string",
+            "format": "date"
+          },
+          "to": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date"
+          }
+        }
       }
     }
   },

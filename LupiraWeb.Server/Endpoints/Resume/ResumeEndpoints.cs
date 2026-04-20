@@ -10,13 +10,13 @@ public static class ResumeEndpoints
                 (ResumeHandler handler, CancellationToken ct) => handler.GetMeAsync(ct))
             .WithName("GetMyInfo");
 
-        group.MapGet("/employments",
-                (ResumeHandler handler, CancellationToken ct) => handler.GetEmploymentsAsync(ct))
-            .WithName("GetEmployments");
+        group.MapGet("/engagements",
+                (ResumeHandler handler, CancellationToken ct) => handler.GetEngagementsAsync(ct))
+            .WithName("GetEngagements");
 
-        group.MapGet("/employments/{id:guid}",
-                (Guid id, ResumeHandler handler, CancellationToken ct) => handler.GetEmploymentAsync(id, ct))
-            .WithName("GetEmployment");
+        group.MapGet("/engagements/{id:guid}",
+                (Guid id, ResumeHandler handler, CancellationToken ct) => handler.GetEngagementAsync(id, ct))
+            .WithName("GetEngagement");
 
         group.MapGet("/projects",
                 (ResumeHandler handler, CancellationToken ct) => handler.GetProjectsAsync(ct))

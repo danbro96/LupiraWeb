@@ -1,22 +1,15 @@
-using LupiraWeb.Server.Data.Entities;
-using Microsoft.EntityFrameworkCore;
+using LupiraWeb.Server.Domain;
+using Marten;
 
 namespace LupiraWeb.Server.Data.Repositories;
 
-internal sealed class ProjectRepository(AppDbContext db) : IProjectRepository
+internal sealed class ProjectRepository(IQuerySession session) : IProjectRepository
 {
-    public async Task<IReadOnlyList<ProjectEntity>> ListAsync(CancellationToken ct) =>
-        await db.Projects
-            .AsNoTracking()
-            .Include(p => p.Employment)
-            .Include(p => p.ProjectSkills).ThenInclude(ps => ps.Skill)
-            .OrderByDescending(p => p.StartDate)
+    public async Task<IReadOnlyList<Project>> ListAsync(CancellationToken ct) =>
+        await session.Query<Project>()
+            .OrderByDescending(p => p.Start)
             .ToListAsync(ct);
 
-    public Task<ProjectEntity?> GetAsync(Guid id, CancellationToken ct) =>
-        db.Projects
-            .AsNoTracking()
-            .Include(p => p.Employment)
-            .Include(p => p.ProjectSkills).ThenInclude(ps => ps.Skill)
-            .FirstOrDefaultAsync(p => p.Id == id, ct);
+    public Task<Project?> GetAsync(Guid id, CancellationToken ct) =>
+        session.LoadAsync<Project>(id, ct);
 }

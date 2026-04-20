@@ -1,8 +1,8 @@
-using LupiraWeb.Server.Data.Entities;
+using LupiraWeb.Server.Domain;
 
 namespace LupiraWeb.Server.Data.Repositories;
 
 public interface ISkillRepository
 {
-    Task<IReadOnlyList<SkillEntity>> ListAsync(CancellationToken ct);
+    Task<IReadOnlyList<Skill>> ListAsync(CancellationToken ct);
 }

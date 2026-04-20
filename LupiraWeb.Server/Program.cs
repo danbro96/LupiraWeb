@@ -1,10 +1,13 @@
 using LupiraWeb.Server.Data;
 using LupiraWeb.Server.Data.Repositories;
+using LupiraWeb.Server.Domain;
 using LupiraWeb.Server.Endpoints.Resume;
 using LupiraWeb.Server.Observability;
+using JasperFx;
+using JasperFx.Events.Projections;
 using Marten;
+using Marten.Events.Projections;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,29 +17,32 @@ builder.Services.AddOpenApi();
 const string DefaultConnectionString =
     "Host=localhost;Port=5432;Database=lupiraweb;Username=lupira;Password=lupira";
 
-builder.Services.AddDbContext<AppDbContext>((sp, o) =>
-    o.UseNpgsql(sp.GetRequiredService<IConfiguration>().GetConnectionString("AppDb")
-        ?? DefaultConnectionString));
-
 builder.Services.AddMarten(sp =>
 {
-    var opts = new Marten.StoreOptions();
+    var opts = new StoreOptions();
     opts.Connection(sp.GetRequiredService<IConfiguration>().GetConnectionString("AppDb")
         ?? DefaultConnectionString);
     opts.UseSystemTextJsonForSerialization();
     opts.DatabaseSchemaName = "marten";
+    opts.AutoCreateSchemaObjects = AutoCreate.CreateOrUpdate;
+
+    opts.Projections.Snapshot<Skill>(SnapshotLifecycle.Inline);
+    opts.Projections.Snapshot<Engagement>(SnapshotLifecycle.Inline);
+    opts.Projections.Snapshot<Project>(SnapshotLifecycle.Inline);
+    opts.Projections.Add<EngagementTitleHistoryProjection>(ProjectionLifecycle.Inline);
+
     return opts;
 }).UseLightweightSessions();
 
 builder.Services.AddScoped<IMyInfoRepository, MyInfoRepository>();
-builder.Services.AddScoped<IEmploymentRepository, EmploymentRepository>();
+builder.Services.AddScoped<IEngagementRepository, EngagementRepository>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<ISkillRepository, SkillRepository>();
 
 builder.Services.AddScoped<ResumeHandler>();
 
 builder.Services.AddHealthChecks()
-    .AddDbContextCheck<AppDbContext>("appdb", tags: new[] { "ready" });
+    .AddCheck<MartenHealthCheck>("marten", tags: new[] { "ready" });
 
 builder.AddLupiraObservability();
 

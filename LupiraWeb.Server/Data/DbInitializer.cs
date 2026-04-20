@@ -1,9 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using LupiraWeb.Server.Data.Entities;
 using LupiraWeb.Server.Domain;
 using Marten;
-using Microsoft.EntityFrameworkCore;
 
 namespace LupiraWeb.Server.Data;
 
@@ -18,10 +16,7 @@ public static class DbInitializer
     public static async Task InitializeAsync(IServiceProvider services)
     {
         await using var scope = services.CreateAsyncScope();
-        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var store = scope.ServiceProvider.GetRequiredService<IDocumentStore>();
-
-        await db.Database.EnsureCreatedAsync();
 
         var seedPath = Path.Combine(AppContext.BaseDirectory, "Data", "seed.dev.json");
         if (!File.Exists(seedPath))
@@ -31,119 +26,110 @@ public static class DbInitializer
         var seed = JsonSerializer.Deserialize<SeedPayload>(json, JsonOptions)
             ?? throw new InvalidOperationException("Failed to parse seed.dev.json");
 
-        await SeedMyInfoAsync(store, seed.MyInfo);
-        await SeedRelationalAsync(db, seed);
+        await SeedAsync(store, seed);
     }
 
-    private static async Task SeedMyInfoAsync(IDocumentStore store, SeedMyInfo seed)
+    private static async Task SeedAsync(IDocumentStore store, SeedPayload seed)
     {
         await using var session = store.LightweightSession();
-        var existing = await session.LoadAsync<MyInfo>(MyInfo.SingletonId);
-        if (existing is not null) return;
+
+        var existingMyInfo = await session.LoadAsync<MyInfo>(MyInfo.SingletonId);
+        if (existingMyInfo is not null) return;
 
         session.Store(new MyInfo
         {
             Id = MyInfo.SingletonId,
-            FullName = seed.FullName,
-            Email = seed.Email,
-            Tagline = seed.Tagline,
-            Bio = seed.Bio,
-            Location = seed.Location,
-            GithubUrl = seed.GithubUrl,
-            LinkedInUrl = seed.LinkedInUrl,
-            WebsiteUrl = seed.WebsiteUrl,
+            FullName = seed.MyInfo.FullName,
+            Email = seed.MyInfo.Email,
+            Tagline = seed.MyInfo.Tagline,
+            Bio = seed.MyInfo.Bio,
+            Location = seed.MyInfo.Location,
+            GithubUrl = seed.MyInfo.GithubUrl,
+            LinkedInUrl = seed.MyInfo.LinkedInUrl,
+            WebsiteUrl = seed.MyInfo.WebsiteUrl,
         });
-        await session.SaveChangesAsync();
-    }
 
-    private static async Task SeedRelationalAsync(AppDbContext db, SeedPayload seed)
-    {
-        if (db.Skills.Any()) return;
-
-        var skillsByName = new Dictionary<string, SkillEntity>(StringComparer.OrdinalIgnoreCase);
+        var skillIdsByName = new Dictionary<string, Guid>(StringComparer.OrdinalIgnoreCase);
         foreach (var s in seed.Skills)
         {
-            var skill = new SkillEntity
-            {
-                Id = Guid.CreateVersion7(),
-                Name = s.Name,
-                Category = s.Category,
-            };
-            skillsByName[s.Name] = skill;
-            db.Skills.Add(skill);
+            var skillId = Guid.CreateVersion7();
+            skillIdsByName[s.Name] = skillId;
+            session.Events.StartStream<Skill>(skillId,
+                new SkillRegistered(skillId, s.Name, s.Category, null, null));
         }
 
-        var employmentsByCompany = new Dictionary<string, EmploymentEntity>(StringComparer.OrdinalIgnoreCase);
+        var engagementIdsByCompany = new Dictionary<string, Guid>(StringComparer.OrdinalIgnoreCase);
         foreach (var e in seed.Employments)
         {
-            var employment = new EmploymentEntity
+            var engagementId = Guid.CreateVersion7();
+            var titleId = Guid.NewGuid();
+            engagementIdsByCompany[e.Company] = engagementId;
+
+            session.Events.StartStream<Engagement>(engagementId,
+                new EngagementStarted(
+                    engagementId,
+                    EngagementKind.Employment,
+                    e.Company,
+                    e.StartDate,
+                    Location: null,
+                    Summary: e.Summary),
+                new TitleAssumed(engagementId, titleId, e.Title, e.StartDate));
+
+            if (e.EndDate is DateOnly end)
             {
-                Id = Guid.CreateVersion7(),
-                Company = e.Company,
-                Title = e.Title,
-                StartDate = e.StartDate,
-                EndDate = e.EndDate,
-                Summary = e.Summary,
-                Location = e.Location,
-            };
-            employmentsByCompany[e.Company] = employment;
-            db.Employments.Add(employment);
+                session.Events.Append(engagementId,
+                    new TitleRetired(engagementId, titleId, end),
+                    new EngagementEnded(engagementId, end, Reason: null));
+            }
 
             foreach (var skillName in e.Skills)
             {
-                if (!skillsByName.TryGetValue(skillName, out var skill))
+                if (!skillIdsByName.TryGetValue(skillName, out var skillId))
                     continue;
-                db.EmploymentSkills.Add(new EmploymentSkillEntity
-                {
-                    EmploymentId = employment.Id,
-                    SkillId = skill.Id,
-                    GainedAt = DeriveGainedAt(employment.StartDate),
-                });
+                session.Events.Append(engagementId,
+                    new EngagementSkillAttached(engagementId, skillId, e.StartDate));
             }
         }
 
         foreach (var p in seed.Projects)
         {
-            Guid? employmentId = null;
+            var projectId = Guid.CreateVersion7();
+            Guid? engagementId = null;
             if (p.EmploymentCompany is not null
-                && employmentsByCompany.TryGetValue(p.EmploymentCompany, out var emp))
+                && engagementIdsByCompany.TryGetValue(p.EmploymentCompany, out var eid))
             {
-                employmentId = emp.Id;
+                engagementId = eid;
             }
 
-            var project = new ProjectEntity
-            {
-                Id = Guid.CreateVersion7(),
-                Title = p.Title,
-                Description = p.Description,
-                Url = p.Url,
-                StartDate = p.StartDate,
-                EndDate = p.EndDate,
-                EmploymentId = employmentId,
-            };
-            db.Projects.Add(project);
+            var kind = engagementId.HasValue ? ProjectKind.Professional : ProjectKind.Personal;
 
-            var gainedAt = DeriveGainedAt(p.StartDate);
+            session.Events.StartStream<Project>(projectId,
+                new ProjectStarted(
+                    projectId,
+                    kind,
+                    p.Title,
+                    p.Description,
+                    engagementId,
+                    p.Url,
+                    p.StartDate));
+
+            if (p.EndDate is DateOnly end)
+            {
+                session.Events.Append(projectId,
+                    new ProjectShipped(projectId, end, Outcome: null));
+            }
+
             foreach (var skillName in p.Skills)
             {
-                if (!skillsByName.TryGetValue(skillName, out var skill))
+                if (!skillIdsByName.TryGetValue(skillName, out var skillId))
                     continue;
-                db.ProjectSkills.Add(new ProjectSkillEntity
-                {
-                    ProjectId = project.Id,
-                    SkillId = skill.Id,
-                    GainedAt = gainedAt,
-                });
+                session.Events.Append(projectId,
+                    new ProjectSkillAttached(projectId, skillId, p.StartDate));
             }
         }
 
-        await db.SaveChangesAsync();
+        await session.SaveChangesAsync();
     }
-
-    private static DateTimeOffset DeriveGainedAt(DateOnly? sourceDate) =>
-        sourceDate is DateOnly d
-            ? new DateTimeOffset(d.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero)
-            : DateTimeOffset.UtcNow;
 
     private sealed record SeedPayload(
         SeedMyInfo MyInfo,

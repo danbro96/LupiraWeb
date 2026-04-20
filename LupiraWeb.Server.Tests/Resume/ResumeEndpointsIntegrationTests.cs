@@ -28,39 +28,40 @@ public class ResumeEndpointsIntegrationTests : IClassFixture<ResumeTestFactory>
     }
 
     [Fact]
-    public async Task GetEmployments_returns_200_with_list()
+    public async Task GetEngagements_returns_200_with_list()
     {
         var client = _factory.CreateClient();
 
-        var response = await client.GetAsync("/api/resume/employments");
+        var response = await client.GetAsync("/api/resume/engagements");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var list = await response.Content.ReadFromJsonAsync<List<Employment>>();
+        var list = await response.Content.ReadFromJsonAsync<List<Engagement>>();
         Assert.NotNull(list);
-        Assert.Contains(list!, e => e.Company == "Strivo");
+        Assert.Contains(list!, e => e.Institution == "Strivo");
     }
 
     [Fact]
-    public async Task GetEmployment_by_id_returns_200_for_seeded_id()
+    public async Task GetEngagement_by_id_returns_200_for_seeded_id()
     {
         var client = _factory.CreateClient();
 
-        var response = await client.GetAsync($"/api/resume/employments/{ResumeTestFactory.SeededEmploymentId}");
+        var response = await client.GetAsync($"/api/resume/engagements/{ResumeTestFactory.SeededEngagementId}");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var emp = await response.Content.ReadFromJsonAsync<Employment>();
-        Assert.NotNull(emp);
-        Assert.Equal("Strivo", emp!.Company);
-        Assert.Contains(emp.Skills, s => s.Name == "C#");
-        Assert.Contains(emp.Projects, p => p.Title == "LupiraWeb");
+        var eng = await response.Content.ReadFromJsonAsync<Engagement>();
+        Assert.NotNull(eng);
+        Assert.Equal("Strivo", eng!.Institution);
+        Assert.Equal("Consultant", eng.Title);
+        Assert.Contains(eng.Skills, s => s.Name == "C#");
+        Assert.Contains(eng.Projects, p => p.Title == "LupiraWeb");
     }
 
     [Fact]
-    public async Task GetEmployment_by_id_returns_404_for_unknown_id()
+    public async Task GetEngagement_by_id_returns_404_for_unknown_id()
     {
         var client = _factory.CreateClient();
 
-        var response = await client.GetAsync($"/api/resume/employments/{Guid.NewGuid()}");
+        var response = await client.GetAsync($"/api/resume/engagements/{Guid.NewGuid()}");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -131,7 +132,7 @@ public class ResumeEndpointsIntegrationTests : IClassFixture<ResumeTestFactory>
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var json = await response.Content.ReadAsStringAsync();
         Assert.Contains("/api/resume/me", json);
-        Assert.Contains("/api/resume/employments", json);
+        Assert.Contains("/api/resume/engagements", json);
         Assert.Contains("/api/resume/skills", json);
         Assert.Contains("/api/resume/projects", json);
     }

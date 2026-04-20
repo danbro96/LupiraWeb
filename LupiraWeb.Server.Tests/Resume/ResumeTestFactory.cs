@@ -1,10 +1,7 @@
-using LupiraWeb.Server.Data;
-using LupiraWeb.Server.Data.Entities;
 using LupiraWeb.Server.Domain;
 using Marten;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Testcontainers.PostgreSql;
@@ -13,12 +10,12 @@ namespace LupiraWeb.Server.Tests.Resume;
 
 public class ResumeTestFactory : WebApplicationFactory<Program>
 {
-    public static readonly Guid SeededEmploymentId = Guid.Parse("10000000-0000-0000-0000-000000000001");
+    public static readonly Guid SeededEngagementId = Guid.Parse("10000000-0000-0000-0000-000000000001");
     public static readonly Guid SeededProjectId = Guid.Parse("20000000-0000-0000-0000-000000000001");
     public static readonly Guid SeededSkillId = Guid.Parse("30000000-0000-0000-0000-000000000001");
+    public static readonly Guid SeededTitleId = Guid.Parse("40000000-0000-0000-0000-000000000001");
 
-    private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder()
-        .WithImage("postgres:17-alpine")
+    private readonly PostgreSqlContainer _postgres = new PostgreSqlBuilder("postgres:17-alpine")
         .Build();
 
     public ResumeTestFactory()
@@ -44,12 +41,8 @@ public class ResumeTestFactory : WebApplicationFactory<Program>
         {
             using var sp = services.BuildServiceProvider();
             using var scope = sp.CreateScope();
-
-            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            db.Database.EnsureCreated();
-
             var store = scope.ServiceProvider.GetRequiredService<IDocumentStore>();
-            SeedFixture(db, store).GetAwaiter().GetResult();
+            SeedAsync(store).GetAwaiter().GetResult();
         });
     }
 
@@ -62,61 +55,35 @@ public class ResumeTestFactory : WebApplicationFactory<Program>
         }
     }
 
-    private static async Task SeedFixture(AppDbContext db, IDocumentStore store)
+    private static async Task SeedAsync(IDocumentStore store)
     {
-        if (db.Employments.Any()) return;
+        await using var session = store.LightweightSession();
 
-        var now = DateTimeOffset.UtcNow;
+        var existing = await session.LoadAsync<MyInfo>(MyInfo.SingletonId);
+        if (existing is not null) return;
 
-        await using (var session = store.LightweightSession())
+        session.Store(new MyInfo
         {
-            session.Store(new MyInfo
-            {
-                Id = MyInfo.SingletonId,
-                FullName = "Test User",
-                Email = "test@example.com",
-                Tagline = "Tester",
-            });
-            await session.SaveChangesAsync();
-        }
-
-        var skill = new SkillEntity
-        {
-            Id = SeededSkillId,
-            Name = "C#",
-            Category = SkillCategory.Language,
-        };
-        db.Skills.Add(skill);
-
-        var employment = new EmploymentEntity
-        {
-            Id = SeededEmploymentId,
-            Company = "Strivo",
-            Title = "Consultant",
-            StartDate = new DateOnly(2023, 1, 1),
-        };
-        db.Employments.Add(employment);
-        db.EmploymentSkills.Add(new EmploymentSkillEntity
-        {
-            EmploymentId = employment.Id,
-            SkillId = skill.Id,
-            GainedAt = now,
+            Id = MyInfo.SingletonId,
+            FullName = "Test User",
+            Email = "test@example.com",
+            Tagline = "Tester",
         });
 
-        var project = new ProjectEntity
-        {
-            Id = SeededProjectId,
-            Title = "LupiraWeb",
-            EmploymentId = employment.Id,
-        };
-        db.Projects.Add(project);
-        db.ProjectSkills.Add(new ProjectSkillEntity
-        {
-            ProjectId = project.Id,
-            SkillId = skill.Id,
-            GainedAt = now,
-        });
+        var start = new DateOnly(2023, 1, 1);
 
-        await db.SaveChangesAsync();
+        session.Events.StartStream<Skill>(SeededSkillId,
+            new SkillRegistered(SeededSkillId, "C#", SkillCategory.Language, null, null));
+
+        session.Events.StartStream<Engagement>(SeededEngagementId,
+            new EngagementStarted(SeededEngagementId, EngagementKind.Employment, "Strivo", start, null, null),
+            new TitleAssumed(SeededEngagementId, SeededTitleId, "Consultant", start),
+            new EngagementSkillAttached(SeededEngagementId, SeededSkillId, start));
+
+        session.Events.StartStream<Project>(SeededProjectId,
+            new ProjectStarted(SeededProjectId, ProjectKind.Professional, "LupiraWeb", null, SeededEngagementId, null, start),
+            new ProjectSkillAttached(SeededProjectId, SeededSkillId, start));
+
+        await session.SaveChangesAsync();
     }
 }

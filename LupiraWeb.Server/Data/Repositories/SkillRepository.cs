@@ -1,13 +1,13 @@
-using LupiraWeb.Server.Data.Entities;
-using Microsoft.EntityFrameworkCore;
+using LupiraWeb.Server.Domain;
+using Marten;
 
 namespace LupiraWeb.Server.Data.Repositories;
 
-internal sealed class SkillRepository(AppDbContext db) : ISkillRepository
+internal sealed class SkillRepository(IQuerySession session) : ISkillRepository
 {
-    public async Task<IReadOnlyList<SkillEntity>> ListAsync(CancellationToken ct) =>
-        await db.Skills
-            .AsNoTracking()
+    public async Task<IReadOnlyList<Skill>> ListAsync(CancellationToken ct) =>
+        await session.Query<Skill>()
+            .Where(s => !s.Retired)
             .OrderBy(s => s.Category)
             .ThenBy(s => s.Name)
             .ToListAsync(ct);

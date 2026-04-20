@@ -1,4 +1,5 @@
-using LupiraWeb.Server.Data.Entities;
+using LupiraWeb.Server.Domain;
+using SkillDocument = LupiraWeb.Server.Domain.Skill;
 
 namespace LupiraWeb.Server.Endpoints.Resume.Dtos;
 
@@ -8,7 +9,7 @@ public sealed record Skill
     public required string Name { get; set; }
     public required SkillCategory Category { get; set; }
 
-    public static Skill From(SkillEntity s) => new()
+    public static Skill From(SkillDocument s) => new()
     {
         Id = s.Id,
         Name = s.Name,
