@@ -1,0 +1,24 @@
+services:
+  admin-backend:
+    image: danbro96/lupiraweb-admin-backend:${IMAGE_TAG:-latest}
+    container_name: lupira-admin-backend
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:80
+      ConnectionStrings__AppDb: Host=${POSTGRES_HOST:-postgres};Port=5432;Database=${POSTGRES_DB:?POSTGRES_DB is required};Username=${POSTGRES_USER:?POSTGRES_USER is required};Password=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    ports:
+      - "${ADMIN_BACKEND_PORT:-40082}:80"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/health || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+    networks:
+      - lupira_data
+
+networks:
+  lupira_data:
+    external: true
+    name: lupira_data

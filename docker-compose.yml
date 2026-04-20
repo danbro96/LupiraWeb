@@ -46,5 +46,25 @@ services:
       - backend
     restart: unless-stopped
 
+  # Opt-in: start with `docker compose --profile admin up`.
+  admin-backend:
+    image: danbro96/lupiraweb-admin-backend:latest
+    container_name: admin-backend
+    profiles: ["admin"]
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__AppDb: Host=postgres;Port=5432;Database=${POSTGRES_DB:-lupiraweb};Username=${POSTGRES_USER:-lupira};Password=${POSTGRES_PASSWORD}
+    ports:
+      - "8081:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/health || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
 volumes:
   lupira-pg:

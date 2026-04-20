@@ -19,7 +19,7 @@ flowchart LR
       be[backend]
       fe[frontend]
     end
-    subgraph admin_app[App: lupira-admin - future]
+    subgraph admin_app[App: lupira-admin]
       adminbe[admin-backend]
     end
     be -.joins.-> netdata
@@ -28,7 +28,7 @@ flowchart LR
   end
 ```
 
-Three independent TrueNAS Apps share a single Docker network called `lupira_data`. The DB App owns the network; the web App (and later the admin App) join it as `external`. That's the whole trick — it's how the future admin API will reach the same Postgres without coupling its lifecycle to this repo's deploys.
+Three independent TrueNAS Apps share a single Docker network called `lupira_data`. The DB App owns the network; the web and admin Apps join it as `external`. Admin is a single-container service (MVC, no separate frontend image) that writes to the same Postgres.
 
 ## Pipelines
 
@@ -38,8 +38,8 @@ Two workflows in [.github/workflows/](../.github/workflows/).
 
 | Job | What it proves |
 |---|---|
-| `backend-test` | `dotnet build` regenerates the OpenAPI spec; `dotnet test` runs against a real Postgres via Testcontainers. |
-| `contract-drift` | The regenerated [backend-openapi.json](../lupiraweb.client/backend-openapi.json) matches what's committed. Fails if a backend change regenerated the spec but the dev forgot to commit it. |
+| `backend-test` | `dotnet build LupiraWeb.slnx` regenerates both public and admin OpenAPI specs; `dotnet test` runs all suites against a real Postgres via Testcontainers. |
+| `contract-drift` | Both the committed [public spec](../lupiraweb.client/backend-openapi.json) and [admin spec](../lupiraweb.admin/backend-openapi.json) match what the build produces. Fails if a backend change regenerated a spec but the dev forgot to commit it. |
 | `client-drift` | `npm run generate:api` produces the same Orval output as what's committed under [lupiraweb.client/src/api/](../lupiraweb.client/src/api/) (excluding the hand-written [fetcher.ts](../lupiraweb.client/src/api/fetcher.ts)). |
 | `frontend-test` | `npm run lint` + `npm test` (Vitest). |
 
@@ -50,7 +50,10 @@ Make all four jobs required in branch protection for `main`.
 ### [release.yml](../.github/workflows/release.yml) — runs on push to `main` or a `v*` tag
 
 1. Re-runs `ci.yml` via `workflow_call` — so nothing ships that didn't pass the same checks a PR did.
-2. Builds `danbro96/lupiraweb-backend` and `danbro96/lupiraweb-frontend` in parallel (matrix), pushes to Docker Hub.
+2. Builds three images in parallel (matrix) and pushes to Docker Hub:
+   - `danbro96/lupiraweb-backend`
+   - `danbro96/lupiraweb-frontend`
+   - `danbro96/lupiraweb-admin-backend`
 
 No deploy job. You decide when the NAS picks up the new image (see [Routine deploys](#routine-deploys)).
 
@@ -119,7 +122,27 @@ docker exec lupira-backend curl -sf http://localhost:80/health/ready
 # → Healthy  (if this fails, DB connectivity is the likely cause)
 ```
 
-### 4. Docker Hub login on the NAS (optional but recommended)
+### 4. TrueNAS: the `lupira-admin` App
+
+1. **Discover Apps → Custom App.**
+2. Application name: `lupira-admin`.
+3. Paste [deploy/admin/compose.yaml](../deploy/admin/compose.yaml).
+4. Set env vars (see [deploy/admin/.env.example](../deploy/admin/.env.example)):
+   - `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` — **must match the `lupira-db` App**.
+   - `POSTGRES_HOST=postgres`.
+   - `IMAGE_TAG=latest` (or pin a `sha-*`).
+   - `ADMIN_BACKEND_PORT=40082`.
+5. Save and start.
+
+Admin owns schema migrations. When events/projections change, apply schema once before rolling public:
+
+```bash
+docker exec -it lupira-admin-backend dotnet LupiraWeb.Admin.Server.dll --apply-schema
+```
+
+Keep the admin App behind LAN/VPN or an authenticated reverse proxy — it's a write-capable service.
+
+### 5. Docker Hub login on the NAS (optional but recommended)
 
 Avoids hitting the anonymous pull rate limit during rollouts:
 
@@ -128,16 +151,18 @@ docker login -u <dockerhub-user>
 # paste a read-only token
 ```
 
-### 5. Your reverse proxy
+### 6. Your reverse proxy
 
-Point it at `<truenas-host>:40080` for the frontend and `<truenas-host>:40081` for the backend. (The frontend already rewrites `/api/*` → the backend internally via Next.js, so in most topologies you only need to expose the frontend externally — the backend port stays on your LAN.)
+Point it at `<truenas-host>:40080` for the frontend, `<truenas-host>:40081` for the public backend, and `<truenas-host>:40082` for the admin backend. (The frontend already rewrites `/api/*` → the backend internally via Next.js, so in most topologies you only need to expose the frontend externally — the public backend port stays on your LAN. Admin should be LAN/VPN-only or behind an auth layer.)
 
 ## Routine deploys
 
 1. Merge to `main`. [release.yml](../.github/workflows/release.yml) runs.
-2. When green, both `:latest` and `:sha-<short>` are live on Docker Hub.
-3. Open the TrueNAS App (`lupira-web`) → **Update** (or **Pull image** → **Restart**). If you use `IMAGE_TAG=latest`, that's it.
+2. When green, `:latest` and `:sha-<short>` tags are live on Docker Hub for all three images.
+3. For each TrueNAS App you want to roll (`lupira-web`, `lupira-admin`): open it → **Update** (or **Pull image** → **Restart**). If you use `IMAGE_TAG=latest`, that's it.
 4. Watch logs briefly to confirm Marten connected and the health endpoint goes green.
+
+Schema-changing deploys: apply schema via the admin `--apply-schema` CLI *before* updating the public `lupira-web` App (see [Prod-safe Marten](#prod-safe-marten)).
 
 Nothing in this flow requires SSH, no secret sync, no Watchtower.
 
@@ -147,36 +172,28 @@ Fast path: change `IMAGE_TAG` on the web App from `latest` to a previous `sha-ab
 
 Find the previous `sha-*` in the commit history (`git log --oneline`) or in the Docker Hub tag list.
 
-## Adding the admin stack later
-
-When the admin-API repo is ready, it ships its own `deploy/admin/compose.yaml`. That file:
-
-1. Declares `lupira_data` as `external: true`.
-2. Attaches its backend service to it.
-3. Uses the same `POSTGRES_*` env vars to build a connection string.
-
-The DB App does not change. The web App does not change. The two-App pattern was designed for this.
-
-If the admin API needs write tables that public reads shouldn't see, handle that with Marten schemas / Postgres roles inside the DB — not by forking the stack.
-
 ## Prod-safe Marten
 
-In [LupiraWeb.Server/Program.cs](../LupiraWeb.Server/Program.cs), Marten's `AutoCreateSchemaObjects` is set to:
+Both backends run with Marten's `AutoCreateSchemaObjects` set to:
 
 - `CreateOrUpdate` in **Development** — the old convenient behavior.
-- `None` in **Production** — the app will not mutate schema on boot.
+- `None` in **Production** — neither app mutates schema on boot.
 
-Applying schema changes in prod is a deliberate, one-shot operation. On the NAS:
+**Admin owns schema.** Only the admin server exposes the `--apply-schema` CLI. Deploy ordering for a breaking schema change:
 
-```bash
-docker exec -it lupira-backend dotnet LupiraWeb.Server.dll --apply-schema
-```
+1. Release new images (merge to main).
+2. On the NAS, apply schema via admin:
+   ```bash
+   docker exec -it lupira-admin-backend dotnet LupiraWeb.Admin.Server.dll --apply-schema
+   ```
+3. Roll the `lupira-admin` App (so admin's new code writes against the updated schema).
+4. Roll the `lupira-web` App (so public reads the updated schema).
 
-(If the `--apply-schema` CLI hook isn't in place yet, either add it or use a transient script — the important thing is: booting the backend is not how schema changes land in prod.)
+The shared kernel lives in [LupiraWeb.Domain](../LupiraWeb.Domain/): event records, aggregate documents, projection docs, and `UseLupiraProjections()` — the single place that registers all 17 projections. Both backends reference it; admin calls `UseLupiraProjections()` to wire the write-side logic, public calls the same helper because inline projections are idempotent and public never writes events in prod.
 
 ## Troubleshooting
 
-**`contract-drift` fails in CI.** You edited the backend but didn't commit the regenerated spec. Run `dotnet build LupiraWeb.Server` locally, `git add lupiraweb.client/backend-openapi.json`, commit, push.
+**`contract-drift` fails in CI.** You edited a backend but didn't commit the regenerated spec. Run `dotnet build LupiraWeb.slnx` locally, then `git add lupiraweb.client/backend-openapi.json lupiraweb.admin/backend-openapi.json`, commit, push.
 
 **`client-drift` fails in CI.** You bumped the OpenAPI spec but didn't regenerate the client. `cd lupiraweb.client && npm run generate:api`, commit the result.
 

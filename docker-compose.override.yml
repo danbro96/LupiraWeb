@@ -59,6 +59,29 @@ services:
     networks:
       - lupira-net
 
+  admin-backend:
+    build:
+      context: .
+      dockerfile: LupiraWeb.Admin.Server/Dockerfile
+      target: final
+    container_name: lupiraweb-admin-backend
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__AppDb=Host=postgres;Port=5432;Database=lupiraweb;Username=lupira;Password=lupira
+    ports:
+      - "5189:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/health || exit 1"]
+      interval: 5s
+      timeout: 2s
+      retries: 20
+    networks:
+      - lupira-net
+
 networks:
   lupira-net:
     driver: bridge

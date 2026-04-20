@@ -35,6 +35,10 @@ jobs:
             image: danbro96/lupiraweb-frontend
             context: lupiraweb.client
             dockerfile: lupiraweb.client/Dockerfile
+          - service: admin-backend
+            image: danbro96/lupiraweb-admin-backend
+            context: .
+            dockerfile: LupiraWeb.Admin.Server/Dockerfile
     steps:
       - uses: actions/checkout@v4
 

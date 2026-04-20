@@ -7,6 +7,7 @@ using LupiraWeb.Server.Endpoints.Goals;
 using LupiraWeb.Server.Endpoints.Media;
 using LupiraWeb.Server.Endpoints.Resume;
 using LupiraWeb.Server.Endpoints.Skills;
+using LupiraWeb.Domain.Infrastructure.BlobStorage;
 using LupiraWeb.Server.Infrastructure.BlobStorage;
 using LupiraWeb.Server.Observability;
 using JasperFx;

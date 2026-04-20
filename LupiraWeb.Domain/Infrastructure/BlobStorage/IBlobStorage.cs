@@ -1,4 +1,4 @@
-namespace LupiraWeb.Server.Infrastructure.BlobStorage;
+namespace LupiraWeb.Domain.Infrastructure.BlobStorage;
 
 public interface IBlobStorage
 {

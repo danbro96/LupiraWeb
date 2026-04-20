@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using LupiraWeb.Domain.Infrastructure.BlobStorage;
 
-namespace LupiraWeb.Server.Infrastructure.BlobStorage;
+namespace LupiraWeb.Admin.Server.Infrastructure.BlobStorage;
 
 public sealed class InMemoryBlobStorage : IBlobStorage
 {

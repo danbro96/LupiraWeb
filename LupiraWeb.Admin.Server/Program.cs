@@ -1,5 +1,10 @@
 using JasperFx;
+using LupiraWeb.Admin.Server.Endpoints.Artifacts;
+using LupiraWeb.Admin.Server.Endpoints.Goals;
+using LupiraWeb.Admin.Server.Endpoints.Media;
+using LupiraWeb.Admin.Server.Infrastructure.BlobStorage;
 using LupiraWeb.Domain;
+using LupiraWeb.Domain.Infrastructure.BlobStorage;
 using Marten;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Scalar.AspNetCore;
@@ -27,6 +32,12 @@ builder.Services.AddMarten(sp =>
     return opts;
 }).UseLightweightSessions();
 
+builder.Services.AddSingleton<IBlobStorage, InMemoryBlobStorage>();
+
+builder.Services.AddScoped<ArtifactsHandler>();
+builder.Services.AddScoped<GoalsHandler>();
+builder.Services.AddScoped<MediaHandler>();
+
 builder.Services.AddHealthChecks()
     .AddCheck("self", () => Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy());
 
@@ -48,6 +59,10 @@ if (!app.Environment.IsProduction())
 }
 
 app.MapHealthChecks("/health", new HealthCheckOptions { Predicate = _ => false });
+
+app.MapArtifactsEndpoints();
+app.MapGoalsEndpoints();
+app.MapMediaEndpoints();
 
 app.Run();
 
