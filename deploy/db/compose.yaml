@@ -1,3 +1,10 @@
+# DEPRECATED: this file documents the legacy bundled-DB pattern.
+# Production now uses the platform Postgres (`medelynas-db`) shared across MedelyNAS apps.
+# See: docs/CICD.md and ../../DevOps/Guides/shared-postgres-platform.md
+#
+# Do NOT deploy this alongside the platform DB. Kept here as a reference until
+# the platform pattern is proven, then deletable.
+
 services:
   postgres:
     image: postgres:17-alpine

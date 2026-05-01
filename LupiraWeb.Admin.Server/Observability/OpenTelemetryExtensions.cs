@@ -4,7 +4,7 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
-namespace LupiraWeb.Server.Observability;
+namespace LupiraWeb.Admin.Server.Observability;
 
 public static class OpenTelemetryExtensions
 {

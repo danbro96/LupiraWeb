@@ -3,6 +3,7 @@ using LupiraWeb.Admin.Server.Endpoints.Artifacts;
 using LupiraWeb.Admin.Server.Endpoints.Goals;
 using LupiraWeb.Admin.Server.Endpoints.Media;
 using LupiraWeb.Admin.Server.Infrastructure.BlobStorage;
+using LupiraWeb.Admin.Server.Observability;
 using LupiraWeb.Domain;
 using LupiraWeb.Domain.Infrastructure.BlobStorage;
 using Marten;
@@ -40,6 +41,8 @@ builder.Services.AddScoped<MediaHandler>();
 
 builder.Services.AddHealthChecks()
     .AddCheck("self", () => Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy());
+
+builder.AddLupiraObservability("lupira-admin");
 
 var app = builder.Build();
 

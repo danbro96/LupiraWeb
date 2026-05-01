@@ -12,8 +12,9 @@ flowchart LR
   dh -->|manual pull in TrueNAS UI| nas[TrueNAS 25.10.1]
 
   subgraph nas[TrueNAS host]
-    subgraph db_app[App: lupira-db]
-      pg[(postgres:17-alpine)]
+    subgraph platform[Platform Apps]
+      pg[(medelynas-db<br/>postgres:17-alpine)]
+      otel[medelynas-otel<br/>SigNoz]
     end
     subgraph web_app[App: lupira-web]
       be[backend]
@@ -22,13 +23,14 @@ flowchart LR
     subgraph admin_app[App: lupira-admin]
       adminbe[admin-backend]
     end
-    be -.joins.-> netdata
-    adminbe -.joins.-> netdata
-    pg --- netdata((lupira_data external network))
+    be -.medelynas_data.-> pg
+    adminbe -.medelynas_data.-> pg
+    be -.medelynas_telemetry.-> otel
+    adminbe -.medelynas_telemetry.-> otel
   end
 ```
 
-Three independent TrueNAS Apps share a single Docker network called `lupira_data`. The DB App owns the network; the web and admin Apps join it as `external`. Admin is a single-container service (MVC, no separate frontend image) that writes to the same Postgres.
+The platform owns two shared services: **`medelynas-db`** (Postgres, owns external network `medelynas_data`) and **`medelynas-otel`** (SigNoz, owns external network `medelynas_telemetry`). LupiraWeb's two backend Apps join both as `external` — `medelynas_data` for Postgres, `medelynas_telemetry` for OTLP egress. Admin is a single-container service (MVC, no separate frontend image). LupiraWeb does not stand up its own database; see [Guides/shared-postgres-platform.md](../../DevOps/Guides/shared-postgres-platform.md) for the platform DB pattern.
 
 ## Pipelines
 
@@ -81,35 +83,50 @@ Under **Settings → Secrets and variables → Actions**:
 
 That's all. No production database credentials anywhere in GitHub.
 
-### 2. TrueNAS: the `lupira-db` App
+### 2. Provision the `lupiraweb` database on `medelynas-db`
 
-1. **Apps → Discover Apps → Custom App.**
-2. Application name: `lupira-db`.
-3. Paste the contents of [deploy/db/compose.yaml](../deploy/db/compose.yaml) into the YAML editor.
-4. Set the required env vars (see [deploy/db/.env.example](../deploy/db/.env.example)):
-   - `POSTGRES_DB=lupiraweb`
-   - `POSTGRES_USER=lupira`
-   - `POSTGRES_PASSWORD=<strong password>` ← write this down; the web App needs the same value.
-5. Pick a TrueNAS dataset for the `pgdata` volume.
-6. Save and start.
+LupiraWeb uses the platform Postgres (`medelynas-db`) — it does **not** stand up its own DB App. Prerequisites: `medelynas-db` and `medelynas-otel` Custom Apps already exist on the host. If they don't, see [Guides/shared-postgres-platform.md](../../DevOps/Guides/shared-postgres-platform.md) and [Guides/otel-collector.md](../../DevOps/Guides/otel-collector.md).
 
-Verify the shared network exists:
+In the TrueNAS Shell:
 
 ```bash
-# In the TrueNAS Shell
-docker network inspect lupira_data
+docker exec -it medelynas-db psql -U medelynas_admin postgres
 ```
+
+Then in the `psql` prompt:
+
+```sql
+CREATE ROLE lupira WITH LOGIN PASSWORD '<strong password>';
+CREATE DATABASE lupiraweb OWNER lupira;
+REVOKE ALL ON DATABASE lupiraweb FROM PUBLIC;
+GRANT CONNECT ON DATABASE lupiraweb TO lupira;
+\q
+```
+
+Write down the password — both `lupira-web` and `lupira-admin` need it.
+
+Verify:
+
+```bash
+docker network inspect medelynas_data    # should show medelynas-db attached
+docker exec medelynas-db psql -U lupira -d lupiraweb -c '\conninfo'
+```
+
+> The legacy `deploy/db/compose.yaml` is kept in the repo as a deprecated reference for the bundled-DB pattern. **Do not deploy it** alongside the platform DB. See [Guides/shared-postgres-platform.md](../../DevOps/Guides/shared-postgres-platform.md) for why.
 
 ### 3. TrueNAS: the `lupira-web` App
 
 1. **Discover Apps → Custom App.**
 2. Application name: `lupira-web`.
-3. Paste [deploy/web/compose.yaml](../deploy/web/compose.yaml).
+3. Paste [deploy/web/compose.yaml](../deploy/web/compose.yaml). The compose joins external networks `medelynas_data` (for Postgres) and `medelynas_telemetry` (for OTLP); both must already exist.
 4. Set env vars (see [deploy/web/.env.example](../deploy/web/.env.example)):
-   - `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` — **must match the `lupira-db` App**.
-   - `POSTGRES_HOST=postgres` (service name on the shared network).
+   - `POSTGRES_DB=lupiraweb`, `POSTGRES_USER=lupira`, `POSTGRES_PASSWORD=<from Section 2>`.
+   - `POSTGRES_HOST=postgres` (service name of the `medelynas-db` container on the shared network).
    - `IMAGE_TAG=latest` (or pin a `sha-*` for reproducibility).
    - `FRONTEND_PORT=40080`, `BACKEND_PORT=40081` — host ports the reverse proxy targets.
+   - `OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317` (collector hostname on `medelynas_telemetry`).
+   - `OTEL_EXPORTER_OTLP_PROTOCOL=grpc`.
+   - `OTEL_RESOURCE_ATTRIBUTES=deployment.environment=prod,host.name=medelynas`.
 5. Save and start.
 
 Smoke-test from the TrueNAS Shell:
@@ -128,10 +145,13 @@ docker exec lupira-backend curl -sf http://localhost:80/health/ready
 2. Application name: `lupira-admin`.
 3. Paste [deploy/admin/compose.yaml](../deploy/admin/compose.yaml).
 4. Set env vars (see [deploy/admin/.env.example](../deploy/admin/.env.example)):
-   - `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` — **must match the `lupira-db` App**.
+   - `POSTGRES_DB=lupiraweb`, `POSTGRES_USER=lupira`, `POSTGRES_PASSWORD=<from Section 2>`.
    - `POSTGRES_HOST=postgres`.
    - `IMAGE_TAG=latest` (or pin a `sha-*`).
    - `ADMIN_BACKEND_PORT=40082`.
+   - `OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317`.
+   - `OTEL_EXPORTER_OTLP_PROTOCOL=grpc`.
+   - `OTEL_RESOURCE_ATTRIBUTES=deployment.environment=prod,host.name=medelynas`.
 5. Save and start.
 
 Admin owns schema migrations. When events/projections change, apply schema once before rolling public:
@@ -202,9 +222,14 @@ The shared kernel lives in [LupiraWeb.Domain](../LupiraWeb.Domain/): event recor
 **Image pull fails on TrueNAS with `429 Too Many Requests`.** Docker Hub anonymous rate limit. `docker login` on the NAS with a read-only token.
 
 **Backend boots but `/health/ready` stays red.** The backend can't reach Postgres. Check:
-- `POSTGRES_HOST` in the web App env matches the service name in `deploy/db/compose.yaml` (default: `postgres`).
-- Both containers are on the `lupira_data` network: `docker network inspect lupira_data`.
-- Credentials match between the two Apps.
+- `POSTGRES_HOST=postgres` matches the service name of the `medelynas-db` container.
+- The backend container is on the `medelynas_data` network: `docker network inspect medelynas_data`.
+- Credentials match the role you provisioned in Section 2 (`lupira` / `<password>`).
+
+**No traces or metrics in SigNoz for `lupira-web` / `lupira-admin`.** Telemetry is silently failing or the wrong target. Check:
+- `OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317` — note `http`, not `https`, and gRPC port `4317`.
+- The backend container is on `medelynas_telemetry`: `docker network inspect medelynas_telemetry`.
+- Collector logs: `docker logs medelynas-otel-otel-collector-1 --tail 50`.
 
 **Marten refuses to start in prod with a schema error.** You changed events/projections but didn't apply the schema change. Run the one-shot schema apply (see [Prod-safe Marten](#prod-safe-marten)).
 

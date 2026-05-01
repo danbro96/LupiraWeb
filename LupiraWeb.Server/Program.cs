@@ -55,7 +55,7 @@ builder.Services.AddScoped<ExperiencesHandler>();
 builder.Services.AddHealthChecks()
     .AddCheck<MartenHealthCheck>("marten", tags: new[] { "ready" });
 
-builder.AddLupiraObservability();
+builder.AddLupiraObservability("lupira-web");
 
 var app = builder.Build();
 
