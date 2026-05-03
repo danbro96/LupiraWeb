@@ -5,32 +5,28 @@
  * OpenAPI spec version: 1.0.0
  */
 import type {
-  AbandonGoalRequest,
-  AchieveGoalRequest,
   ArtifactDto,
+  CaptionResponse,
+  ChatRequest,
+  ChatResponse,
+  DemoVisionCaptionBody,
+  DemoVisionDetectBody,
+  DemoVisionOcrBody,
+  DetectionResponse,
   Engagement,
   ExperienceDto,
   GoalDto,
-  LinkArtifactToEngagementRequest,
-  LinkArtifactToProjectRequest,
-  LinkArtifactToSkillRequest,
-  LinkMediaToProjectRequest,
-  LinkMediaToSkillsRequest,
   ListExperiencesParams,
   MediaAssetDto,
-  MediaUploadResponse,
   MyInfo,
+  OcrResponse,
   Project,
-  RecordProgressRequest,
-  RegisterArtifactRequest,
-  RegisterArtifactResponse,
-  SetGoalRequest,
-  SetGoalResponse,
   Skill,
   SkillMaturityResponse,
   SkillRelatedResponse,
   SkillTimelineResponse,
-  UploadMediaBody
+  SynthesizeRequest,
+  Voice
 } from './models';
 
 import { customFetch } from './fetcher';
@@ -406,59 +402,6 @@ export const listMedia = async ( options?: RequestInit): Promise<listMediaRespon
 
 
 
-export type uploadMediaResponse200 = {
-  data: MediaUploadResponse
-  status: 200
-}
-
-export type uploadMediaResponse400 = {
-  data: string
-  status: 400
-}
-
-export type uploadMediaResponseSuccess = (uploadMediaResponse200) & {
-  headers: Headers;
-};
-export type uploadMediaResponseError = (uploadMediaResponse400) & {
-  headers: Headers;
-};
-
-export type uploadMediaResponse = (uploadMediaResponseSuccess | uploadMediaResponseError)
-
-export const getUploadMediaUrl = () => {
-
-
-
-
-  return `/api/media`
-}
-
-export const uploadMedia = async (uploadMediaBody: UploadMediaBody, options?: RequestInit): Promise<uploadMediaResponse> => {
-    const formData = new FormData();
-if(uploadMediaBody.file !== undefined) {
- formData.append(`file`, uploadMediaBody.file);
- }
-
-if(uploadMediaBody.altText !== undefined) {
- formData.append(`altText`, uploadMediaBody.altText);
- }
-
-if(uploadMediaBody.caption !== undefined) {
- formData.append(`caption`, uploadMediaBody.caption);
- }
-
-  return customFetch<uploadMediaResponse>(getUploadMediaUrl(),
-  {
-    ...options,
-    method: 'POST'
-    ,
-    body:
-      formData,
-  }
-);}
-
-
-
 export type getMediaResponse200 = {
   data: MediaAssetDto
   status: 200
@@ -532,90 +475,6 @@ export const downloadMedia = async (id: string, options?: RequestInit): Promise<
 
 
 
-export type linkMediaToProjectResponse204 = {
-  data: void
-  status: 204
-}
-
-export type linkMediaToProjectResponse404 = {
-  data: void
-  status: 404
-}
-
-export type linkMediaToProjectResponseSuccess = (linkMediaToProjectResponse204) & {
-  headers: Headers;
-};
-export type linkMediaToProjectResponseError = (linkMediaToProjectResponse404) & {
-  headers: Headers;
-};
-
-export type linkMediaToProjectResponse = (linkMediaToProjectResponseSuccess | linkMediaToProjectResponseError)
-
-export const getLinkMediaToProjectUrl = (id: string,) => {
-
-
-
-
-  return `/api/media/${id}/links/projects`
-}
-
-export const linkMediaToProject = async (id: string,
-    linkMediaToProjectRequest: LinkMediaToProjectRequest, options?: RequestInit): Promise<linkMediaToProjectResponse> => {
-
-  return customFetch<linkMediaToProjectResponse>(getLinkMediaToProjectUrl(id),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      linkMediaToProjectRequest,)
-  }
-);}
-
-
-
-export type linkMediaToSkillsResponse204 = {
-  data: void
-  status: 204
-}
-
-export type linkMediaToSkillsResponse404 = {
-  data: void
-  status: 404
-}
-
-export type linkMediaToSkillsResponseSuccess = (linkMediaToSkillsResponse204) & {
-  headers: Headers;
-};
-export type linkMediaToSkillsResponseError = (linkMediaToSkillsResponse404) & {
-  headers: Headers;
-};
-
-export type linkMediaToSkillsResponse = (linkMediaToSkillsResponseSuccess | linkMediaToSkillsResponseError)
-
-export const getLinkMediaToSkillsUrl = (id: string,) => {
-
-
-
-
-  return `/api/media/${id}/links/skills`
-}
-
-export const linkMediaToSkills = async (id: string,
-    linkMediaToSkillsRequest: LinkMediaToSkillsRequest, options?: RequestInit): Promise<linkMediaToSkillsResponse> => {
-
-  return customFetch<linkMediaToSkillsResponse>(getLinkMediaToSkillsUrl(id),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      linkMediaToSkillsRequest,)
-  }
-);}
-
-
-
 export type listArtifactsResponse200 = {
   data: ArtifactDto[]
   status: 200
@@ -644,40 +503,6 @@ export const listArtifacts = async ( options?: RequestInit): Promise<listArtifac
     method: 'GET'
 
 
-  }
-);}
-
-
-
-export type registerArtifactResponse200 = {
-  data: RegisterArtifactResponse
-  status: 200
-}
-
-export type registerArtifactResponseSuccess = (registerArtifactResponse200) & {
-  headers: Headers;
-};
-;
-
-export type registerArtifactResponse = (registerArtifactResponseSuccess)
-
-export const getRegisterArtifactUrl = () => {
-
-
-
-
-  return `/api/artifacts`
-}
-
-export const registerArtifact = async (registerArtifactRequest: RegisterArtifactRequest, options?: RequestInit): Promise<registerArtifactResponse> => {
-
-  return customFetch<registerArtifactResponse>(getRegisterArtifactUrl(),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      registerArtifactRequest,)
   }
 );}
 
@@ -723,132 +548,6 @@ export const getArtifact = async (id: string, options?: RequestInit): Promise<ge
 
 
 
-export type linkArtifactToProjectResponse204 = {
-  data: void
-  status: 204
-}
-
-export type linkArtifactToProjectResponse404 = {
-  data: void
-  status: 404
-}
-
-export type linkArtifactToProjectResponseSuccess = (linkArtifactToProjectResponse204) & {
-  headers: Headers;
-};
-export type linkArtifactToProjectResponseError = (linkArtifactToProjectResponse404) & {
-  headers: Headers;
-};
-
-export type linkArtifactToProjectResponse = (linkArtifactToProjectResponseSuccess | linkArtifactToProjectResponseError)
-
-export const getLinkArtifactToProjectUrl = (id: string,) => {
-
-
-
-
-  return `/api/artifacts/${id}/links/project`
-}
-
-export const linkArtifactToProject = async (id: string,
-    linkArtifactToProjectRequest: LinkArtifactToProjectRequest, options?: RequestInit): Promise<linkArtifactToProjectResponse> => {
-
-  return customFetch<linkArtifactToProjectResponse>(getLinkArtifactToProjectUrl(id),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      linkArtifactToProjectRequest,)
-  }
-);}
-
-
-
-export type linkArtifactToEngagementResponse204 = {
-  data: void
-  status: 204
-}
-
-export type linkArtifactToEngagementResponse404 = {
-  data: void
-  status: 404
-}
-
-export type linkArtifactToEngagementResponseSuccess = (linkArtifactToEngagementResponse204) & {
-  headers: Headers;
-};
-export type linkArtifactToEngagementResponseError = (linkArtifactToEngagementResponse404) & {
-  headers: Headers;
-};
-
-export type linkArtifactToEngagementResponse = (linkArtifactToEngagementResponseSuccess | linkArtifactToEngagementResponseError)
-
-export const getLinkArtifactToEngagementUrl = (id: string,) => {
-
-
-
-
-  return `/api/artifacts/${id}/links/engagement`
-}
-
-export const linkArtifactToEngagement = async (id: string,
-    linkArtifactToEngagementRequest: LinkArtifactToEngagementRequest, options?: RequestInit): Promise<linkArtifactToEngagementResponse> => {
-
-  return customFetch<linkArtifactToEngagementResponse>(getLinkArtifactToEngagementUrl(id),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      linkArtifactToEngagementRequest,)
-  }
-);}
-
-
-
-export type linkArtifactToSkillResponse204 = {
-  data: void
-  status: 204
-}
-
-export type linkArtifactToSkillResponse404 = {
-  data: void
-  status: 404
-}
-
-export type linkArtifactToSkillResponseSuccess = (linkArtifactToSkillResponse204) & {
-  headers: Headers;
-};
-export type linkArtifactToSkillResponseError = (linkArtifactToSkillResponse404) & {
-  headers: Headers;
-};
-
-export type linkArtifactToSkillResponse = (linkArtifactToSkillResponseSuccess | linkArtifactToSkillResponseError)
-
-export const getLinkArtifactToSkillUrl = (id: string,) => {
-
-
-
-
-  return `/api/artifacts/${id}/links/skill`
-}
-
-export const linkArtifactToSkill = async (id: string,
-    linkArtifactToSkillRequest: LinkArtifactToSkillRequest, options?: RequestInit): Promise<linkArtifactToSkillResponse> => {
-
-  return customFetch<linkArtifactToSkillResponse>(getLinkArtifactToSkillUrl(id),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      linkArtifactToSkillRequest,)
-  }
-);}
-
-
-
 export type listGoalsResponse200 = {
   data: GoalDto[]
   status: 200
@@ -877,40 +576,6 @@ export const listGoals = async ( options?: RequestInit): Promise<listGoalsRespon
     method: 'GET'
 
 
-  }
-);}
-
-
-
-export type setGoalResponse200 = {
-  data: SetGoalResponse
-  status: 200
-}
-
-export type setGoalResponseSuccess = (setGoalResponse200) & {
-  headers: Headers;
-};
-;
-
-export type setGoalResponse = (setGoalResponseSuccess)
-
-export const getSetGoalUrl = () => {
-
-
-
-
-  return `/api/goals`
-}
-
-export const setGoal = async (setGoalRequest: SetGoalRequest, options?: RequestInit): Promise<setGoalResponse> => {
-
-  return customFetch<setGoalResponse>(getSetGoalUrl(),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      setGoalRequest,)
   }
 );}
 
@@ -956,147 +621,6 @@ export const getGoal = async (id: string, options?: RequestInit): Promise<getGoa
 
 
 
-export type recordGoalProgressResponse204 = {
-  data: void
-  status: 204
-}
-
-export type recordGoalProgressResponse400 = {
-  data: string
-  status: 400
-}
-
-export type recordGoalProgressResponse404 = {
-  data: void
-  status: 404
-}
-
-export type recordGoalProgressResponseSuccess = (recordGoalProgressResponse204) & {
-  headers: Headers;
-};
-export type recordGoalProgressResponseError = (recordGoalProgressResponse400 | recordGoalProgressResponse404) & {
-  headers: Headers;
-};
-
-export type recordGoalProgressResponse = (recordGoalProgressResponseSuccess | recordGoalProgressResponseError)
-
-export const getRecordGoalProgressUrl = (id: string,) => {
-
-
-
-
-  return `/api/goals/${id}/progress`
-}
-
-export const recordGoalProgress = async (id: string,
-    recordProgressRequest: RecordProgressRequest, options?: RequestInit): Promise<recordGoalProgressResponse> => {
-
-  return customFetch<recordGoalProgressResponse>(getRecordGoalProgressUrl(id),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      recordProgressRequest,)
-  }
-);}
-
-
-
-export type achieveGoalResponse204 = {
-  data: void
-  status: 204
-}
-
-export type achieveGoalResponse400 = {
-  data: string
-  status: 400
-}
-
-export type achieveGoalResponse404 = {
-  data: void
-  status: 404
-}
-
-export type achieveGoalResponseSuccess = (achieveGoalResponse204) & {
-  headers: Headers;
-};
-export type achieveGoalResponseError = (achieveGoalResponse400 | achieveGoalResponse404) & {
-  headers: Headers;
-};
-
-export type achieveGoalResponse = (achieveGoalResponseSuccess | achieveGoalResponseError)
-
-export const getAchieveGoalUrl = (id: string,) => {
-
-
-
-
-  return `/api/goals/${id}/achieve`
-}
-
-export const achieveGoal = async (id: string,
-    achieveGoalRequest: AchieveGoalRequest, options?: RequestInit): Promise<achieveGoalResponse> => {
-
-  return customFetch<achieveGoalResponse>(getAchieveGoalUrl(id),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      achieveGoalRequest,)
-  }
-);}
-
-
-
-export type abandonGoalResponse204 = {
-  data: void
-  status: 204
-}
-
-export type abandonGoalResponse400 = {
-  data: string
-  status: 400
-}
-
-export type abandonGoalResponse404 = {
-  data: void
-  status: 404
-}
-
-export type abandonGoalResponseSuccess = (abandonGoalResponse204) & {
-  headers: Headers;
-};
-export type abandonGoalResponseError = (abandonGoalResponse400 | abandonGoalResponse404) & {
-  headers: Headers;
-};
-
-export type abandonGoalResponse = (abandonGoalResponseSuccess | abandonGoalResponseError)
-
-export const getAbandonGoalUrl = (id: string,) => {
-
-
-
-
-  return `/api/goals/${id}/abandon`
-}
-
-export const abandonGoal = async (id: string,
-    abandonGoalRequest: AbandonGoalRequest, options?: RequestInit): Promise<abandonGoalResponse> => {
-
-  return customFetch<abandonGoalResponse>(getAbandonGoalUrl(id),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      abandonGoalRequest,)
-  }
-);}
-
-
-
 export type listExperiencesResponse200 = {
   data: ExperienceDto[]
   status: 200
@@ -1132,5 +656,214 @@ export const listExperiences = async (params?: ListExperiencesParams, options?: 
     method: 'GET'
 
 
+  }
+);}
+
+
+
+export type demoChatSendMessageResponse200 = {
+  data: ChatResponse
+  status: 200
+}
+
+export type demoChatSendMessageResponseSuccess = (demoChatSendMessageResponse200) & {
+  headers: Headers;
+};
+;
+
+export type demoChatSendMessageResponse = (demoChatSendMessageResponseSuccess)
+
+export const getDemoChatSendMessageUrl = () => {
+
+
+
+
+  return `/api/demos/chat/messages`
+}
+
+export const demoChatSendMessage = async (chatRequest: ChatRequest, options?: RequestInit): Promise<demoChatSendMessageResponse> => {
+
+  return customFetch<demoChatSendMessageResponse>(getDemoChatSendMessageUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      chatRequest,)
+  }
+);}
+
+
+
+export type demoTextToSpeechGetVoicesResponse200 = {
+  data: Voice[]
+  status: 200
+}
+
+export type demoTextToSpeechGetVoicesResponseSuccess = (demoTextToSpeechGetVoicesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type demoTextToSpeechGetVoicesResponse = (demoTextToSpeechGetVoicesResponseSuccess)
+
+export const getDemoTextToSpeechGetVoicesUrl = () => {
+
+
+
+
+  return `/api/demos/text-to-speech/voices`
+}
+
+export const demoTextToSpeechGetVoices = async ( options?: RequestInit): Promise<demoTextToSpeechGetVoicesResponse> => {
+
+  return customFetch<demoTextToSpeechGetVoicesResponse>(getDemoTextToSpeechGetVoicesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export type demoTextToSpeechSynthesizeResponse200 = {
+  data: void
+  status: 200
+}
+
+export type demoTextToSpeechSynthesizeResponseSuccess = (demoTextToSpeechSynthesizeResponse200) & {
+  headers: Headers;
+};
+;
+
+export type demoTextToSpeechSynthesizeResponse = (demoTextToSpeechSynthesizeResponseSuccess)
+
+export const getDemoTextToSpeechSynthesizeUrl = () => {
+
+
+
+
+  return `/api/demos/text-to-speech/syntheses`
+}
+
+export const demoTextToSpeechSynthesize = async (synthesizeRequest: SynthesizeRequest, options?: RequestInit): Promise<demoTextToSpeechSynthesizeResponse> => {
+
+  return customFetch<demoTextToSpeechSynthesizeResponse>(getDemoTextToSpeechSynthesizeUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      synthesizeRequest,)
+  }
+);}
+
+
+
+export type demoVisionCaptionResponse200 = {
+  data: CaptionResponse
+  status: 200
+}
+
+export type demoVisionCaptionResponseSuccess = (demoVisionCaptionResponse200) & {
+  headers: Headers;
+};
+;
+
+export type demoVisionCaptionResponse = (demoVisionCaptionResponseSuccess)
+
+export const getDemoVisionCaptionUrl = () => {
+
+
+
+
+  return `/api/demos/vision/captions`
+}
+
+export const demoVisionCaption = async (demoVisionCaptionBody: DemoVisionCaptionBody, options?: RequestInit): Promise<demoVisionCaptionResponse> => {
+    const formData = new FormData();
+formData.append(`image`, demoVisionCaptionBody.image);
+
+  return customFetch<demoVisionCaptionResponse>(getDemoVisionCaptionUrl(),
+  {
+    ...options,
+    method: 'POST'
+    ,
+    body:
+      formData,
+  }
+);}
+
+
+
+export type demoVisionOcrResponse200 = {
+  data: OcrResponse
+  status: 200
+}
+
+export type demoVisionOcrResponseSuccess = (demoVisionOcrResponse200) & {
+  headers: Headers;
+};
+;
+
+export type demoVisionOcrResponse = (demoVisionOcrResponseSuccess)
+
+export const getDemoVisionOcrUrl = () => {
+
+
+
+
+  return `/api/demos/vision/ocr`
+}
+
+export const demoVisionOcr = async (demoVisionOcrBody: DemoVisionOcrBody, options?: RequestInit): Promise<demoVisionOcrResponse> => {
+    const formData = new FormData();
+formData.append(`image`, demoVisionOcrBody.image);
+
+  return customFetch<demoVisionOcrResponse>(getDemoVisionOcrUrl(),
+  {
+    ...options,
+    method: 'POST'
+    ,
+    body:
+      formData,
+  }
+);}
+
+
+
+export type demoVisionDetectResponse200 = {
+  data: DetectionResponse
+  status: 200
+}
+
+export type demoVisionDetectResponseSuccess = (demoVisionDetectResponse200) & {
+  headers: Headers;
+};
+;
+
+export type demoVisionDetectResponse = (demoVisionDetectResponseSuccess)
+
+export const getDemoVisionDetectUrl = () => {
+
+
+
+
+  return `/api/demos/vision/detections`
+}
+
+export const demoVisionDetect = async (demoVisionDetectBody: DemoVisionDetectBody, options?: RequestInit): Promise<demoVisionDetectResponse> => {
+    const formData = new FormData();
+formData.append(`image`, demoVisionDetectBody.image);
+
+  return customFetch<demoVisionDetectResponse>(getDemoVisionDetectUrl(),
+  {
+    ...options,
+    method: 'POST'
+    ,
+    body:
+      formData,
   }
 );}

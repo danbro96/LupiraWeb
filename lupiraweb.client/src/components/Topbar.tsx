@@ -12,6 +12,7 @@ export default function Topbar(): React.ReactElement {
           <Link href="/about">About</Link>
           {/* <Link href="/projects">Projects</Link> */}
           <Link href="/kokos">Kokos</Link>
+          <Link href="/demos">Demos</Link>
         </nav>
       </div>
     </header>

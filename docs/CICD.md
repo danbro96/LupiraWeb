@@ -96,10 +96,10 @@ docker exec -it medelynas-db psql -U medelynas_admin postgres
 Then in the `psql` prompt:
 
 ```sql
-CREATE ROLE lupira WITH LOGIN PASSWORD '<strong password>';
-CREATE DATABASE lupiraweb OWNER lupira;
+CREATE ROLE lupiraweb_user WITH LOGIN PASSWORD '<strong password>';
+CREATE DATABASE lupiraweb OWNER lupiraweb_user;
 REVOKE ALL ON DATABASE lupiraweb FROM PUBLIC;
-GRANT CONNECT ON DATABASE lupiraweb TO lupira;
+GRANT CONNECT ON DATABASE lupiraweb TO lupiraweb_user;
 \q
 ```
 
@@ -109,7 +109,7 @@ Verify:
 
 ```bash
 docker network inspect medelynas_data    # should show medelynas-db attached
-docker exec medelynas-db psql -U lupira -d lupiraweb -c '\conninfo'
+docker exec medelynas-db psql -U lupiraweb_user -d lupiraweb -c '\conninfo'
 ```
 
 ### 3. TrueNAS: the `lupira-web` App
@@ -118,7 +118,7 @@ docker exec medelynas-db psql -U lupira -d lupiraweb -c '\conninfo'
 2. Application name: `lupira-web`.
 3. Paste [deploy/web/compose.yaml](../deploy/web/compose.yaml). The compose joins external networks `medelynas_data` (for Postgres) and `medelynas_telemetry` (for OTLP); both must already exist.
 4. Set env vars (see [deploy/web/.env.example](../deploy/web/.env.example)):
-   - `POSTGRES_DB=lupiraweb`, `POSTGRES_USER=lupira`, `POSTGRES_PASSWORD=<from Section 2>`.
+   - `POSTGRES_DB=lupiraweb`, `POSTGRES_USER=lupiraweb_user`, `POSTGRES_PASSWORD=<from Section 2>`.
    - `POSTGRES_HOST=postgres` (service name of the `medelynas-db` container on the shared network).
    - `IMAGE_TAG=latest` (or pin a `sha-*` for reproducibility).
    - `FRONTEND_PORT=40080`, `BACKEND_PORT=40081` — host ports the reverse proxy targets.
@@ -144,7 +144,7 @@ docker exec lupira-backend curl -sf http://localhost:80/health/ready
 2. Application name: `lupira-admin`.
 3. Paste [deploy/admin/compose.yaml](../deploy/admin/compose.yaml).
 4. Set env vars (see [deploy/admin/.env.example](../deploy/admin/.env.example)):
-   - `POSTGRES_DB=lupiraweb`, `POSTGRES_USER=lupira`, `POSTGRES_PASSWORD=<from Section 2>`.
+   - `POSTGRES_DB=lupiraweb`, `POSTGRES_USER=lupiraweb_user`, `POSTGRES_PASSWORD=<from Section 2>`.
    - `POSTGRES_HOST=postgres`.
    - `IMAGE_TAG=latest` (or pin a `sha-*`).
    - `ADMIN_BACKEND_PORT=40082`.
@@ -224,7 +224,7 @@ The shared kernel lives in [LupiraWeb.Domain](../LupiraWeb.Domain/): event recor
 **Backend boots but `/health/ready` stays red.** The backend can't reach Postgres. Check:
 - `POSTGRES_HOST=postgres` matches the service name of the `medelynas-db` container.
 - The backend container is on the `medelynas_data` network: `docker network inspect medelynas_data`.
-- Credentials match the role you provisioned in Section 2 (`lupira` / `<password>`).
+- Credentials match the role you provisioned in Section 2 (`lupiraweb_user` / `<password>`).
 
 **No traces or metrics in OpenObserve for `lupira-web` / `lupira-admin`.** Telemetry is silently failing or the wrong target. Check:
 - `OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:5080/api/default` — note `http`, not `https`, OpenObserve's HTTP port `5080`, and the `/api/default` org segment.

@@ -518,6 +518,196 @@
           }
         }
       }
+    },
+    "/api/demos/chat/messages": {
+      "post": {
+        "tags": [
+          "Demos.Chat"
+        ],
+        "operationId": "DemoChatSendMessage",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/demos/text-to-speech/voices": {
+      "get": {
+        "tags": [
+          "Demos.TextToSpeech"
+        ],
+        "operationId": "DemoTextToSpeechGetVoices",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Voice"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/demos/text-to-speech/syntheses": {
+      "post": {
+        "tags": [
+          "Demos.TextToSpeech"
+        ],
+        "operationId": "DemoTextToSpeechSynthesize",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SynthesizeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/demos/vision/captions": {
+      "post": {
+        "tags": [
+          "Demos.Vision"
+        ],
+        "operationId": "DemoVisionCaption",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "image"
+                ],
+                "type": "object",
+                "properties": {
+                  "image": {
+                    "$ref": "#/components/schemas/IFormFile"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaptionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/demos/vision/ocr": {
+      "post": {
+        "tags": [
+          "Demos.Vision"
+        ],
+        "operationId": "DemoVisionOcr",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "image"
+                ],
+                "type": "object",
+                "properties": {
+                  "image": {
+                    "$ref": "#/components/schemas/IFormFile"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OcrResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/demos/vision/detections": {
+      "post": {
+        "tags": [
+          "Demos.Vision"
+        ],
+        "operationId": "DemoVisionDetect",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": [
+                  "image"
+                ],
+                "type": "object",
+                "properties": {
+                  "image": {
+                    "$ref": "#/components/schemas/IFormFile"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetectionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -604,6 +794,100 @@
           },
           "role": {
             "$ref": "#/components/schemas/ArtifactRole"
+          }
+        }
+      },
+      "CaptionResponse": {
+        "required": [
+          "caption"
+        ],
+        "type": "object",
+        "properties": {
+          "caption": {
+            "type": "string"
+          }
+        }
+      },
+      "ChatRequest": {
+        "required": [
+          "prompt"
+        ],
+        "type": "object",
+        "properties": {
+          "prompt": {
+            "type": "string"
+          }
+        }
+      },
+      "ChatResponse": {
+        "required": [
+          "reply"
+        ],
+        "type": "object",
+        "properties": {
+          "reply": {
+            "type": "string"
+          }
+        }
+      },
+      "Detection": {
+        "required": [
+          "x1",
+          "y1",
+          "x2",
+          "y2",
+          "label"
+        ],
+        "type": "object",
+        "properties": {
+          "x1": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "y1": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "x2": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "y2": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "number",
+              "string"
+            ],
+            "format": "double"
+          },
+          "label": {
+            "type": "string"
+          }
+        }
+      },
+      "DetectionResponse": {
+        "required": [
+          "items"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Detection"
+            }
           }
         }
       },
@@ -843,6 +1127,10 @@
       "GoalStatus": {
         "type": "integer"
       },
+      "IFormFile": {
+        "type": "string",
+        "format": "binary"
+      },
       "Intensity": {
         "type": "integer"
       },
@@ -1015,6 +1303,17 @@
               "null",
               "string"
             ]
+          }
+        }
+      },
+      "OcrResponse": {
+        "required": [
+          "text"
+        ],
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
           }
         }
       },
@@ -1317,6 +1616,32 @@
           }
         }
       },
+      "SynthesizeRequest": {
+        "required": [
+          "text"
+        ],
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "voice": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "speed": {
+            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?$",
+            "type": [
+              "null",
+              "number",
+              "string"
+            ],
+            "format": "double"
+          }
+        }
+      },
       "TitleEpochDto": {
         "required": [
           "titleId",
@@ -1344,6 +1669,29 @@
             "format": "date"
           }
         }
+      },
+      "Voice": {
+        "required": [
+          "id",
+          "name",
+          "language",
+          "gender"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "gender": {
+            "type": "string"
+          }
+        }
       }
     }
   },
@@ -1365,6 +1713,15 @@
     },
     {
       "name": "Experiences"
+    },
+    {
+      "name": "Demos.Chat"
+    },
+    {
+      "name": "Demos.TextToSpeech"
+    },
+    {
+      "name": "Demos.Vision"
     }
   ]
 }

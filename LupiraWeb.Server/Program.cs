@@ -2,6 +2,9 @@ using LupiraWeb.Server.Data;
 using LupiraWeb.Server.Data.Repositories;
 using LupiraWeb.Domain;
 using LupiraWeb.Server.Endpoints.Artifacts;
+using LupiraWeb.Server.Endpoints.Demos.Chat;
+using LupiraWeb.Server.Endpoints.Demos.TextToSpeech;
+using LupiraWeb.Server.Endpoints.Demos.Vision;
 using LupiraWeb.Server.Endpoints.Experiences;
 using LupiraWeb.Server.Endpoints.Goals;
 using LupiraWeb.Server.Endpoints.Media;
@@ -52,6 +55,36 @@ builder.Services.AddScoped<ArtifactsHandler>();
 builder.Services.AddScoped<GoalsHandler>();
 builder.Services.AddScoped<ExperiencesHandler>();
 
+builder.Services.AddHttpClient<ChatHandler>(c =>
+{
+    c.BaseAddress = new Uri(builder.Configuration["Demos:Chat:BaseUrl"]
+        ?? throw new InvalidOperationException("Demos:Chat:BaseUrl is required"));
+    var apiKey = builder.Configuration["Demos:Chat:ApiKey"];
+    if (!string.IsNullOrEmpty(apiKey))
+        c.DefaultRequestHeaders.Authorization = new("Bearer", apiKey);
+    c.Timeout = TimeSpan.FromSeconds(120);
+});
+
+builder.Services.AddHttpClient<TextToSpeechHandler>(c =>
+{
+    c.BaseAddress = new Uri(builder.Configuration["Demos:TextToSpeech:BaseUrl"]
+        ?? throw new InvalidOperationException("Demos:TextToSpeech:BaseUrl is required"));
+    var apiKey = builder.Configuration["Demos:TextToSpeech:ApiKey"];
+    if (!string.IsNullOrEmpty(apiKey))
+        c.DefaultRequestHeaders.Add("X-API-Key", apiKey);
+    c.Timeout = TimeSpan.FromSeconds(60);
+});
+
+builder.Services.AddHttpClient<VisionHandler>(c =>
+{
+    c.BaseAddress = new Uri(builder.Configuration["Demos:Vision:BaseUrl"]
+        ?? throw new InvalidOperationException("Demos:Vision:BaseUrl is required"));
+    var apiKey = builder.Configuration["Demos:Vision:ApiKey"];
+    if (!string.IsNullOrEmpty(apiKey))
+        c.DefaultRequestHeaders.Add("X-API-Key", apiKey);
+    c.Timeout = TimeSpan.FromSeconds(60);
+});
+
 builder.Services.AddHealthChecks()
     .AddCheck<MartenHealthCheck>("marten", tags: new[] { "ready" });
 
@@ -81,6 +114,10 @@ app.MapMediaEndpoints();
 app.MapArtifactsEndpoints();
 app.MapGoalsEndpoints();
 app.MapExperiencesEndpoints();
+
+app.MapChatEndpoints();
+app.MapTextToSpeechEndpoints();
+app.MapVisionEndpoints();
 
 app.Run();
 
