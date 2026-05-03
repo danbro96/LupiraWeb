@@ -10,6 +10,12 @@ services:
       OTEL_EXPORTER_OTLP_PROTOCOL: ${OTEL_EXPORTER_OTLP_PROTOCOL:-http/protobuf}
       OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
       OTEL_RESOURCE_ATTRIBUTES: ${OTEL_RESOURCE_ATTRIBUTES:-deployment.environment=prod,host.name=medelynas}
+      Demos__Chat__BaseUrl: ${DEMOS_CHAT_BASE_URL:?DEMOS_CHAT_BASE_URL is required}
+      Demos__Chat__ApiKey: ${DEMOS_CHAT_API_KEY:-}
+      Demos__TextToSpeech__BaseUrl: ${DEMOS_TTS_BASE_URL:?DEMOS_TTS_BASE_URL is required}
+      Demos__TextToSpeech__ApiKey: ${DEMOS_TTS_API_KEY:-}
+      Demos__Vision__BaseUrl: ${DEMOS_VISION_BASE_URL:?DEMOS_VISION_BASE_URL is required}
+      Demos__Vision__ApiKey: ${DEMOS_VISION_API_KEY:-}
     ports:
       - "${BACKEND_PORT:-40081}:80"
     healthcheck:
