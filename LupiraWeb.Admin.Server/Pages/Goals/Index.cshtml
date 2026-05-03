@@ -1,0 +1,47 @@
+@page "/admin/goals"
+@model IndexModel
+@{
+    ViewData["Title"] = "Goals";
+}
+
+<header class="toolbar">
+    <hgroup>
+        <h1>Goals</h1>
+        <p>@Model.Goals.Count total · @Model.Goals.Count(g => g.Status == GoalStatus.Active) active.</p>
+    </hgroup>
+    <a href="/admin/goals/new" role="button">Add Goal</a>
+</header>
+
+@if (Model.Goals.Count == 0)
+{
+    <p>No goals yet.</p>
+}
+else
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Skill</th>
+                <th>Target</th>
+                <th>Deadline</th>
+                <th>Status</th>
+                <th>Progress</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var g in Model.Goals)
+            {
+                var skillName = g.SkillId is Guid sid && Model.SkillsById.TryGetValue(sid, out var s) ? s.Name : "—";
+                <tr>
+                    <td>@skillName</td>
+                    <td>@g.TargetMaturity</td>
+                    <td>@(g.Deadline?.ToString("yyyy-MM-dd") ?? "—")</td>
+                    <td>@g.Status</td>
+                    <td>@g.Progress.Count</td>
+                    <td><a href="/admin/goals/@g.Id">Manage</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

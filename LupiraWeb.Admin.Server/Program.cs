@@ -16,6 +16,7 @@ const string DefaultConnectionString =
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
+builder.Services.AddRazorPages();
 
 builder.Services.AddMarten(sp =>
 {
@@ -62,6 +63,10 @@ if (!app.Environment.IsProduction())
 }
 
 app.MapHealthChecks("/health", new HealthCheckOptions { Predicate = _ => false });
+
+app.UseStaticFiles();
+
+app.MapRazorPages();
 
 app.MapArtifactsEndpoints();
 app.MapGoalsEndpoints();

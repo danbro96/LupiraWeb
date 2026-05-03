@@ -1,0 +1,36 @@
+@page "/admin/artifacts/new"
+@model CreateModel
+@{
+    ViewData["Title"] = "Add Artifact";
+}
+
+<header>
+    <h1>Add Artifact</h1>
+</header>
+
+<form method="post">
+    <label asp-for="Form.Title">
+        Title
+        <input asp-for="Form.Title" required autocomplete="off" autofocus />
+    </label>
+    <label asp-for="Form.Url">
+        URL
+        <input asp-for="Form.Url" type="url" required />
+    </label>
+    <label asp-for="Form.Kind">
+        Kind
+        <select asp-for="Form.Kind" asp-items="Html.GetEnumSelectList<ArtifactKind>()"></select>
+    </label>
+    <label asp-for="Form.Description">
+        Description
+        <textarea asp-for="Form.Description" rows="3"></textarea>
+    </label>
+    <label asp-for="Form.ProducedOn">
+        Produced on (optional)
+        <input asp-for="Form.ProducedOn" type="date" />
+    </label>
+    <div role="group">
+        <button type="submit">Create</button>
+        <a href="/admin/artifacts" role="button" class="secondary">Cancel</a>
+    </div>
+</form>

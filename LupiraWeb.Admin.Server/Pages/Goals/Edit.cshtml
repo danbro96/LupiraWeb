@@ -1,0 +1,84 @@
+@page "/admin/goals/{id:guid}"
+@model EditModel
+@{
+    var skillName = Model.Goal?.SkillId is Guid sid && Model.SkillsById.TryGetValue(sid, out var s)
+        ? s.Name
+        : "(no skill)";
+    ViewData["Title"] = $"Goal: {skillName}";
+}
+
+<header class="toolbar">
+    <hgroup>
+        <h1>Goal</h1>
+        <p>@skillName · target @Model.Goal?.TargetMaturity · @Model.Goal?.Status</p>
+    </hgroup>
+    <a href="/admin/goals" role="button" class="secondary">Back</a>
+</header>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <p role="alert"><mark>@Model.ErrorMessage</mark></p>
+}
+
+<article>
+    <p><strong>Motivation:</strong> @Model.Goal?.Motivation</p>
+    @if (Model.Goal?.Deadline is DateOnly d)
+    {
+        <p><strong>Deadline:</strong> @d.ToString("yyyy-MM-dd")</p>
+    }
+    @if (Model.Goal is { Status: not GoalStatus.Active })
+    {
+        <p><strong>Resolved:</strong> @Model.Goal?.ResolvedAt?.ToString("yyyy-MM-dd") @Model.Goal?.ResolutionReason</p>
+    }
+</article>
+
+<h2>Progress (@Model.Goal?.Progress.Count)</h2>
+@if (Model.Goal?.Progress.Count == 0)
+{
+    <p>No progress entries yet.</p>
+}
+else
+{
+    <ul>
+        @foreach (var entry in Model.Goal?.Progress.OrderByDescending(p => p.RecordedAt) ?? Enumerable.Empty<GoalProgressEntry>())
+        {
+            <li><small>@entry.RecordedAt.ToString("yyyy-MM-dd HH:mm")</small> — @entry.Note</li>
+        }
+    </ul>
+}
+
+@if (Model.Goal is { Status: GoalStatus.Active })
+{
+    <h3 style="margin-top: 2rem;">Record progress</h3>
+    <form method="post" asp-page-handler="Progress">
+        <label>
+            Note
+            <textarea name="note" rows="2" required></textarea>
+        </label>
+        <button type="submit">Add progress</button>
+    </form>
+
+    <h3 style="margin-top: 2rem;">Achieve</h3>
+    <form method="post" asp-page-handler="Achieve">
+        <label>
+            Achieved on
+            <input name="achievedOn" type="date" required value="@DateOnly.FromDateTime(DateTime.UtcNow):yyyy-MM-dd" />
+        </label>
+        <button type="submit">Mark achieved</button>
+    </form>
+
+    <h3 style="margin-top: 2rem;">Abandon</h3>
+    <form method="post" asp-page-handler="Abandon">
+        <div class="grid">
+            <label>
+                Abandoned on
+                <input name="abandonedOn" type="date" required value="@DateOnly.FromDateTime(DateTime.UtcNow):yyyy-MM-dd" />
+            </label>
+            <label>
+                Reason
+                <input name="reason" required autocomplete="off" />
+            </label>
+        </div>
+        <button type="submit" class="secondary">Mark abandoned</button>
+    </form>
+}

@@ -1,0 +1,24 @@
+@page "/admin/skills/new"
+@model CreateModel
+@{
+    ViewData["Title"] = "Add Skill";
+}
+
+<header>
+    <h1>Add Skill</h1>
+</header>
+
+<form method="post">
+    <label asp-for="Form.Name">
+        Name
+        <input asp-for="Form.Name" required autocomplete="off" autofocus />
+    </label>
+    <label asp-for="Form.Category">
+        Category
+        <select asp-for="Form.Category" asp-items="Html.GetEnumSelectList<SkillCategory>()"></select>
+    </label>
+    <div role="group">
+        <button type="submit">Create</button>
+        <a href="/admin/skills" role="button" class="secondary">Cancel</a>
+    </div>
+</form>

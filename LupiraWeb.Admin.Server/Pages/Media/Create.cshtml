@@ -1,0 +1,28 @@
+@page "/admin/media/new"
+@model CreateModel
+@{
+    ViewData["Title"] = "Upload Media";
+}
+
+<header>
+    <h1>Upload Media</h1>
+</header>
+
+<form method="post" enctype="multipart/form-data">
+    <label asp-for="File">
+        File
+        <input asp-for="File" type="file" required />
+    </label>
+    <label asp-for="AltText">
+        Alt text
+        <input asp-for="AltText" required autocomplete="off" />
+    </label>
+    <label asp-for="Caption">
+        Caption (optional)
+        <input asp-for="Caption" autocomplete="off" />
+    </label>
+    <div role="group">
+        <button type="submit">Upload</button>
+        <a href="/admin/media" role="button" class="secondary">Cancel</a>
+    </div>
+</form>

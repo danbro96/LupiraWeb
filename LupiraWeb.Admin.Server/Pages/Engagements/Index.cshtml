@@ -1,0 +1,46 @@
+@page "/admin/engagements"
+@model IndexModel
+@{
+    ViewData["Title"] = "Engagements";
+}
+
+<header class="toolbar">
+    <hgroup>
+        <h1>Engagements</h1>
+        <p>@Model.Engagements.Count total.</p>
+    </hgroup>
+    <a href="/admin/engagements/new" role="button">Add Engagement</a>
+</header>
+
+@if (Model.Engagements.Count == 0)
+{
+    <p>No engagements yet.</p>
+}
+else
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Institution</th>
+                <th>Title</th>
+                <th>Kind</th>
+                <th>Start</th>
+                <th>End</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var e in Model.Engagements)
+            {
+                <tr>
+                    <td>@e.Institution</td>
+                    <td>@(e.CurrentTitle ?? "—")</td>
+                    <td>@e.Kind</td>
+                    <td>@e.Start.ToString("yyyy-MM-dd")</td>
+                    <td>@(e.End?.ToString("yyyy-MM-dd") ?? "—")</td>
+                    <td><a href="/admin/engagements/@e.Id">Edit</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

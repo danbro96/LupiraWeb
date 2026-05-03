@@ -1,0 +1,44 @@
+@page "/admin/skills"
+@model IndexModel
+@{
+    ViewData["Title"] = "Skills";
+}
+
+<header class="toolbar">
+    <hgroup>
+        <h1>Skills</h1>
+        <p>@Model.Skills.Count registered.</p>
+    </hgroup>
+    <a href="/admin/skills/new" role="button">Add Skill</a>
+</header>
+
+@if (Model.Skills.Count == 0)
+{
+    <p>No skills yet.</p>
+}
+else
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th>Aliases</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var s in Model.Skills)
+            {
+                <tr>
+                    <td>@s.Name</td>
+                    <td>@s.Category</td>
+                    <td>@(s.Aliases.Count == 0 ? "—" : string.Join(", ", s.Aliases))</td>
+                    <td>@(s.Retired ? "Retired" : "Active")</td>
+                    <td><a href="/admin/skills/@s.Id">Edit</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

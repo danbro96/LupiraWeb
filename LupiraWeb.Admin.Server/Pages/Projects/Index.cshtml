@@ -1,0 +1,49 @@
+@page "/admin/projects"
+@model IndexModel
+@{
+    ViewData["Title"] = "Projects";
+}
+
+<header class="toolbar">
+    <hgroup>
+        <h1>Projects</h1>
+        <p>@Model.Projects.Count total.</p>
+    </hgroup>
+    <a href="/admin/projects/new" role="button">Add Project</a>
+</header>
+
+@if (Model.Projects.Count == 0)
+{
+    <p>No projects yet.</p>
+}
+else
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Kind</th>
+                <th>Status</th>
+                <th>Engagement</th>
+                <th>Start</th>
+                <th>End</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var p in Model.Projects)
+            {
+                var engagement = p.EngagementId is Guid eid && Model.EngagementsById.TryGetValue(eid, out var e) ? e.Institution : "—";
+                <tr>
+                    <td>@p.Title</td>
+                    <td>@p.Kind</td>
+                    <td>@p.Status</td>
+                    <td>@engagement</td>
+                    <td>@(p.Start?.ToString("yyyy-MM-dd") ?? "—")</td>
+                    <td>@(p.End?.ToString("yyyy-MM-dd") ?? "—")</td>
+                    <td><a href="/admin/projects/@p.Id">Edit</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

@@ -1,0 +1,46 @@
+@page "/admin/projects/new"
+@model CreateModel
+@{
+    ViewData["Title"] = "Add Project";
+}
+
+<header>
+    <h1>Add Project</h1>
+</header>
+
+<form method="post">
+    <label asp-for="Form.Title">
+        Title
+        <input asp-for="Form.Title" required autocomplete="off" autofocus />
+    </label>
+    <label asp-for="Form.Kind">
+        Kind
+        <select asp-for="Form.Kind" asp-items="Html.GetEnumSelectList<ProjectKind>()"></select>
+    </label>
+    <label asp-for="Form.Description">
+        Description
+        <textarea asp-for="Form.Description" rows="4"></textarea>
+    </label>
+    <label asp-for="Form.Url">
+        URL
+        <input asp-for="Form.Url" type="url" />
+    </label>
+    <label asp-for="Form.EngagementId">
+        Engagement (optional)
+        <select asp-for="Form.EngagementId">
+            <option value="">— None —</option>
+            @foreach (var e in Model.Engagements)
+            {
+                <option value="@e.Id">@e.Institution</option>
+            }
+        </select>
+    </label>
+    <label asp-for="Form.StartDate">
+        Start date
+        <input asp-for="Form.StartDate" type="date" />
+    </label>
+    <div role="group">
+        <button type="submit">Create</button>
+        <a href="/admin/projects" role="button" class="secondary">Cancel</a>
+    </div>
+</form>

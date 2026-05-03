@@ -1,0 +1,42 @@
+@page "/admin/engagements/new"
+@model CreateModel
+@{
+    ViewData["Title"] = "Add Engagement";
+}
+
+<header>
+    <h1>Add Engagement</h1>
+</header>
+
+<form method="post">
+    <label asp-for="Form.Institution">
+        Institution
+        <input asp-for="Form.Institution" required autocomplete="off" autofocus />
+    </label>
+    <label asp-for="Form.Title">
+        Title
+        <input asp-for="Form.Title" required autocomplete="off" />
+    </label>
+    <label asp-for="Form.Kind">
+        Kind
+        <select asp-for="Form.Kind" asp-items="Html.GetEnumSelectList<EngagementKind>()"></select>
+    </label>
+    <div class="grid">
+        <label asp-for="Form.StartDate">
+            Start date
+            <input asp-for="Form.StartDate" type="date" required />
+        </label>
+        <label asp-for="Form.EndDate">
+            End date (optional)
+            <input asp-for="Form.EndDate" type="date" />
+        </label>
+    </div>
+    <label asp-for="Form.Summary">
+        Summary
+        <textarea asp-for="Form.Summary" rows="4"></textarea>
+    </label>
+    <div role="group">
+        <button type="submit">Create</button>
+        <a href="/admin/engagements" role="button" class="secondary">Cancel</a>
+    </div>
+</form>

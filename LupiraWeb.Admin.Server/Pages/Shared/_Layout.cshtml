@@ -1,0 +1,37 @@
+@{
+    var title = ViewData["Title"] as string ?? "Admin";
+}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@title — LupiraWeb Admin</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@picocss/pico@@2/css/pico.min.css" />
+    <style>
+        nav.top { border-bottom: 1px solid var(--pico-muted-border-color); margin-bottom: 1.5rem; }
+        nav.top ul { padding-inline-start: 0; }
+        main.container { padding-block: 1rem; }
+        .toolbar { display: flex; gap: .5rem; align-items: center; justify-content: space-between; margin-block-end: 1rem; }
+    </style>
+</head>
+<body>
+    <nav class="top container-fluid">
+        <ul>
+            <li><strong><a href="/admin">LupiraWeb Admin</a></strong></li>
+        </ul>
+        <ul>
+            <li><a href="/admin/me">MyInfo</a></li>
+            <li><a href="/admin/skills">Skills</a></li>
+            <li><a href="/admin/engagements">Engagements</a></li>
+            <li><a href="/admin/projects">Projects</a></li>
+            <li><a href="/admin/artifacts">Artifacts</a></li>
+            <li><a href="/admin/goals">Goals</a></li>
+            <li><a href="/admin/media">Media</a></li>
+        </ul>
+    </nav>
+    <main class="container">
+        @RenderBody()
+    </main>
+</body>
+</html>

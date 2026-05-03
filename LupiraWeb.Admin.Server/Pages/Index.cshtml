@@ -1,0 +1,23 @@
+@page "/admin"
+@model IndexModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+<header>
+    <h1>LupiraWeb Admin</h1>
+    <p>Internal admin UI for the platform. LAN/VPN-only — no auth.</p>
+</header>
+
+<section>
+    <h2>Sections</h2>
+    <ul>
+        <li><a href="/admin/me">MyInfo</a> — name, contact, bio (singleton)</li>
+        <li><a href="/admin/skills">Skills</a> — registered skills (Phase 2)</li>
+        <li><a href="/admin/engagements">Engagements</a> — employments &amp; gigs (Phase 2)</li>
+        <li><a href="/admin/projects">Projects</a> — public projects (Phase 2)</li>
+        <li><a href="/admin/artifacts">Artifacts</a> — links to external work (Phase 3)</li>
+        <li><a href="/admin/goals">Goals</a> — current/past goals (Phase 3)</li>
+        <li><a href="/admin/media">Media</a> — uploaded assets (Phase 3)</li>
+    </ul>
+</section>

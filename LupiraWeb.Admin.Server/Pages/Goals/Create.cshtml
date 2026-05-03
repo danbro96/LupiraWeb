@@ -1,0 +1,38 @@
+@page "/admin/goals/new"
+@model CreateModel
+@{
+    ViewData["Title"] = "Add Goal";
+}
+
+<header>
+    <h1>Add Goal</h1>
+</header>
+
+<form method="post">
+    <label asp-for="Form.SkillId">
+        Skill (optional)
+        <select asp-for="Form.SkillId">
+            <option value="">— None —</option>
+            @foreach (var s in Model.Skills)
+            {
+                <option value="@s.Id">@s.Name</option>
+            }
+        </select>
+    </label>
+    <label asp-for="Form.TargetMaturity">
+        Target maturity
+        <select asp-for="Form.TargetMaturity" asp-items="Html.GetEnumSelectList<Maturity>()"></select>
+    </label>
+    <label asp-for="Form.Deadline">
+        Deadline (optional)
+        <input asp-for="Form.Deadline" type="date" />
+    </label>
+    <label asp-for="Form.Motivation">
+        Motivation
+        <textarea asp-for="Form.Motivation" rows="3" required></textarea>
+    </label>
+    <div role="group">
+        <button type="submit">Create</button>
+        <a href="/admin/goals" role="button" class="secondary">Cancel</a>
+    </div>
+</form>

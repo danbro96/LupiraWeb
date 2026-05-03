@@ -1,0 +1,44 @@
+@page "/admin/artifacts"
+@model IndexModel
+@{
+    ViewData["Title"] = "Artifacts";
+}
+
+<header class="toolbar">
+    <hgroup>
+        <h1>Artifacts</h1>
+        <p>@Model.Artifacts.Count total.</p>
+    </hgroup>
+    <a href="/admin/artifacts/new" role="button">Add Artifact</a>
+</header>
+
+@if (Model.Artifacts.Count == 0)
+{
+    <p>No artifacts yet.</p>
+}
+else
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Kind</th>
+                <th>Produced</th>
+                <th>Links</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var a in Model.Artifacts)
+            {
+                <tr>
+                    <td><a href="@a.Url" target="_blank" rel="noopener">@a.Title</a></td>
+                    <td>@a.Kind</td>
+                    <td>@(a.ProducedOn?.ToString("yyyy-MM-dd") ?? "—")</td>
+                    <td>P:@a.LinkedProjectIds.Count E:@a.LinkedEngagementIds.Count S:@a.LinkedSkills.Count</td>
+                    <td><a href="/admin/artifacts/@a.Id">Edit</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

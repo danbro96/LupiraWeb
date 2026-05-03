@@ -1,0 +1,56 @@
+@page "/admin/me"
+@model EditModel
+@{
+    ViewData["Title"] = "MyInfo";
+}
+
+<header class="toolbar">
+    <hgroup>
+        <h1>MyInfo</h1>
+        <p>The singleton document the public site renders on the home page.</p>
+    </hgroup>
+</header>
+
+@if (Model.Saved)
+{
+    <p role="status"><mark>Saved.</mark></p>
+}
+
+<form method="post">
+    <label asp-for="Form.FullName">
+        Full name
+        <input asp-for="Form.FullName" required autocomplete="off" />
+    </label>
+    <label asp-for="Form.Email">
+        Email
+        <input asp-for="Form.Email" type="email" required autocomplete="off" />
+    </label>
+    <label asp-for="Form.Tagline">
+        Tagline
+        <input asp-for="Form.Tagline" autocomplete="off" />
+    </label>
+    <label asp-for="Form.Location">
+        Location
+        <input asp-for="Form.Location" autocomplete="off" />
+    </label>
+    <label asp-for="Form.Bio">
+        Bio
+        <textarea asp-for="Form.Bio" rows="6"></textarea>
+    </label>
+    <fieldset>
+        <legend>Links</legend>
+        <label asp-for="Form.GithubUrl">
+            GitHub URL
+            <input asp-for="Form.GithubUrl" type="url" autocomplete="off" />
+        </label>
+        <label asp-for="Form.LinkedInUrl">
+            LinkedIn URL
+            <input asp-for="Form.LinkedInUrl" type="url" autocomplete="off" />
+        </label>
+        <label asp-for="Form.WebsiteUrl">
+            Website URL
+            <input asp-for="Form.WebsiteUrl" type="url" autocomplete="off" />
+        </label>
+    </fieldset>
+    <button type="submit">Save</button>
+</form>

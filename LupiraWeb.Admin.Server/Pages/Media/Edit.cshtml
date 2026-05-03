@@ -1,0 +1,62 @@
+@page "/admin/media/{id:guid}"
+@model EditModel
+@{
+    ViewData["Title"] = $"Media: {Model.Media?.AltText}";
+}
+
+<header class="toolbar">
+    <hgroup>
+        <h1>@Model.Media?.AltText</h1>
+        <p>@Model.Media?.MimeType · <code>@Model.Media?.BlobRef</code></p>
+    </hgroup>
+    <a href="/admin/media" role="button" class="secondary">Back</a>
+</header>
+
+<h2>Linked projects</h2>
+<ul>
+    @foreach (var link in Model.Media?.LinkedProjects ?? new List<ProjectLink>())
+    {
+        var name = Model.ProjectsById.TryGetValue(link.ProjectId, out var p) ? p.Title : link.ProjectId.ToString();
+        <li>@name <small>(@link.Role)</small></li>
+    }
+</ul>
+<form method="post" asp-page-handler="LinkProject">
+    <div class="grid">
+        <label>
+            Project
+            <select name="projectId" required>
+                <option value="">— Select project —</option>
+                @foreach (var p in Model.Projects)
+                {
+                    <option value="@p.Id">@p.Title</option>
+                }
+            </select>
+        </label>
+        <label>
+            Role
+            <select name="role" asp-items="Html.GetEnumSelectList<MediaRole>()"></select>
+        </label>
+    </div>
+    <button type="submit">Link to project</button>
+</form>
+
+<h2 style="margin-top: 2rem;">Linked skills</h2>
+<ul>
+    @foreach (var sid in Model.Media?.LinkedSkillIds ?? new List<Guid>())
+    {
+        <li>@(Model.SkillsById.TryGetValue(sid, out var s) ? s.Name : sid.ToString())</li>
+    }
+</ul>
+<form method="post" asp-page-handler="LinkSkill">
+    <label>
+        Skill
+        <select name="skillId" required>
+            <option value="">— Select skill —</option>
+            @foreach (var s in Model.Skills)
+            {
+                <option value="@s.Id">@s.Name</option>
+            }
+        </select>
+    </label>
+    <button type="submit">Link to skill</button>
+</form>

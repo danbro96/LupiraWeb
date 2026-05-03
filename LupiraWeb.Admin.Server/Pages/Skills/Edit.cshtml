@@ -1,0 +1,37 @@
+@page "/admin/skills/{id:guid}"
+@model EditModel
+@{
+    ViewData["Title"] = $"Edit {Model.Form.Name}";
+}
+
+<header class="toolbar">
+    <hgroup>
+        <h1>Edit Skill</h1>
+        <p>@(Model.Skill?.Retired == true ? "Retired" : "Active")</p>
+    </hgroup>
+    <a href="/admin/skills" role="button" class="secondary">Back</a>
+</header>
+
+@if (Model.Saved)
+{
+    <p role="status"><mark>Saved.</mark></p>
+}
+
+<form method="post">
+    <label asp-for="Form.Name">
+        Name
+        <input asp-for="Form.Name" required autocomplete="off" />
+    </label>
+    <label asp-for="Form.Category">
+        Category
+        <select asp-for="Form.Category" asp-items="Html.GetEnumSelectList<SkillCategory>()"></select>
+    </label>
+    <button type="submit">Save</button>
+</form>
+
+@if (Model.Skill is { Retired: false })
+{
+    <form method="post" asp-page-handler="Retire" style="margin-top: 2rem;">
+        <button type="submit" class="secondary">Retire skill</button>
+    </form>
+}

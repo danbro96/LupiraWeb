@@ -1,0 +1,50 @@
+@page "/admin/engagements/{id:guid}"
+@model EditModel
+@{
+    ViewData["Title"] = $"Edit {Model.Form.Institution}";
+}
+
+<header class="toolbar">
+    <hgroup>
+        <h1>Edit Engagement</h1>
+        <p>Current title: @(Model.Engagement?.CurrentTitle ?? "—")</p>
+    </hgroup>
+    <a href="/admin/engagements" role="button" class="secondary">Back</a>
+</header>
+
+@if (Model.Saved)
+{
+    <p role="status"><mark>Saved.</mark></p>
+}
+
+<form method="post">
+    <label asp-for="Form.Institution">
+        Institution
+        <input asp-for="Form.Institution" required autocomplete="off" />
+    </label>
+    <label asp-for="Form.Kind">
+        Kind
+        <select asp-for="Form.Kind" asp-items="Html.GetEnumSelectList<EngagementKind>()"></select>
+    </label>
+    <div class="grid">
+        <label asp-for="Form.StartDate">
+            Start date
+            <input asp-for="Form.StartDate" type="date" required />
+        </label>
+        <label asp-for="Form.EndDate">
+            End date (blank = ongoing)
+            <input asp-for="Form.EndDate" type="date" />
+        </label>
+    </div>
+    <label asp-for="Form.Summary">
+        Summary
+        <textarea asp-for="Form.Summary" rows="4"></textarea>
+    </label>
+    <button type="submit">Save</button>
+</form>
+
+<aside style="margin-top: 2rem;">
+    <small>
+        Title revisions and skill attachments aren't editable here yet — Phase 4. Use the JSON API for now.
+    </small>
+</aside>

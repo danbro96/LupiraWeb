@@ -1,0 +1,48 @@
+@page "/admin/media"
+@model IndexModel
+@{
+    ViewData["Title"] = "Media";
+}
+
+<header class="toolbar">
+    <hgroup>
+        <h1>Media</h1>
+        <p>@Model.Media.Count assets.</p>
+    </hgroup>
+    <a href="/admin/media/new" role="button">Upload</a>
+</header>
+
+@if (Model.Media.Count == 0)
+{
+    <p>No media yet.</p>
+}
+else
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Alt text</th>
+                <th>Type</th>
+                <th>Blob ref</th>
+                <th>Links</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var m in Model.Media)
+            {
+                <tr>
+                    <td>@m.AltText</td>
+                    <td>@m.MimeType</td>
+                    <td><code>@m.BlobRef</code></td>
+                    <td>P:@m.LinkedProjects.Count S:@m.LinkedSkillIds.Count</td>
+                    <td><a href="/admin/media/@m.Id">Edit</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<aside style="margin-top: 2rem;">
+    <small>Storage backend is in-memory and ephemeral; assets are lost on container restart. Persistent storage is a later phase.</small>
+</aside>

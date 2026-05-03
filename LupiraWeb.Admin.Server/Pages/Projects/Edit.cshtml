@@ -1,0 +1,77 @@
+@page "/admin/projects/{id:guid}"
+@model EditModel
+@{
+    ViewData["Title"] = $"Edit {Model.Form.Title}";
+}
+
+<header class="toolbar">
+    <hgroup>
+        <h1>Edit Project</h1>
+        <p>Status: @(Model.Project?.Status.ToString() ?? "—")</p>
+    </hgroup>
+    <a href="/admin/projects" role="button" class="secondary">Back</a>
+</header>
+
+@if (Model.Saved)
+{
+    <p role="status"><mark>Saved.</mark></p>
+}
+
+<form method="post">
+    <label asp-for="Form.Title">
+        Title
+        <input asp-for="Form.Title" required autocomplete="off" />
+    </label>
+    <label asp-for="Form.Description">
+        Description
+        <textarea asp-for="Form.Description" rows="4"></textarea>
+    </label>
+    <label asp-for="Form.Url">
+        URL
+        <input asp-for="Form.Url" type="url" />
+    </label>
+    <label asp-for="Form.EngagementId">
+        Engagement
+        <select asp-for="Form.EngagementId">
+            <option value="">— None —</option>
+            @foreach (var e in Model.Engagements)
+            {
+                <option value="@e.Id">@e.Institution</option>
+            }
+        </select>
+    </label>
+    <button type="submit">Save</button>
+</form>
+
+@if (Model.Project is { Status: ProjectStatus.Active })
+{
+    <h3 style="margin-top: 2rem;">Status transitions</h3>
+    <form method="post" asp-page-handler="Ship">
+        <div class="grid">
+            <label>
+                Shipped on
+                <input name="shippedOn" type="date" required value="@DateOnly.FromDateTime(DateTime.UtcNow):yyyy-MM-dd" />
+            </label>
+            <label>
+                Outcome (optional)
+                <input name="outcome" autocomplete="off" />
+            </label>
+        </div>
+        <button type="submit">Mark Shipped</button>
+    </form>
+
+    <form method="post" asp-page-handler="Shelve" style="margin-top: 1rem;">
+        <label>
+            Reason (optional)
+            <input name="reason" autocomplete="off" />
+        </label>
+        <button type="submit" class="secondary">Mark Shelved</button>
+    </form>
+}
+
+@if (Model.Project is { Status: not ProjectStatus.Archived })
+{
+    <form method="post" asp-page-handler="Archive" style="margin-top: 1rem;">
+        <button type="submit" class="secondary">Archive</button>
+    </form>
+}
