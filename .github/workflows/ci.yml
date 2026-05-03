@@ -31,13 +31,13 @@ jobs:
             nuget-${{ runner.os }}-
 
       - name: Restore
-        run: dotnet restore
+        run: dotnet restore LupiraWeb.slnx
 
       - name: Build
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build LupiraWeb.slnx --configuration Release --no-restore
 
       - name: Test
-        run: dotnet test --configuration Release --no-build --logger "trx;LogFileName=test-results.trx"
+        run: dotnet test LupiraWeb.slnx --configuration Release --no-build --logger "trx;LogFileName=test-results.trx"
 
       - name: Upload regenerated OpenAPI specs
         uses: actions/upload-artifact@v4
