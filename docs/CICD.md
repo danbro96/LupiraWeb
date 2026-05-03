@@ -14,7 +14,7 @@ flowchart LR
   subgraph nas[TrueNAS host]
     subgraph platform[Platform Apps]
       pg[(medelynas-db<br/>postgres:17-alpine)]
-      otel[medelynas-otel<br/>SigNoz]
+      otel[medelynas-otel<br/>OpenObserve]
     end
     subgraph web_app[App: lupira-web]
       be[backend]
@@ -30,7 +30,7 @@ flowchart LR
   end
 ```
 
-The platform owns two shared services: **`medelynas-db`** (Postgres, owns external network `medelynas_data`) and **`medelynas-otel`** (SigNoz, owns external network `medelynas_telemetry`). LupiraWeb's two backend Apps join both as `external` — `medelynas_data` for Postgres, `medelynas_telemetry` for OTLP egress. Admin is a single-container service (MVC, no separate frontend image). LupiraWeb does not stand up its own database; see [Guides/shared-postgres-platform.md](../../DevOps/Guides/shared-postgres-platform.md) for the platform DB pattern.
+The platform owns two shared services: **`medelynas-db`** (Postgres, owns external network `medelynas_data`) and **`medelynas-otel`** (OpenObserve, owns external network `medelynas_telemetry`). LupiraWeb's two backend Apps join both as `external` — `medelynas_data` for Postgres, `medelynas_telemetry` for OTLP egress. Admin is a single-container service (MVC, no separate frontend image). LupiraWeb does not stand up its own database; see [Guides/shared-postgres-platform.md](../../DevOps/Guides/shared-postgres-platform.md) for the platform DB pattern.
 
 ## Pipelines
 
@@ -112,8 +112,6 @@ docker network inspect medelynas_data    # should show medelynas-db attached
 docker exec medelynas-db psql -U lupira -d lupiraweb -c '\conninfo'
 ```
 
-> The legacy `deploy/db/compose.yaml` is kept in the repo as a deprecated reference for the bundled-DB pattern. **Do not deploy it** alongside the platform DB. See [Guides/shared-postgres-platform.md](../../DevOps/Guides/shared-postgres-platform.md) for why.
-
 ### 3. TrueNAS: the `lupira-web` App
 
 1. **Discover Apps → Custom App.**
@@ -124,8 +122,9 @@ docker exec medelynas-db psql -U lupira -d lupiraweb -c '\conninfo'
    - `POSTGRES_HOST=postgres` (service name of the `medelynas-db` container on the shared network).
    - `IMAGE_TAG=latest` (or pin a `sha-*` for reproducibility).
    - `FRONTEND_PORT=40080`, `BACKEND_PORT=40081` — host ports the reverse proxy targets.
-   - `OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317` (collector hostname on `medelynas_telemetry`).
-   - `OTEL_EXPORTER_OTLP_PROTOCOL=grpc`.
+   - `OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:5080/api/default` (OpenObserve hostname alias on `medelynas_telemetry`).
+   - `OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf`.
+   - `OTEL_EXPORTER_OTLP_HEADERS=Authorization=Basic <base64>` (OpenObserve OSS auth — generate per [Guides/otel-collector.md](../../DevOps/Guides/otel-collector.md)).
    - `OTEL_RESOURCE_ATTRIBUTES=deployment.environment=prod,host.name=medelynas`.
 5. Save and start.
 
@@ -149,8 +148,9 @@ docker exec lupira-backend curl -sf http://localhost:80/health/ready
    - `POSTGRES_HOST=postgres`.
    - `IMAGE_TAG=latest` (or pin a `sha-*`).
    - `ADMIN_BACKEND_PORT=40082`.
-   - `OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317`.
-   - `OTEL_EXPORTER_OTLP_PROTOCOL=grpc`.
+   - `OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:5080/api/default`.
+   - `OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf`.
+   - `OTEL_EXPORTER_OTLP_HEADERS=Authorization=Basic <base64>` (same value as lupira-web).
    - `OTEL_RESOURCE_ATTRIBUTES=deployment.environment=prod,host.name=medelynas`.
 5. Save and start.
 
@@ -226,10 +226,11 @@ The shared kernel lives in [LupiraWeb.Domain](../LupiraWeb.Domain/): event recor
 - The backend container is on the `medelynas_data` network: `docker network inspect medelynas_data`.
 - Credentials match the role you provisioned in Section 2 (`lupira` / `<password>`).
 
-**No traces or metrics in SigNoz for `lupira-web` / `lupira-admin`.** Telemetry is silently failing or the wrong target. Check:
-- `OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317` — note `http`, not `https`, and gRPC port `4317`.
+**No traces or metrics in OpenObserve for `lupira-web` / `lupira-admin`.** Telemetry is silently failing or the wrong target. Check:
+- `OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:5080/api/default` — note `http`, not `https`, OpenObserve's HTTP port `5080`, and the `/api/default` org segment.
+- `OTEL_EXPORTER_OTLP_HEADERS=Authorization=Basic <base64>` is set — without it OpenObserve rejects ingestion silently.
 - The backend container is on `medelynas_telemetry`: `docker network inspect medelynas_telemetry`.
-- Collector logs: `docker logs medelynas-otel-otel-collector-1 --tail 50`.
+- OpenObserve logs: `sudo docker logs openobserve --tail 50 | grep -iE 'unauth|401|reject'`.
 
 **Marten refuses to start in prod with a schema error.** You changed events/projections but didn't apply the schema change. Run the one-shot schema apply (see [Prod-safe Marten](#prod-safe-marten)).
 
