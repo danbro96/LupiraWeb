@@ -13,6 +13,10 @@ RUN dotnet publish "./LupiraWeb.Server.csproj" -c $BUILD_CONFIGURATION -o /app/p
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends curl \
+ && rm -rf /var/lib/apt/lists/*
+
 ENV ASPNETCORE_URLS=http://+:80;https://+:443
 COPY --from=build /app/publish .
 
