@@ -8,6 +8,8 @@ public static class MartenRegistrations
 {
     public static StoreOptions UseLupiraProjections(this StoreOptions opts)
     {
+        opts.Schema.For<MyInfo>();
+
         opts.Projections.Snapshot<Skill>(SnapshotLifecycle.Inline);
         opts.Projections.Snapshot<Engagement>(SnapshotLifecycle.Inline);
         opts.Projections.Snapshot<Project>(SnapshotLifecycle.Inline);
