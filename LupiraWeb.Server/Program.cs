@@ -105,8 +105,10 @@ if (!app.Environment.IsProduction())
 
 app.UseHttpsRedirection();
 
-app.MapHealthChecks("/health", new HealthCheckOptions { Predicate = _ => false });
-app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = r => r.Tags.Contains("ready") });
+app.MapHealthChecks("/health", new HealthCheckOptions { Predicate = _ => false })
+   .DisableHttpMetrics();
+app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = r => r.Tags.Contains("ready") })
+   .DisableHttpMetrics();
 
 app.MapResumeEndpoints();
 app.MapSkillsEndpoints();

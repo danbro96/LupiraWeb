@@ -62,7 +62,8 @@ if (!app.Environment.IsProduction())
     app.MapScalarApiReference();
 }
 
-app.MapHealthChecks("/health", new HealthCheckOptions { Predicate = _ => false });
+app.MapHealthChecks("/health", new HealthCheckOptions { Predicate = _ => false })
+   .DisableHttpMetrics();
 
 app.UseStaticFiles();
 
