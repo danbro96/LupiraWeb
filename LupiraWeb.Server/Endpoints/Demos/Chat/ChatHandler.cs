@@ -1,7 +1,6 @@
-using System.Net.Http.Json;
-using System.Text.Json.Serialization;
 using LupiraWeb.Server.Endpoints.Demos.Chat.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
+using System.Text.Json.Serialization;
 
 namespace LupiraWeb.Server.Endpoints.Demos.Chat;
 
@@ -36,7 +35,7 @@ public sealed class ChatHandler(HttpClient client, ILogger<ChatHandler> logger)
             var body = await response.Content.ReadAsStringAsync(ct);
             logger.LogWarning("Chat upstream returned {Status}: {Body}", response.StatusCode, body);
             return TypedResults.Problem(
-                detail: $"Chat service returned {(int)response.StatusCode}.",
+                detail: $"Chat service returned {(int) response.StatusCode}.",
                 statusCode: StatusCodes.Status502BadGateway);
         }
 

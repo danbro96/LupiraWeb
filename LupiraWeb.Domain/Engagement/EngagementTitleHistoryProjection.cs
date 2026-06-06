@@ -11,7 +11,7 @@ public class EngagementTitleHistoryRow
     public DateOnly? To { get; set; }
 }
 
-public class EngagementTitleHistoryProjection : MultiStreamProjection<EngagementTitleHistoryRow, Guid>
+public partial class EngagementTitleHistoryProjection : MultiStreamProjection<EngagementTitleHistoryRow, Guid>
 {
     public EngagementTitleHistoryProjection()
     {

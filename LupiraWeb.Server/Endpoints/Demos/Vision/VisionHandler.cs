@@ -1,7 +1,6 @@
-using System.Net.Http.Json;
-using System.Text.Json.Serialization;
 using LupiraWeb.Server.Endpoints.Demos.Vision.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
+using System.Text.Json.Serialization;
 
 namespace LupiraWeb.Server.Endpoints.Demos.Vision;
 
@@ -44,13 +43,13 @@ public sealed class VisionHandler(HttpClient client, ILogger<VisionHandler> logg
         var bboxes = upstreamResult.Value!.Bboxes ?? [];
         var labels = upstreamResult.Value!.Labels ?? [];
         var items = bboxes.Zip(labels, (box, label) => new Detection
-            {
-                X1 = box.Length > 0 ? box[0] : 0d,
-                Y1 = box.Length > 1 ? box[1] : 0d,
-                X2 = box.Length > 2 ? box[2] : 0d,
-                Y2 = box.Length > 3 ? box[3] : 0d,
-                Label = label,
-            })
+        {
+            X1 = box.Length > 0 ? box[0] : 0d,
+            Y1 = box.Length > 1 ? box[1] : 0d,
+            X2 = box.Length > 2 ? box[2] : 0d,
+            Y2 = box.Length > 3 ? box[3] : 0d,
+            Label = label,
+        })
             .ToList();
 
         return TypedResults.Ok(new DetectionResponse { Items = items });
@@ -77,7 +76,7 @@ public sealed class VisionHandler(HttpClient client, ILogger<VisionHandler> logg
             var raw = await response.Content.ReadAsStringAsync(ct);
             logger.LogWarning("Vision upstream {Path} returned {Status}: {Body}", path, response.StatusCode, raw);
             return UpstreamResult<T>.Fail(TypedResults.Problem(
-                detail: $"Vision service returned {(int)response.StatusCode}.",
+                detail: $"Vision service returned {(int) response.StatusCode}.",
                 statusCode: StatusCodes.Status502BadGateway));
         }
 

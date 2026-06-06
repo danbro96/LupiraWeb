@@ -1,5 +1,4 @@
 using LupiraWeb.Admin.Server.Endpoints.Media.Dtos;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LupiraWeb.Admin.Server.Endpoints.Media;

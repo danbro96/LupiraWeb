@@ -1,8 +1,7 @@
-using System.Net.Http.Json;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using LupiraWeb.Server.Endpoints.Demos.TextToSpeech.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace LupiraWeb.Server.Endpoints.Demos.TextToSpeech;
 
@@ -70,7 +69,7 @@ public sealed class TextToSpeechHandler(HttpClient client, ILogger<TextToSpeechH
             var body = await response.Content.ReadAsStringAsync(ct);
             logger.LogWarning("Text-to-speech upstream returned {Status}: {Body}", response.StatusCode, body);
             return TypedResults.Problem(
-                detail: $"Text-to-speech service returned {(int)response.StatusCode}.",
+                detail: $"Text-to-speech service returned {(int) response.StatusCode}.",
                 statusCode: StatusCodes.Status502BadGateway);
         }
 

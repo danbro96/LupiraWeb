@@ -1,6 +1,6 @@
+using LupiraWeb.Server.Endpoints.Resume.Dtos;
 using System.Net;
 using System.Net.Http.Json;
-using LupiraWeb.Server.Endpoints.Resume.Dtos;
 using Xunit;
 
 namespace LupiraWeb.Server.Tests.Resume;

@@ -11,7 +11,7 @@ public sealed class SkillArtifactRow
     public DateTimeOffset AddedAt { get; set; }
 }
 
-public sealed class SkillArtifactsProjection : MultiStreamProjection<SkillArtifactRow, Guid>
+public sealed partial class SkillArtifactsProjection : MultiStreamProjection<SkillArtifactRow, Guid>
 {
     public SkillArtifactsProjection()
     {

@@ -12,7 +12,7 @@ public sealed class SkillAdjacencyRow
     public DateOnly? LastSeen { get; set; }
 }
 
-public sealed class SkillAdjacencyProjection : MultiStreamProjection<SkillAdjacencyRow, Guid>
+public sealed partial class SkillAdjacencyProjection : MultiStreamProjection<SkillAdjacencyRow, Guid>
 {
     public SkillAdjacencyProjection()
     {
@@ -52,7 +52,7 @@ public sealed class SkillAdjacencyProjection : MultiStreamProjection<SkillAdjace
         var xb = x.ToByteArray();
         var yb = y.ToByteArray();
         var combined = new byte[16];
-        for (int i = 0; i < 16; i++) combined[i] = (byte)(xb[i] ^ yb[i]);
+        for (int i = 0; i < 16; i++) combined[i] = (byte) (xb[i] ^ yb[i]);
         return new Guid(combined);
     }
 }

@@ -10,7 +10,7 @@ public sealed class EngagementArtifactRow
     public DateTimeOffset AddedAt { get; set; }
 }
 
-public sealed class EngagementArtifactsProjection : MultiStreamProjection<EngagementArtifactRow, Guid>
+public sealed partial class EngagementArtifactsProjection : MultiStreamProjection<EngagementArtifactRow, Guid>
 {
     public EngagementArtifactsProjection()
     {
@@ -40,7 +40,7 @@ internal static class ArtifactLinkIds
         var ab = a.ToByteArray();
         var bb = b.ToByteArray();
         var combined = new byte[16];
-        for (var i = 0; i < 16; i++) combined[i] = (byte)(ab[i] ^ bb[i]);
+        for (var i = 0; i < 16; i++) combined[i] = (byte) (ab[i] ^ bb[i]);
         return new Guid(combined);
     }
 }

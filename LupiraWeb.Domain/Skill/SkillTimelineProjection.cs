@@ -22,7 +22,7 @@ public sealed class SkillTimeline
     public List<SkillTimelineEntry> Entries { get; set; } = new();
 }
 
-public sealed class SkillTimelineProjection : SingleStreamProjection<SkillTimeline, Guid>
+public sealed partial class SkillTimelineProjection : SingleStreamProjection<SkillTimeline, Guid>
 {
     public SkillTimeline Create(SkillRegistered e) => new()
     {
@@ -69,16 +69,16 @@ public sealed class SkillTimelineProjection : SingleStreamProjection<SkillTimeli
         Intensity? intensity = null,
         Maturity? maturity = null,
         string? note = null) => new()
-    {
-        Kind = kind,
-        OccurredOn = occurredOn,
-        ContextKind = context.Kind,
-        ContextId = ContextIdFrom(context),
-        ContextLabel = context.ExternalLabel,
-        Intensity = intensity,
-        Maturity = maturity,
-        Note = note,
-    };
+        {
+            Kind = kind,
+            OccurredOn = occurredOn,
+            ContextKind = context.Kind,
+            ContextId = ContextIdFrom(context),
+            ContextLabel = context.ExternalLabel,
+            Intensity = intensity,
+            Maturity = maturity,
+            Note = note,
+        };
 
     private static Guid? ContextIdFrom(SkillEdgeContext ctx) => ctx.Kind switch
     {

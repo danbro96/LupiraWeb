@@ -21,25 +21,25 @@ public sealed record Engagement
         EngagementDocument e,
         IEnumerable<Skill> skills,
         IEnumerable<Project> projects) => new()
-    {
-        Id = e.Id,
-        Kind = e.Kind,
-        Institution = e.Institution,
-        Title = e.CurrentTitle,
-        Titles = e.Titles.Select(t => new TitleEpochDto
         {
-            TitleId = t.TitleId,
-            Text = t.Text,
-            From = t.From,
-            To = t.To,
-        }).ToList(),
-        Start = e.Start,
-        End = e.End,
-        Summary = e.Summary,
-        Location = e.Location,
-        Skills = skills.ToList(),
-        Projects = projects.ToList(),
-    };
+            Id = e.Id,
+            Kind = e.Kind,
+            Institution = e.Institution,
+            Title = e.CurrentTitle,
+            Titles = e.Titles.Select(t => new TitleEpochDto
+            {
+                TitleId = t.TitleId,
+                Text = t.Text,
+                From = t.From,
+                To = t.To,
+            }).ToList(),
+            Start = e.Start,
+            End = e.End,
+            Summary = e.Summary,
+            Location = e.Location,
+            Skills = skills.ToList(),
+            Projects = projects.ToList(),
+        };
 }
 
 public sealed record TitleEpochDto

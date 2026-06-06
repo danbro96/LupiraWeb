@@ -1,14 +1,14 @@
-using LupiraWeb.Server.Data.Repositories;
 using LupiraWeb.Domain;
+using LupiraWeb.Server.Data.Repositories;
 using LupiraWeb.Server.Endpoints.Resume;
 using Microsoft.AspNetCore.Http.HttpResults;
 using NSubstitute;
 using Xunit;
 using Dtos = LupiraWeb.Server.Endpoints.Resume.Dtos;
 using EngagementDocument = LupiraWeb.Domain.Engagement;
+using MyInfoDocument = LupiraWeb.Domain.MyInfo;
 using ProjectDocument = LupiraWeb.Domain.Project;
 using SkillDocument = LupiraWeb.Domain.Skill;
-using MyInfoDocument = LupiraWeb.Domain.MyInfo;
 
 namespace LupiraWeb.Server.Tests.Resume;
 
@@ -51,7 +51,7 @@ public class ResumeHandlerTests
     public async Task GetMeAsync_returns_NotFound_when_repository_is_empty()
     {
         var myInfoRepository = Substitute.For<IMyInfoRepository>();
-        myInfoRepository.GetAsync(Arg.Any<CancellationToken>()).Returns((MyInfoDocument?)null);
+        myInfoRepository.GetAsync(Arg.Any<CancellationToken>()).Returns((MyInfoDocument?) null);
         var handler = CreateHandler(myInfoRepository: myInfoRepository);
 
         var result = await handler.GetMeAsync(CancellationToken.None);
@@ -106,7 +106,7 @@ public class ResumeHandlerTests
     public async Task GetEngagementAsync_returns_NotFound_when_missing()
     {
         var repo = Substitute.For<IEngagementRepository>();
-        repo.GetAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns((EngagementDocument?)null);
+        repo.GetAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns((EngagementDocument?) null);
         var handler = CreateHandler(engagementRepository: repo);
 
         var result = await handler.GetEngagementAsync(Guid.NewGuid(), CancellationToken.None);
@@ -145,7 +145,7 @@ public class ResumeHandlerTests
     public async Task GetProjectAsync_returns_NotFound_when_missing()
     {
         var repo = Substitute.For<IProjectRepository>();
-        repo.GetAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns((ProjectDocument?)null);
+        repo.GetAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns((ProjectDocument?) null);
         var handler = CreateHandler(projectRepository: repo);
 
         var result = await handler.GetProjectAsync(Guid.NewGuid(), CancellationToken.None);

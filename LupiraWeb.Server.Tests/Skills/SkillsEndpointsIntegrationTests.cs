@@ -1,8 +1,8 @@
-using System.Net;
-using System.Net.Http.Json;
 using LupiraWeb.Domain;
 using LupiraWeb.Server.Endpoints.Skills.Dtos;
 using LupiraWeb.Server.Tests.Resume;
+using System.Net;
+using System.Net.Http.Json;
 using Xunit;
 
 namespace LupiraWeb.Server.Tests.Skills;

@@ -21,7 +21,7 @@ public sealed class ExperienceRow
     public Location? Location { get; set; }
 }
 
-public sealed class ExperienceProjection : MultiStreamProjection<ExperienceRow, Guid>
+public sealed partial class ExperienceProjection : MultiStreamProjection<ExperienceRow, Guid>
 {
     public ExperienceProjection()
     {

@@ -21,17 +21,17 @@ public sealed record Project
         ProjectDocument p,
         IEnumerable<Skill>? skills = null,
         string? engagementInstitution = null) => new()
-    {
-        Id = p.Id,
-        Kind = p.Kind,
-        Title = p.Title,
-        Description = p.Description,
-        Url = p.Url,
-        Start = p.Start,
-        End = p.End,
-        Status = p.Status,
-        EngagementId = p.EngagementId,
-        EngagementInstitution = engagementInstitution,
-        Skills = (skills ?? Array.Empty<Skill>()).ToList(),
-    };
+        {
+            Id = p.Id,
+            Kind = p.Kind,
+            Title = p.Title,
+            Description = p.Description,
+            Url = p.Url,
+            Start = p.Start,
+            End = p.End,
+            Status = p.Status,
+            EngagementId = p.EngagementId,
+            EngagementInstitution = engagementInstitution,
+            Skills = (skills ?? Array.Empty<Skill>()).ToList(),
+        };
 }

@@ -16,7 +16,7 @@ public sealed class SkillMaturity
     public List<SkillMaturityPoint> Trajectory { get; set; } = new();
 }
 
-public sealed class SkillMaturityProjection : SingleStreamProjection<SkillMaturity, Guid>
+public sealed partial class SkillMaturityProjection : SingleStreamProjection<SkillMaturity, Guid>
 {
     public SkillMaturity Create(SkillRegistered e) => new()
     {

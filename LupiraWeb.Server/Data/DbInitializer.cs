@@ -1,7 +1,7 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using LupiraWeb.Domain;
 using Marten;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace LupiraWeb.Server.Data;
 

@@ -1,6 +1,5 @@
 using JasperFx.Events.Projections;
 using Marten;
-using Marten.Events.Projections;
 
 namespace LupiraWeb.Domain;
 

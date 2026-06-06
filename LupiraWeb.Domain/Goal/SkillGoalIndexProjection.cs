@@ -10,7 +10,7 @@ public sealed class SkillGoalIndexRow
     public GoalStatus Status { get; set; }
 }
 
-public sealed class SkillGoalIndexProjection : MultiStreamProjection<SkillGoalIndexRow, Guid>
+public sealed partial class SkillGoalIndexProjection : MultiStreamProjection<SkillGoalIndexRow, Guid>
 {
     public SkillGoalIndexProjection()
     {
@@ -39,7 +39,7 @@ public sealed class SkillGoalIndexProjection : MultiStreamProjection<SkillGoalIn
         var ab = a.ToByteArray();
         var bb = b.ToByteArray();
         var combined = new byte[16];
-        for (var i = 0; i < 16; i++) combined[i] = (byte)(ab[i] ^ bb[i]);
+        for (var i = 0; i < 16; i++) combined[i] = (byte) (ab[i] ^ bb[i]);
         return new Guid(combined);
     }
 }

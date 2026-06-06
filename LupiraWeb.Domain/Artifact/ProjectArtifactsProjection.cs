@@ -10,7 +10,7 @@ public sealed class ProjectArtifactRow
     public DateTimeOffset AddedAt { get; set; }
 }
 
-public sealed class ProjectArtifactsProjection : MultiStreamProjection<ProjectArtifactRow, Guid>
+public sealed partial class ProjectArtifactsProjection : MultiStreamProjection<ProjectArtifactRow, Guid>
 {
     public ProjectArtifactsProjection()
     {
