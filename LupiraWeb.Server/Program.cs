@@ -3,6 +3,7 @@ using LupiraWeb.Domain;
 using LupiraWeb.Domain.Infrastructure.BlobStorage;
 using LupiraWeb.Server.Data;
 using LupiraWeb.Server.Data.Repositories;
+using LupiraWeb.Server.Endpoints;
 using LupiraWeb.Server.Endpoints.Artifacts;
 using LupiraWeb.Server.Endpoints.Demos.Chat;
 using LupiraWeb.Server.Endpoints.Demos.TextToSpeech;
@@ -15,7 +16,6 @@ using LupiraWeb.Server.Endpoints.Skills;
 using LupiraWeb.Server.Infrastructure.BlobStorage;
 using LupiraWeb.Server.Observability;
 using Marten;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -85,8 +85,8 @@ builder.Services.AddHttpClient<VisionHandler>(c =>
     c.Timeout = TimeSpan.FromSeconds(60);
 });
 
-builder.Services.AddHealthChecks()
-    .AddCheck<MartenHealthCheck>("marten", tags: new[] { "ready" });
+// Liveness (/livez) + readiness (/readyz, pings Postgres) probes.
+builder.Services.AddAppHealthChecks();
 
 builder.AddLupiraObservability("lupira-web");
 
@@ -105,10 +105,7 @@ if (!app.Environment.IsProduction())
 
 app.UseHttpsRedirection();
 
-app.MapHealthChecks("/health", new HealthCheckOptions { Predicate = _ => false })
-   .DisableHttpMetrics();
-app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = r => r.Tags.Contains("ready") })
-   .DisableHttpMetrics();
+app.MapAppHealthChecks(app.Environment);
 
 app.MapResumeEndpoints();
 app.MapSkillsEndpoints();

@@ -103,21 +103,21 @@ public class ResumeEndpointsIntegrationTests : IClassFixture<ResumeTestFactory>
     }
 
     [Fact]
-    public async Task Health_liveness_returns_200()
+    public async Task Livez_liveness_returns_200()
     {
         var client = _factory.CreateClient();
 
-        var response = await client.GetAsync("/health");
+        var response = await client.GetAsync("/livez");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
     [Fact]
-    public async Task Health_readiness_returns_200_when_db_reachable()
+    public async Task Readyz_readiness_returns_200_when_db_reachable()
     {
         var client = _factory.CreateClient();
 
-        var response = await client.GetAsync("/health/ready");
+        var response = await client.GetAsync("/readyz");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }

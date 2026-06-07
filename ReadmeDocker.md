@@ -123,7 +123,7 @@ docker compose -f docker-compose.yml up
 - Backend built from [LupiraWeb.Server/Dockerfile](LupiraWeb.Server/Dockerfile), exposed on `localhost:5188`.
 - Frontend runs `node:22` with [lupiraweb.client/](lupiraweb.client/) bind-mounted at `/app` and `npm run dev`, exposed on `localhost:3000`.
 - SQLite volume `lupira-db-dev` persisted at `/app/data` inside the backend.
-- Backend healthcheck hits `/health`; compose waits before the frontend starts.
+- Backend healthcheck hits `/readyz` (readiness — DB reachable); compose waits before the frontend starts. Liveness is at `/livez`.
 
 Plain `docker compose up` merges both files automatically — this is the default dev command:
 ```bash

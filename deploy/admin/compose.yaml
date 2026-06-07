@@ -14,7 +14,7 @@ services:
     ports:
       - "${ADMIN_BACKEND_PORT:-40082}:80"
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:80/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:80/readyz || exit 1"]
       interval: 60s
       timeout: 3s
       retries: 10

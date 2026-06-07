@@ -20,10 +20,10 @@ Accept: application/json
 
 ###
 
-GET {{LupiraWeb.Server_HostAddress}}/health
+GET {{LupiraWeb.Server_HostAddress}}/livez
 
 ###
 
-GET {{LupiraWeb.Server_HostAddress}}/health/ready
+GET {{LupiraWeb.Server_HostAddress}}/readyz
 
 ###

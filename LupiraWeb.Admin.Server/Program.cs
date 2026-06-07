@@ -1,4 +1,5 @@
 using JasperFx;
+using LupiraWeb.Admin.Server.Endpoints;
 using LupiraWeb.Admin.Server.Endpoints.Artifacts;
 using LupiraWeb.Admin.Server.Endpoints.Goals;
 using LupiraWeb.Admin.Server.Endpoints.Media;
@@ -7,7 +8,6 @@ using LupiraWeb.Admin.Server.Observability;
 using LupiraWeb.Domain;
 using LupiraWeb.Domain.Infrastructure.BlobStorage;
 using Marten;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Scalar.AspNetCore;
 
 const string DefaultConnectionString =
@@ -40,8 +40,8 @@ builder.Services.AddScoped<ArtifactsHandler>();
 builder.Services.AddScoped<GoalsHandler>();
 builder.Services.AddScoped<MediaHandler>();
 
-builder.Services.AddHealthChecks()
-    .AddCheck("self", () => Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy());
+// Liveness (/livez) + readiness (/readyz, pings Postgres) probes.
+builder.Services.AddAppHealthChecks();
 
 builder.AddLupiraObservability("lupira-admin");
 
@@ -62,8 +62,7 @@ if (!app.Environment.IsProduction())
     app.MapScalarApiReference();
 }
 
-app.MapHealthChecks("/health", new HealthCheckOptions { Predicate = _ => false })
-   .DisableHttpMetrics();
+app.MapAppHealthChecks(app.Environment);
 
 app.UseStaticFiles();
 

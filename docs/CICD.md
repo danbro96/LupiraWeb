@@ -131,10 +131,10 @@ docker exec medelynas-db psql -U lupiraweb_user -d lupiraweb -c '\conninfo'
 Smoke-test from the TrueNAS Shell:
 
 ```bash
-docker exec lupira-backend curl -sf http://localhost:80/health
+docker exec lupira-backend curl -sf http://localhost:80/livez
 # → Healthy
 
-docker exec lupira-backend curl -sf http://localhost:80/health/ready
+docker exec lupira-backend curl -sf http://localhost:80/readyz
 # → Healthy  (if this fails, DB connectivity is the likely cause)
 ```
 
@@ -221,7 +221,7 @@ The shared kernel lives in [LupiraWeb.Domain](../LupiraWeb.Domain/): event recor
 
 **Image pull fails on TrueNAS with `429 Too Many Requests`.** Docker Hub anonymous rate limit. `docker login` on the NAS with a read-only token.
 
-**Backend boots but `/health/ready` stays red.** The backend can't reach Postgres. Check:
+**Backend boots but `/readyz` stays red.** The backend can't reach Postgres. Check:
 - `POSTGRES_HOST=postgres` matches the service name of the `medelynas-db` container.
 - The backend container is on the `medelynas_data` network: `docker network inspect medelynas_data`.
 - Credentials match the role you provisioned in Section 2 (`lupiraweb_user` / `<password>`).
