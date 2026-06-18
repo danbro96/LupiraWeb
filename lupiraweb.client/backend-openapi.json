@@ -405,63 +405,6 @@
         }
       }
     },
-    "/api/goals": {
-      "get": {
-        "tags": [
-          "Goals"
-        ],
-        "operationId": "ListGoals",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/GoalDto"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/goals/{id}": {
-      "get": {
-        "tags": [
-          "Goals"
-        ],
-        "operationId": "GetGoal",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GoalDto"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found"
-          }
-        }
-      }
-    },
     "/api/experiences": {
       "get": {
         "tags": [
@@ -1034,97 +977,6 @@
         }
       },
       "ExperienceKind": {
-        "type": "integer"
-      },
-      "GoalDto": {
-        "required": [
-          "id",
-          "targetMaturity",
-          "motivation",
-          "status",
-          "progress"
-        ],
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "skillId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          },
-          "targetMaturity": {
-            "$ref": "#/components/schemas/Maturity"
-          },
-          "deadline": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "date"
-          },
-          "motivation": {
-            "type": "string"
-          },
-          "status": {
-            "$ref": "#/components/schemas/GoalStatus"
-          },
-          "resolvedAt": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "date-time"
-          },
-          "resolutionReason": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "evidenceArtifactId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          },
-          "progress": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/GoalProgressEntryDto"
-            }
-          }
-        }
-      },
-      "GoalProgressEntryDto": {
-        "required": [
-          "recordedAt",
-          "note"
-        ],
-        "type": "object",
-        "properties": {
-          "recordedAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "note": {
-            "type": "string"
-          },
-          "linkedEventId": {
-            "type": [
-              "null",
-              "string"
-            ],
-            "format": "uuid"
-          }
-        }
-      },
-      "GoalStatus": {
         "type": "integer"
       },
       "IFormFile": {
@@ -1707,9 +1559,6 @@
     },
     {
       "name": "Artifacts"
-    },
-    {
-      "name": "Goals"
     },
     {
       "name": "Experiences"

@@ -1,17 +1,15 @@
-using LupiraWeb.Domain;
 using LupiraWeb.Server.Endpoints.Skills.Dtos;
-using Marten;
+using LupiraWeb.Server.Integration.CareerApi;
 using Microsoft.AspNetCore.Http.HttpResults;
-using SkillDocument = LupiraWeb.Domain.Skill;
 
 namespace LupiraWeb.Server.Endpoints.Skills;
 
-public class SkillsHandler(IQuerySession session)
+public class SkillsHandler(ICareerApiClient client)
 {
     public async Task<Results<Ok<SkillTimelineResponse>, NotFound>> GetTimelineAsync(
         Guid id, CancellationToken ct)
     {
-        var timeline = await session.LoadAsync<SkillTimeline>(id, ct);
+        var timeline = await client.GetSkillTimelineAsync(id, ct);
         if (timeline is null)
             return TypedResults.NotFound();
 
@@ -37,52 +35,24 @@ public class SkillsHandler(IQuerySession session)
     public async Task<Results<Ok<SkillRelatedResponse>, NotFound>> GetRelatedAsync(
         Guid id, CancellationToken ct)
     {
-        var skill = await session.LoadAsync<SkillDocument>(id, ct);
+        // TODO(escalation): CareerApi exposes no skill adjacency/co-occurrence endpoint. We preserve the
+        // route, response shape, and 404-on-unknown-skill contract, returning an empty Related list until
+        // an upstream adjacency surface exists.
+        var skill = await client.GetSkillAsync(id, ct);
         if (skill is null)
             return TypedResults.NotFound();
-
-        var rows = await session.Query<SkillAdjacencyRow>()
-            .Where(r => r.SkillA == id || r.SkillB == id)
-            .ToListAsync(ct);
-
-        var otherIds = rows
-            .Select(r => r.SkillA == id ? r.SkillB : r.SkillA)
-            .Distinct()
-            .ToList();
-
-        var others = otherIds.Count == 0
-            ? new List<SkillDocument>()
-            : (await session.LoadManyAsync<SkillDocument>(ct, otherIds)).ToList();
-        var namesById = others.ToDictionary(s => s.Id, s => s.Name);
-
-        var related = rows
-            .Select(r =>
-            {
-                var otherId = r.SkillA == id ? r.SkillB : r.SkillA;
-                return new SkillRelatedEntry
-                {
-                    SkillId = otherId,
-                    Name = namesById.TryGetValue(otherId, out var n) ? n : "",
-                    Count = r.Count,
-                    FirstSeen = r.FirstSeen,
-                    LastSeen = r.LastSeen,
-                };
-            })
-            .OrderByDescending(e => e.Count)
-            .ThenBy(e => e.Name)
-            .ToList();
 
         return TypedResults.Ok(new SkillRelatedResponse
         {
             SkillId = id,
-            Related = related,
+            Related = [],
         });
     }
 
     public async Task<Results<Ok<SkillMaturityResponse>, NotFound>> GetMaturityAsync(
         Guid id, CancellationToken ct)
     {
-        var maturity = await session.LoadAsync<SkillMaturity>(id, ct);
+        var maturity = await client.GetSkillMaturityAsync(id, ct);
         if (maturity is null)
             return TypedResults.NotFound();
 

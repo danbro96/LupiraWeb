@@ -1,4 +1,4 @@
-using Marten;
+using LupiraWeb.Server.Integration.CareerApi;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
@@ -6,8 +6,9 @@ namespace LupiraWeb.Server.Endpoints;
 
 /// <summary>
 /// Liveness (<c>/livez</c>) and readiness (<c>/readyz</c>) probes built on the ASP.NET Core
-/// health-check framework. Liveness reports process-up only; readiness pings Postgres. Names
-/// follow the k8s "z-pages" convention; <c>/healthz</c> is deliberately avoided as ambiguous.
+/// health-check framework. Liveness reports process-up only; readiness pings CareerApi (the upstream
+/// LupiraWeb depends on for all data). Names follow the k8s "z-pages" convention; <c>/healthz</c> is
+/// deliberately avoided as ambiguous.
 /// </summary>
 public static class HealthChecks
 {
@@ -20,10 +21,10 @@ public static class HealthChecks
             // Liveness: the process is up and serving. Touches no dependencies, so a failure
             // here means "restart me", never "a downstream is down".
             .AddCheck("self", () => HealthCheckResult.Healthy(), tags: [LiveTag])
-            // Readiness: Postgres is reachable. Hard timeout so a hung/half-open connection
+            // Readiness: CareerApi is reachable. Hard timeout so a hung/half-open connection
             // fails fast instead of blocking the probe until Kestrel's request timeout.
-            .AddCheck<MartenHealthCheck>(
-                "postgres",
+            .AddCheck<CareerApiHealthCheck>(
+                "careerApi",
                 failureStatus: HealthStatus.Unhealthy,
                 tags: [ReadyTag],
                 timeout: TimeSpan.FromSeconds(3));
@@ -33,7 +34,7 @@ public static class HealthChecks
     public static void MapAppHealthChecks(this IEndpointRouteBuilder app, IHostEnvironment env)
     {
         // Detailed per-dependency JSON only outside Production — the body reveals dependency
-        // topology (that we run Postgres, connection state, timings) and these probes are
+        // topology (that we depend on CareerApi, reachability, timings) and these probes are
         // anonymous. Production falls back to the framework's minimal plaintext status.
         var detailed = !env.IsProduction();
 
@@ -68,28 +69,4 @@ public static class HealthChecks
                 error = e.Value.Exception?.Message,
             }),
         });
-}
-
-/// <summary>
-/// Readiness check: a cheap <c>select 1</c> round-trip proving Postgres is reachable and the
-/// connection/credentials work. Preserves the exception on the result so failures are
-/// diagnosable (the framework logs it) rather than being swallowed.
-/// </summary>
-internal sealed class MartenHealthCheck(IDocumentStore store) : IHealthCheck
-{
-    public async Task<HealthCheckResult> CheckHealthAsync(
-        HealthCheckContext context,
-        CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            await using var session = store.QuerySession();
-            await session.QueryAsync<int>("select 1", cancellationToken);
-            return HealthCheckResult.Healthy("Postgres reachable.");
-        }
-        catch (Exception ex)
-        {
-            return HealthCheckResult.Unhealthy("Postgres unreachable.", ex);
-        }
-    }
 }

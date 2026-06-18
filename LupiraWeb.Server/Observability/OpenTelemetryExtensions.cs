@@ -19,8 +19,7 @@ public static class OpenTelemetryExtensions
             .WithTracing(t =>
             {
                 t.AddAspNetCoreInstrumentation(o => o.RecordException = true)
-                 .AddHttpClientInstrumentation()
-                 .AddSource("Marten");
+                 .AddHttpClientInstrumentation();
                 if (isDev) t.AddConsoleExporter();
                 if (!string.IsNullOrWhiteSpace(otlpEndpoint))
                     t.AddOtlpExporter(o => o.Endpoint = new Uri(otlpEndpoint));

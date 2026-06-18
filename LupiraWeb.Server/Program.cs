@@ -1,7 +1,3 @@
-using JasperFx;
-using LupiraWeb.Domain;
-using LupiraWeb.Domain.Infrastructure.BlobStorage;
-using LupiraWeb.Server.Data;
 using LupiraWeb.Server.Data.Repositories;
 using LupiraWeb.Server.Endpoints;
 using LupiraWeb.Server.Endpoints.Artifacts;
@@ -9,50 +5,62 @@ using LupiraWeb.Server.Endpoints.Demos.Chat;
 using LupiraWeb.Server.Endpoints.Demos.TextToSpeech;
 using LupiraWeb.Server.Endpoints.Demos.Vision;
 using LupiraWeb.Server.Endpoints.Experiences;
-using LupiraWeb.Server.Endpoints.Goals;
 using LupiraWeb.Server.Endpoints.Media;
 using LupiraWeb.Server.Endpoints.Resume;
 using LupiraWeb.Server.Endpoints.Skills;
-using LupiraWeb.Server.Infrastructure.BlobStorage;
+using LupiraWeb.Server.Integration.CareerApi;
+using LupiraWeb.Server.Integration.CareerApi.Auth;
+using LupiraWeb.Server.Integration.CareerApi.Repositories;
 using LupiraWeb.Server.Observability;
-using Marten;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi();
 
-const string DefaultConnectionString =
-    "Host=localhost;Port=5432;Database=lupiraweb;Username=lupira;Password=lupira";
+// --- LupiraCareerApi integration: the career/résumé data now lives in CareerApi, read over HTTP.
+//     This replaces the local Marten/Postgres store entirely. ---
+// Default to the local dev port so the build-time OpenAPI generation (which boots the host) and local
+// runs work without extra config; production overrides CareerApi:BaseUrl via environment. The address is
+// only used to construct the HttpClient — it is not contacted at startup.
+const string DefaultCareerApiBaseUrl = "http://localhost:63063";
+var careerApiBaseUrl = builder.Configuration["CareerApi:BaseUrl"] ?? DefaultCareerApiBaseUrl;
+var careerApiTimeout = TimeSpan.FromSeconds(
+    builder.Configuration.GetValue<int?>("CareerApi:TimeoutSeconds") ?? 30);
 
-builder.Services.AddMarten(sp =>
+// Auth seam: development/Testing present CareerApi's X-Dev-User header; production presents the owner
+// bearer token. Swapping the production credential mechanism is a single line here (see plan risk R1).
+if (builder.Environment.IsProduction())
+    builder.Services.AddSingleton<ICareerApiTokenProvider, OwnerBearerTokenProvider>();
+else
+    builder.Services.AddSingleton<ICareerApiTokenProvider, DevUserTokenProvider>();
+
+builder.Services.AddTransient<CareerApiAuthHandler>();
+
+builder.Services.AddHttpClient<ICareerApiClient, CareerApiClient>(c =>
 {
-    var opts = new StoreOptions();
-    opts.Connection(sp.GetRequiredService<IConfiguration>().GetConnectionString("AppDb")
-        ?? DefaultConnectionString);
-    opts.UseSystemTextJsonForSerialization();
-    opts.DatabaseSchemaName = "marten";
-    opts.AutoCreateSchemaObjects = builder.Environment.IsProduction()
-        ? AutoCreate.None
-        : AutoCreate.CreateOrUpdate;
+    c.BaseAddress = new Uri(careerApiBaseUrl);
+    c.Timeout = careerApiTimeout;
+}).AddHttpMessageHandler<CareerApiAuthHandler>();
 
-    opts.UseLupiraProjections();
+// Unauthenticated probe client for readiness (CareerApi /livez): no auth handler, short timeout.
+builder.Services.AddHttpClient(CareerApiHealthCheck.HealthClientName, c =>
+{
+    c.BaseAddress = new Uri(careerApiBaseUrl);
+    c.Timeout = TimeSpan.FromSeconds(3);
+});
 
-    return opts;
-}).UseLightweightSessions();
-
+// Repositories read from CareerApi over HTTP; the interfaces are unchanged so the résumé handler and its
+// unit tests are untouched.
 builder.Services.AddScoped<IMyInfoRepository, MyInfoRepository>();
 builder.Services.AddScoped<IEngagementRepository, EngagementRepository>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<ISkillRepository, SkillRepository>();
 
-builder.Services.AddSingleton<IBlobStorage, InMemoryBlobStorage>();
-
 builder.Services.AddScoped<ResumeHandler>();
 builder.Services.AddScoped<LupiraWeb.Server.Endpoints.Skills.SkillsHandler>();
 builder.Services.AddScoped<MediaHandler>();
 builder.Services.AddScoped<ArtifactsHandler>();
-builder.Services.AddScoped<GoalsHandler>();
 builder.Services.AddScoped<ExperiencesHandler>();
 
 builder.Services.AddHttpClient<ChatHandler>(c =>
@@ -85,17 +93,12 @@ builder.Services.AddHttpClient<VisionHandler>(c =>
     c.Timeout = TimeSpan.FromSeconds(60);
 });
 
-// Liveness (/livez) + readiness (/readyz, pings Postgres) probes.
+// Liveness (/livez) + readiness (/readyz, pings CareerApi) probes.
 builder.Services.AddAppHealthChecks();
 
 builder.AddLupiraObservability("lupira-web");
 
 var app = builder.Build();
-
-if (app.Environment.IsDevelopment())
-{
-    await DbInitializer.InitializeAsync(app.Services);
-}
 
 if (!app.Environment.IsProduction())
 {
@@ -111,7 +114,6 @@ app.MapResumeEndpoints();
 app.MapSkillsEndpoints();
 app.MapMediaEndpoints();
 app.MapArtifactsEndpoints();
-app.MapGoalsEndpoints();
 app.MapExperiencesEndpoints();
 
 app.MapChatEndpoints();

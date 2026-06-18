@@ -1,44 +1,36 @@
-using LupiraWeb.Domain;
-using LupiraWeb.Domain.Infrastructure.BlobStorage;
 using LupiraWeb.Server.Endpoints.Media.Dtos;
-using Marten;
+using LupiraWeb.Server.Integration.CareerApi;
+using LupiraWeb.Server.Integration.CareerApi.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace LupiraWeb.Server.Endpoints.Media;
 
-public class MediaHandler(IDocumentSession session, IBlobStorage blobStorage)
+public class MediaHandler(ICareerApiClient client)
 {
     public async Task<Ok<IReadOnlyList<MediaAssetDto>>> ListAsync(CancellationToken ct)
     {
-        var media = await session.Query<MediaAsset>()
-            .Where(m => !m.Archived)
-            .ToListAsync(ct);
-
+        var media = await client.GetMediaAsync(ct);
         return TypedResults.Ok<IReadOnlyList<MediaAssetDto>>(
-            media.Select(ToDto).ToList());
+            media.Where(m => !m.Archived).Select(ToDto).ToList());
     }
 
     public async Task<Results<Ok<MediaAssetDto>, NotFound>> GetAsync(Guid id, CancellationToken ct)
     {
-        var media = await session.LoadAsync<MediaAsset>(id, ct);
+        var media = await client.GetMediaAsync(id, ct);
         if (media is null)
             return TypedResults.NotFound();
         return TypedResults.Ok(ToDto(media));
     }
 
-    public async Task<Results<FileStreamHttpResult, NotFound>> DownloadAsync(
-        Guid id, CancellationToken ct)
+    public Task<Results<FileStreamHttpResult, NotFound>> DownloadAsync(Guid id, CancellationToken ct)
     {
-        var media = await session.LoadAsync<MediaAsset>(id, ct);
-        if (media is null) return TypedResults.NotFound();
-
-        var blob = await blobStorage.DownloadAsync(media.BlobRef, ct);
-        if (blob is null) return TypedResults.NotFound();
-
-        return TypedResults.File(new MemoryStream(blob.Bytes), blob.ContentType);
+        // TODO(escalation): CareerApi returns only a BlobRef (MinIO object key), with no endpoint that
+        // streams the binary. The route and response union are preserved, returning 404 until an upstream
+        // media-binary surface (or a presigned MinIO URL we can proxy) exists.
+        return Task.FromResult<Results<FileStreamHttpResult, NotFound>>(TypedResults.NotFound());
     }
 
-    private static MediaAssetDto ToDto(MediaAsset m) => new()
+    private static MediaAssetDto ToDto(CareerMediaDto m) => new()
     {
         Id = m.Id,
         BlobRef = m.BlobRef,

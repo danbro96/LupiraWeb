@@ -15,7 +15,6 @@ import type {
   DetectionResponse,
   Engagement,
   ExperienceDto,
-  GoalDto,
   ListExperiencesParams,
   MediaAssetDto,
   MyInfo,
@@ -538,79 +537,6 @@ export const getGetArtifactUrl = (id: string,) => {
 export const getArtifact = async (id: string, options?: RequestInit): Promise<getArtifactResponse> => {
 
   return customFetch<getArtifactResponse>(getGetArtifactUrl(id),
-  {
-    ...options,
-    method: 'GET'
-
-
-  }
-);}
-
-
-
-export type listGoalsResponse200 = {
-  data: GoalDto[]
-  status: 200
-}
-
-export type listGoalsResponseSuccess = (listGoalsResponse200) & {
-  headers: Headers;
-};
-;
-
-export type listGoalsResponse = (listGoalsResponseSuccess)
-
-export const getListGoalsUrl = () => {
-
-
-
-
-  return `/api/goals`
-}
-
-export const listGoals = async ( options?: RequestInit): Promise<listGoalsResponse> => {
-
-  return customFetch<listGoalsResponse>(getListGoalsUrl(),
-  {
-    ...options,
-    method: 'GET'
-
-
-  }
-);}
-
-
-
-export type getGoalResponse200 = {
-  data: GoalDto
-  status: 200
-}
-
-export type getGoalResponse404 = {
-  data: void
-  status: 404
-}
-
-export type getGoalResponseSuccess = (getGoalResponse200) & {
-  headers: Headers;
-};
-export type getGoalResponseError = (getGoalResponse404) & {
-  headers: Headers;
-};
-
-export type getGoalResponse = (getGoalResponseSuccess | getGoalResponseError)
-
-export const getGetGoalUrl = (id: string,) => {
-
-
-
-
-  return `/api/goals/${id}`
-}
-
-export const getGoal = async (id: string, options?: RequestInit): Promise<getGoalResponse> => {
-
-  return customFetch<getGoalResponse>(getGetGoalUrl(id),
   {
     ...options,
     method: 'GET'

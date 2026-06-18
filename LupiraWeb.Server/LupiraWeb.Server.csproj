@@ -13,7 +13,6 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.8" />
-    <PackageReference Include="Marten" Version="9.6.0" />
     <PackageReference Include="Microsoft.Extensions.ApiDescription.Server" Version="10.0.*">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -34,9 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="Data\seed.dev.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <InternalsVisibleTo Include="LupiraWeb.Server.Tests" />
   </ItemGroup>
 
   <Target Name="RenameOpenApiDoc" AfterTargets="GenerateOpenApiDocuments" Condition="Exists('$(OpenApiDocumentsDirectory)\$(AssemblyName).json')">
