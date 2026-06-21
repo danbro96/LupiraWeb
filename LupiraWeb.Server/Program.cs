@@ -25,11 +25,11 @@ builder.Services.ConfigureHttpJsonOptions(o =>
 
 // --- LupiraCareerApi integration: the career/résumé data now lives in CareerApi, read over HTTP.
 //     This replaces the local Marten/Postgres store entirely. ---
-// Default to the local dev port so the build-time OpenAPI generation (which boots the host) and local
-// runs work without extra config; production overrides CareerApi:BaseUrl via environment. The address is
-// only used to construct the HttpClient — it is not contacted at startup.
-const string DefaultCareerApiBaseUrl = "http://localhost:63063";
-var careerApiBaseUrl = builder.Configuration["CareerApi:BaseUrl"] ?? DefaultCareerApiBaseUrl;
+// BaseUrl ships a localhost dev-default in appsettings.json (so local runs and the build-time OpenAPI
+// generation that boots the host work without extra config); production overrides it via CareerApi__BaseUrl.
+// Used only to construct the HttpClient — not contacted at startup.
+var careerApiBaseUrl = builder.Configuration["CareerApi:BaseUrl"]
+    ?? throw new InvalidOperationException("CareerApi:BaseUrl is required");
 var careerApiTimeout = TimeSpan.FromSeconds(
     builder.Configuration.GetValue<int?>("CareerApi:TimeoutSeconds") ?? 30);
 
