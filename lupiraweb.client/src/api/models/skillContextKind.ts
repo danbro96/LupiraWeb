@@ -5,4 +5,11 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type SkillContextKind = number;
+export type SkillContextKind = typeof SkillContextKind[keyof typeof SkillContextKind];
+
+
+export const SkillContextKind = {
+  InEngagement: 'InEngagement',
+  InProject: 'InProject',
+  External: 'External',
+} as const;

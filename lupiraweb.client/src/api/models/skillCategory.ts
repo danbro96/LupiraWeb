@@ -5,4 +5,15 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type SkillCategory = number;
+export type SkillCategory = typeof SkillCategory[keyof typeof SkillCategory];
+
+
+export const SkillCategory = {
+  Language: 'Language',
+  Framework: 'Framework',
+  Tool: 'Tool',
+  Platform: 'Platform',
+  Method: 'Method',
+  Domain: 'Domain',
+  Other: 'Other',
+} as const;

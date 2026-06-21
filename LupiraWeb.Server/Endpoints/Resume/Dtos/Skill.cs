@@ -3,7 +3,7 @@ using SkillDocument = LupiraWeb.Domain.Skill;
 
 namespace LupiraWeb.Server.Endpoints.Resume.Dtos;
 
-public sealed record Skill
+public sealed class Skill
 {
     public required Guid Id { get; set; }
     public required string Name { get; set; }

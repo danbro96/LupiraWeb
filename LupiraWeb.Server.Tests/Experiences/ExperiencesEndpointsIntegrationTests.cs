@@ -24,7 +24,7 @@ public class ExperiencesEndpointsIntegrationTests : IClassFixture<ResumeTestFact
         var response = await client.GetAsync("/api/experiences");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var list = await response.Content.ReadFromJsonAsync<List<ExperienceDto>>();
+        var list = await response.Content.ReadFromJsonAsync<List<ExperienceDto>>(TestJson.Options);
         Assert.NotNull(list);
         Assert.Contains(list!, r =>
             r.Kind == ExperienceKind.Engagement && r.Id == ResumeTestFactory.SeededEngagementId);
@@ -41,7 +41,7 @@ public class ExperiencesEndpointsIntegrationTests : IClassFixture<ResumeTestFact
             $"/api/experiences?engagementId={ResumeTestFactory.SeededEngagementId}");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var list = await response.Content.ReadFromJsonAsync<List<ExperienceDto>>();
+        var list = await response.Content.ReadFromJsonAsync<List<ExperienceDto>>(TestJson.Options);
         Assert.NotNull(list);
         Assert.All(list!, r => Assert.Equal(ResumeTestFactory.SeededEngagementId, r.EngagementId));
     }
@@ -55,7 +55,7 @@ public class ExperiencesEndpointsIntegrationTests : IClassFixture<ResumeTestFact
             $"/api/experiences?skillId={ResumeTestFactory.SeededSkillId}");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var list = await response.Content.ReadFromJsonAsync<List<ExperienceDto>>();
+        var list = await response.Content.ReadFromJsonAsync<List<ExperienceDto>>(TestJson.Options);
         Assert.NotNull(list);
         Assert.All(list!, r => Assert.Contains(ResumeTestFactory.SeededSkillId, r.SkillIds));
     }
@@ -68,7 +68,7 @@ public class ExperiencesEndpointsIntegrationTests : IClassFixture<ResumeTestFact
         var response = await client.GetAsync("/api/experiences?from=2099-01-01");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var list = await response.Content.ReadFromJsonAsync<List<ExperienceDto>>();
+        var list = await response.Content.ReadFromJsonAsync<List<ExperienceDto>>(TestJson.Options);
         Assert.NotNull(list);
         Assert.Empty(list!);
     }

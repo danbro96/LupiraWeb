@@ -3,7 +3,7 @@ using ProjectDocument = LupiraWeb.Domain.Project;
 
 namespace LupiraWeb.Server.Endpoints.Resume.Dtos;
 
-public sealed record Project
+public sealed class Project
 {
     public required Guid Id { get; set; }
     public required ProjectKind Kind { get; set; }

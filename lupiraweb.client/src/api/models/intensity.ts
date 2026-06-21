@@ -5,4 +5,11 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type Intensity = number;
+export type Intensity = typeof Intensity[keyof typeof Intensity];
+
+
+export const Intensity = {
+  Touched: 'Touched',
+  Regular: 'Regular',
+  Core: 'Core',
+} as const;

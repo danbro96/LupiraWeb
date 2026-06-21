@@ -1,6 +1,6 @@
 namespace LupiraWeb.Server.Endpoints.Demos.Vision.Dtos;
 
-public sealed record Detection
+public sealed class Detection
 {
     public required double X1 { get; set; }
     public required double Y1 { get; set; }

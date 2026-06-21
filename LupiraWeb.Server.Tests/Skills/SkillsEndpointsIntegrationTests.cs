@@ -24,7 +24,7 @@ public class SkillsEndpointsIntegrationTests : IClassFixture<ResumeTestFactory>
         var response = await client.GetAsync($"/api/skills/{ResumeTestFactory.SeededSkillId}/timeline");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var timeline = await response.Content.ReadFromJsonAsync<SkillTimelineResponse>();
+        var timeline = await response.Content.ReadFromJsonAsync<SkillTimelineResponse>(TestJson.Options);
         Assert.NotNull(timeline);
         Assert.Equal("C#", timeline!.Name);
         Assert.Contains(timeline.Entries, e => e.Kind == "Learned" && e.ContextKind == SkillContextKind.InEngagement);
@@ -49,7 +49,7 @@ public class SkillsEndpointsIntegrationTests : IClassFixture<ResumeTestFactory>
         var response = await client.GetAsync($"/api/skills/{ResumeTestFactory.SeededSkillId}/related");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var related = await response.Content.ReadFromJsonAsync<SkillRelatedResponse>();
+        var related = await response.Content.ReadFromJsonAsync<SkillRelatedResponse>(TestJson.Options);
         Assert.NotNull(related);
         Assert.Empty(related!.Related);
     }
@@ -72,7 +72,7 @@ public class SkillsEndpointsIntegrationTests : IClassFixture<ResumeTestFactory>
         var response = await client.GetAsync($"/api/skills/{ResumeTestFactory.SeededSkillId}/maturity");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var maturity = await response.Content.ReadFromJsonAsync<SkillMaturityResponse>();
+        var maturity = await response.Content.ReadFromJsonAsync<SkillMaturityResponse>(TestJson.Options);
         Assert.NotNull(maturity);
         Assert.Equal(Maturity.Working, maturity!.Current);
         Assert.Single(maturity.Trajectory);

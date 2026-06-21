@@ -5,4 +5,12 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type ProjectStatus = number;
+export type ProjectStatus = typeof ProjectStatus[keyof typeof ProjectStatus];
+
+
+export const ProjectStatus = {
+  Active: 'Active',
+  Shipped: 'Shipped',
+  Shelved: 'Shelved',
+  Archived: 'Archived',
+} as const;

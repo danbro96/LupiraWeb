@@ -1,6 +1,6 @@
 namespace LupiraWeb.Server.Endpoints.Demos.TextToSpeech.Dtos;
 
-public sealed record Voice
+public sealed class Voice
 {
     public required string Id { get; set; }
     public required string Name { get; set; }

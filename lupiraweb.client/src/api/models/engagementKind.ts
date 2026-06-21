@@ -5,4 +5,13 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type EngagementKind = number;
+export type EngagementKind = typeof EngagementKind[keyof typeof EngagementKind];
+
+
+export const EngagementKind = {
+  Employment: 'Employment',
+  Study: 'Study',
+  Hobby: 'Hobby',
+  Volunteer: 'Volunteer',
+  OpenSource: 'OpenSource',
+} as const;

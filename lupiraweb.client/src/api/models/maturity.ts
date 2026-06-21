@@ -5,4 +5,13 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type Maturity = number;
+export type Maturity = typeof Maturity[keyof typeof Maturity];
+
+
+export const Maturity = {
+  Aware: 'Aware',
+  Working: 'Working',
+  Fluent: 'Fluent',
+  Expert: 'Expert',
+  Teaching: 'Teaching',
+} as const;

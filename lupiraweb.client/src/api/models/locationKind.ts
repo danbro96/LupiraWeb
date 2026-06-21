@@ -5,4 +5,12 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type LocationKind = number;
+export type LocationKind = typeof LocationKind[keyof typeof LocationKind];
+
+
+export const LocationKind = {
+  Office: 'Office',
+  Home: 'Home',
+  Client: 'Client',
+  Event: 'Event',
+} as const;

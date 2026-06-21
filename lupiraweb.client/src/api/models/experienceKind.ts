@@ -5,4 +5,10 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type ExperienceKind = number;
+export type ExperienceKind = typeof ExperienceKind[keyof typeof ExperienceKind];
+
+
+export const ExperienceKind = {
+  Engagement: 'Engagement',
+  Project: 'Project',
+} as const;

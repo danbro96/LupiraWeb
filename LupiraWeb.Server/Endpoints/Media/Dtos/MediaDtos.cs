@@ -2,7 +2,7 @@ using LupiraWeb.Domain;
 
 namespace LupiraWeb.Server.Endpoints.Media.Dtos;
 
-public sealed record MediaAssetDto
+public sealed class MediaAssetDto
 {
     public required Guid Id { get; set; }
     public required string BlobRef { get; set; }
@@ -16,7 +16,7 @@ public sealed record MediaAssetDto
     public required IReadOnlyList<Guid> LinkedSkillIds { get; set; }
 }
 
-public sealed record MediaProjectLinkDto
+public sealed class MediaProjectLinkDto
 {
     public required Guid ProjectId { get; set; }
     public required MediaRole Role { get; set; }

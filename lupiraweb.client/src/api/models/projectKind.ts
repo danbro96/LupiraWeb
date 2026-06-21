@@ -5,4 +5,12 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type ProjectKind = number;
+export type ProjectKind = typeof ProjectKind[keyof typeof ProjectKind];
+
+
+export const ProjectKind = {
+  Professional: 'Professional',
+  Personal: 'Personal',
+  OpenSource: 'OpenSource',
+  Academic: 'Academic',
+} as const;

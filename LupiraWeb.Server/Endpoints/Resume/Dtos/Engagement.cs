@@ -3,7 +3,7 @@ using EngagementDocument = LupiraWeb.Domain.Engagement;
 
 namespace LupiraWeb.Server.Endpoints.Resume.Dtos;
 
-public sealed record Engagement
+public sealed class Engagement
 {
     public required Guid Id { get; set; }
     public required EngagementKind Kind { get; set; }
@@ -42,7 +42,7 @@ public sealed record Engagement
         };
 }
 
-public sealed record TitleEpochDto
+public sealed class TitleEpochDto
 {
     public required Guid TitleId { get; set; }
     public required string Text { get; set; }

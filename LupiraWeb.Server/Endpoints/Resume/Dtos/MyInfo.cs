@@ -2,7 +2,7 @@ using MyInfoDocument = LupiraWeb.Domain.MyInfo;
 
 namespace LupiraWeb.Server.Endpoints.Resume.Dtos;
 
-public sealed record MyInfo
+public sealed class MyInfo
 {
     public required Guid Id { get; set; }
     public required string FullName { get; set; }

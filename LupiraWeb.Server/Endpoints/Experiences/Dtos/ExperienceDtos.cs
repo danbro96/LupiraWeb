@@ -2,7 +2,7 @@ using LupiraWeb.Domain;
 
 namespace LupiraWeb.Server.Endpoints.Experiences.Dtos;
 
-public sealed record ExperienceDto
+public sealed class ExperienceDto
 {
     public required Guid Id { get; set; }
     public required ExperienceKind Kind { get; set; }

@@ -5,4 +5,11 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type ArtifactRole = number;
+export type ArtifactRole = typeof ArtifactRole[keyof typeof ArtifactRole];
+
+
+export const ArtifactRole = {
+  Evidence: 'Evidence',
+  Output: 'Output',
+  Source: 'Source',
+} as const;

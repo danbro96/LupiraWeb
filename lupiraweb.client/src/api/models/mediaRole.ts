@@ -5,4 +5,11 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type MediaRole = number;
+export type MediaRole = typeof MediaRole[keyof typeof MediaRole];
+
+
+export const MediaRole = {
+  Hero: 'Hero',
+  Gallery: 'Gallery',
+  Thumbnail: 'Thumbnail',
+} as const;

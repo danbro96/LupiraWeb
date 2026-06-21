@@ -5,4 +5,16 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type ArtifactKind = number;
+export type ArtifactKind = typeof ArtifactKind[keyof typeof ArtifactKind];
+
+
+export const ArtifactKind = {
+  Repo: 'Repo',
+  PullRequest: 'PullRequest',
+  Issue: 'Issue',
+  BlogPost: 'BlogPost',
+  Talk: 'Talk',
+  Video: 'Video',
+  Certification: 'Certification',
+  Paper: 'Paper',
+} as const;

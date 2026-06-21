@@ -35,7 +35,7 @@ public class ResumeEndpointsIntegrationTests : IClassFixture<ResumeTestFactory>
         var response = await client.GetAsync("/api/resume/engagements");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var list = await response.Content.ReadFromJsonAsync<List<Engagement>>();
+        var list = await response.Content.ReadFromJsonAsync<List<Engagement>>(TestJson.Options);
         Assert.NotNull(list);
         Assert.Contains(list!, e => e.Institution == "Strivo");
     }
@@ -48,7 +48,7 @@ public class ResumeEndpointsIntegrationTests : IClassFixture<ResumeTestFactory>
         var response = await client.GetAsync($"/api/resume/engagements/{ResumeTestFactory.SeededEngagementId}");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var eng = await response.Content.ReadFromJsonAsync<Engagement>();
+        var eng = await response.Content.ReadFromJsonAsync<Engagement>(TestJson.Options);
         Assert.NotNull(eng);
         Assert.Equal("Strivo", eng!.Institution);
         Assert.Equal("Consultant", eng.Title);
@@ -74,7 +74,7 @@ public class ResumeEndpointsIntegrationTests : IClassFixture<ResumeTestFactory>
         var response = await client.GetAsync("/api/resume/projects");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var list = await response.Content.ReadFromJsonAsync<List<Project>>();
+        var list = await response.Content.ReadFromJsonAsync<List<Project>>(TestJson.Options);
         Assert.NotNull(list);
         Assert.Contains(list!, p => p.Title == "LupiraWeb");
     }
@@ -97,7 +97,7 @@ public class ResumeEndpointsIntegrationTests : IClassFixture<ResumeTestFactory>
         var response = await client.GetAsync("/api/resume/skills");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var list = await response.Content.ReadFromJsonAsync<List<Skill>>();
+        var list = await response.Content.ReadFromJsonAsync<List<Skill>>(TestJson.Options);
         Assert.NotNull(list);
         Assert.Contains(list!, s => s.Name == "C#");
     }

@@ -23,7 +23,7 @@ public class MediaEndpointsIntegrationTests : IClassFixture<ResumeTestFactory>
         var response = await client.GetAsync("/api/media/");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var list = await response.Content.ReadFromJsonAsync<List<MediaAssetDto>>();
+        var list = await response.Content.ReadFromJsonAsync<List<MediaAssetDto>>(TestJson.Options);
         Assert.NotNull(list);
     }
 

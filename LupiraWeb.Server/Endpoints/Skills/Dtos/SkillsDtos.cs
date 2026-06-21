@@ -2,14 +2,14 @@ using LupiraWeb.Domain;
 
 namespace LupiraWeb.Server.Endpoints.Skills.Dtos;
 
-public sealed record SkillTimelineResponse
+public sealed class SkillTimelineResponse
 {
     public required Guid SkillId { get; set; }
     public required string Name { get; set; }
     public required IReadOnlyList<SkillTimelineEntryDto> Entries { get; set; }
 }
 
-public sealed record SkillTimelineEntryDto
+public sealed class SkillTimelineEntryDto
 {
     public required string Kind { get; set; }
     public required DateOnly OccurredOn { get; set; }
@@ -22,13 +22,13 @@ public sealed record SkillTimelineEntryDto
     public string? Note { get; set; }
 }
 
-public sealed record SkillRelatedResponse
+public sealed class SkillRelatedResponse
 {
     public required Guid SkillId { get; set; }
     public required IReadOnlyList<SkillRelatedEntry> Related { get; set; }
 }
 
-public sealed record SkillRelatedEntry
+public sealed class SkillRelatedEntry
 {
     public required Guid SkillId { get; set; }
     public required string Name { get; set; }
@@ -37,14 +37,14 @@ public sealed record SkillRelatedEntry
     public DateOnly? LastSeen { get; set; }
 }
 
-public sealed record SkillMaturityResponse
+public sealed class SkillMaturityResponse
 {
     public required Guid SkillId { get; set; }
     public required Maturity Current { get; set; }
     public required IReadOnlyList<SkillMaturityPointDto> Trajectory { get; set; }
 }
 
-public sealed record SkillMaturityPointDto
+public sealed class SkillMaturityPointDto
 {
     public required DateOnly OccurredOn { get; set; }
     public required Maturity Maturity { get; set; }

@@ -719,10 +719,23 @@
         }
       },
       "ArtifactKind": {
-        "type": "integer"
+        "enum": [
+          "Repo",
+          "PullRequest",
+          "Issue",
+          "BlogPost",
+          "Talk",
+          "Video",
+          "Certification",
+          "Paper"
+        ]
       },
       "ArtifactRole": {
-        "type": "integer"
+        "enum": [
+          "Evidence",
+          "Output",
+          "Source"
+        ]
       },
       "ArtifactSkillLinkDto": {
         "required": [
@@ -910,7 +923,13 @@
         }
       },
       "EngagementKind": {
-        "type": "integer"
+        "enum": [
+          "Employment",
+          "Study",
+          "Hobby",
+          "Volunteer",
+          "OpenSource"
+        ]
       },
       "ExperienceDto": {
         "required": [
@@ -977,14 +996,22 @@
         }
       },
       "ExperienceKind": {
-        "type": "integer"
+        "enum": [
+          "Engagement",
+          "Project"
+        ]
       },
       "IFormFile": {
         "type": "string",
         "format": "binary"
       },
       "Intensity": {
-        "type": "integer"
+        "enum": [
+          "Touched",
+          "Regular",
+          "Core",
+          null
+        ]
       },
       "Location": {
         "required": [
@@ -1012,10 +1039,22 @@
         }
       },
       "LocationKind": {
-        "type": "integer"
+        "enum": [
+          "Office",
+          "Home",
+          "Client",
+          "Event"
+        ]
       },
       "Maturity": {
-        "type": "integer"
+        "enum": [
+          "Aware",
+          "Working",
+          "Fluent",
+          "Expert",
+          "Teaching",
+          null
+        ]
       },
       "MediaAssetDto": {
         "required": [
@@ -1100,7 +1139,11 @@
         }
       },
       "MediaRole": {
-        "type": "integer"
+        "enum": [
+          "Hero",
+          "Gallery",
+          "Thumbnail"
+        ]
       },
       "MyInfo": {
         "required": [
@@ -1239,10 +1282,20 @@
         }
       },
       "ProjectKind": {
-        "type": "integer"
+        "enum": [
+          "Professional",
+          "Personal",
+          "OpenSource",
+          "Academic"
+        ]
       },
       "ProjectStatus": {
-        "type": "integer"
+        "enum": [
+          "Active",
+          "Shipped",
+          "Shelved",
+          "Archived"
+        ]
       },
       "Skill": {
         "required": [
@@ -1265,10 +1318,23 @@
         }
       },
       "SkillCategory": {
-        "type": "integer"
+        "enum": [
+          "Language",
+          "Framework",
+          "Tool",
+          "Platform",
+          "Method",
+          "Domain",
+          "Other"
+        ]
       },
       "SkillContextKind": {
-        "type": "integer"
+        "enum": [
+          "InEngagement",
+          "InProject",
+          "External",
+          null
+        ]
       },
       "SkillMaturityPointDto": {
         "required": [
