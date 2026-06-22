@@ -8,7 +8,7 @@
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <OpenApiGenerateDocuments>true</OpenApiGenerateDocuments>
     <OpenApiGenerateDocumentsOnBuild>true</OpenApiGenerateDocumentsOnBuild>
-    <OpenApiDocumentsDirectory>$(MSBuildProjectDirectory)\..\lupiraweb.client</OpenApiDocumentsDirectory>
+    <OpenApiDocumentsDirectory>$(MSBuildProjectDirectory)\..\..\lupiraweb.client</OpenApiDocumentsDirectory>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,7 +29,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="LupiraWeb.Server.Tests" />
+    <InternalsVisibleTo Include="LupiraWeb.Server.UnitTests" />
+    <InternalsVisibleTo Include="LupiraWeb.Server.IntegrationTests" />
   </ItemGroup>
 
   <Target Name="RenameOpenApiDoc" AfterTargets="GenerateOpenApiDocuments" Condition="Exists('$(OpenApiDocumentsDirectory)\$(AssemblyName).json')">

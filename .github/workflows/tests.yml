@@ -1,0 +1,48 @@
+name: tests
+
+on:
+  workflow_call:
+    inputs:
+      run_integration:
+        description: Also run the integration test project (not in the .slnx)
+        type: boolean
+        default: false
+
+env:
+  INTEGRATION_PROJECT: tests/LupiraWeb.Server.IntegrationTests/LupiraWeb.Server.IntegrationTests.csproj
+
+jobs:
+  unit:
+    name: unit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - name: Cache NuGet
+        uses: actions/cache@v5
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
+      # The .slnx contains only unit tests (DB-free) + the server, so this is fast and dependency-free.
+      - run: dotnet test LupiraWeb.slnx -c Release
+
+  integration:
+    name: integration
+    if: ${{ inputs.run_integration }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - name: Cache NuGet
+        uses: actions/cache@v5
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
+      # WebApplicationFactory + in-process CareerApi stub (no DB). Run by path; not in the .slnx.
+      - run: dotnet test ${{ env.INTEGRATION_PROJECT }} -c Release
