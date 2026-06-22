@@ -1,4 +1,4 @@
-using LupiraWeb.Domain;
+using LupiraWeb.Server.Contracts;
 using LupiraWeb.Server.Endpoints.Experiences.Dtos;
 using LupiraWeb.Server.Integration.CareerApi;
 using LupiraWeb.Server.Integration.CareerApi.Dtos;

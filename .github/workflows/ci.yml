@@ -45,7 +45,6 @@ jobs:
           name: openapi-specs
           path: |
             lupiraweb.client/backend-openapi.json
-            lupiraweb.admin/backend-openapi.json
           retention-days: 1
 
   contract-drift:
@@ -64,13 +63,6 @@ jobs:
         run: |
           if ! git diff --exit-code -- lupiraweb.client/backend-openapi.json; then
             echo "::error::lupiraweb.client/backend-openapi.json is out of date. Run 'dotnet build LupiraWeb.Server' and commit the regenerated spec."
-            exit 1
-          fi
-
-      - name: Diff admin spec
-        run: |
-          if ! git diff --exit-code -- lupiraweb.admin/backend-openapi.json; then
-            echo "::error::lupiraweb.admin/backend-openapi.json is out of date. Run 'dotnet build LupiraWeb.Admin.Server' and commit the regenerated spec."
             exit 1
           fi
 

@@ -13,7 +13,8 @@ services:
       OTEL_METRIC_EXPORT_INTERVAL: ${OTEL_METRIC_EXPORT_INTERVAL:-300000}
       OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
       OTEL_RESOURCE_ATTRIBUTES: ${OTEL_RESOURCE_ATTRIBUTES:-deployment.environment=prod,host.name=medelynas}
-      # Auth = Authentik OIDC JWT, audience lupira-career.
+      # Career/résumé data source over HTTP. Auth = Authentik OIDC JWT, audience lupira-career.
+      # This stack holds no database; CareerApi owns the event store.
       CareerApi__BaseUrl: ${CAREERAPI_BASE_URL:?CAREERAPI_BASE_URL is required}
       CareerApi__Auth__Token: ${CAREERAPI_AUTH_TOKEN:-}
       Demos__Chat__BaseUrl: ${DEMOS_CHAT_BASE_URL:?DEMOS_CHAT_BASE_URL is required}

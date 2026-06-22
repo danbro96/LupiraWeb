@@ -29,10 +29,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LupiraWeb.Domain\LupiraWeb.Domain.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <InternalsVisibleTo Include="LupiraWeb.Server.Tests" />
   </ItemGroup>
 

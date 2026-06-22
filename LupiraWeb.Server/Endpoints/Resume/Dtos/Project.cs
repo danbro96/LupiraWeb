@@ -1,5 +1,5 @@
-using LupiraWeb.Domain;
-using ProjectDocument = LupiraWeb.Domain.Project;
+using LupiraWeb.Server.Contracts;
+using LupiraWeb.Server.Integration.CareerApi.Dtos;
 
 namespace LupiraWeb.Server.Endpoints.Resume.Dtos;
 
@@ -18,7 +18,7 @@ public sealed class Project
     public required IReadOnlyList<Skill> Skills { get; set; }
 
     public static Project From(
-        ProjectDocument p,
+        CareerProjectDto p,
         IEnumerable<Skill>? skills = null,
         string? engagementInstitution = null) => new()
         {

@@ -1,14 +1,11 @@
-using LupiraWeb.Domain;
+using LupiraWeb.Server.Contracts;
 using LupiraWeb.Server.Data.Repositories;
 using LupiraWeb.Server.Endpoints.Resume;
+using LupiraWeb.Server.Integration.CareerApi.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
 using NSubstitute;
 using Xunit;
 using Dtos = LupiraWeb.Server.Endpoints.Resume.Dtos;
-using EngagementDocument = LupiraWeb.Domain.Engagement;
-using MyInfoDocument = LupiraWeb.Domain.MyInfo;
-using ProjectDocument = LupiraWeb.Domain.Project;
-using SkillDocument = LupiraWeb.Domain.Skill;
 
 namespace LupiraWeb.Server.Tests.Resume;
 
@@ -21,37 +18,42 @@ public class ResumeHandlerTests
         ISkillRepository? skillRepository = null) =>
         new(
             myInfoRepository ?? Substitute.For<IMyInfoRepository>(),
-            engagementRepository ?? StubRepo<IEngagementRepository, EngagementDocument>(),
-            projectRepository ?? StubRepo<IProjectRepository, ProjectDocument>(),
+            engagementRepository ?? Substitute.For<IEngagementRepository>(),
+            projectRepository ?? Substitute.For<IProjectRepository>(),
             skillRepository ?? StubSkillRepo());
 
-    private static IEngagementRepository StubEngagementRepo(IReadOnlyList<EngagementDocument> list)
+    private static IEngagementRepository StubEngagementRepo(IReadOnlyList<CareerEngagementDto> list)
     {
         var repo = Substitute.For<IEngagementRepository>();
         repo.ListAsync(Arg.Any<CancellationToken>()).Returns(list);
         return repo;
     }
 
-    private static T StubRepo<T, TDoc>() where T : class
-    {
-        var repo = Substitute.For<T>();
-        // List methods default to returning empty arrays via NSubstitute defaults for Task<IReadOnlyList<T>>,
-        // but some paths expect explicit stubs; the handler tolerates empty lists.
-        return repo;
-    }
-
     private static ISkillRepository StubSkillRepo()
     {
         var repo = Substitute.For<ISkillRepository>();
-        repo.ListAsync(Arg.Any<CancellationToken>()).Returns(Array.Empty<SkillDocument>());
+        repo.ListAsync(Arg.Any<CancellationToken>()).Returns(Array.Empty<CareerSkillDto>());
         return repo;
     }
+
+    private static CareerEngagementDto Engagement(Guid id) => new(
+        id,
+        EngagementKind.Employment,
+        Guid.NewGuid(),
+        "Strivo",
+        new DateOnly(2023, 1, 1),
+        null,
+        null,
+        null,
+        "Consultant",
+        [new CareerTitleEpochDto(Guid.NewGuid(), "Consultant", new DateOnly(2023, 1, 1), null)],
+        []);
 
     [Fact]
     public async Task GetMeAsync_returns_NotFound_when_repository_is_empty()
     {
         var myInfoRepository = Substitute.For<IMyInfoRepository>();
-        myInfoRepository.GetAsync(Arg.Any<CancellationToken>()).Returns((MyInfoDocument?) null);
+        myInfoRepository.GetAsync(Arg.Any<CancellationToken>()).Returns((OwnerInfo?) null);
         var handler = CreateHandler(myInfoRepository: myInfoRepository);
 
         var result = await handler.GetMeAsync(CancellationToken.None);
@@ -63,12 +65,11 @@ public class ResumeHandlerTests
     public async Task GetMeAsync_returns_Ok_with_dto_when_present()
     {
         var myInfoRepository = Substitute.For<IMyInfoRepository>();
-        myInfoRepository.GetAsync(Arg.Any<CancellationToken>()).Returns(new MyInfoDocument
-        {
-            Id = MyInfoDocument.SingletonId,
-            FullName = "Daniel Broström",
-            Email = "daniel.brostrom@strivo.se",
-        });
+        myInfoRepository.GetAsync(Arg.Any<CancellationToken>()).Returns(new OwnerInfo(
+            Guid.NewGuid(),
+            "Daniel Broström",
+            "daniel.brostrom@strivo.se",
+            null, null, null, null, null, null));
         var handler = CreateHandler(myInfoRepository: myInfoRepository);
 
         var result = await handler.GetMeAsync(CancellationToken.None);
@@ -81,19 +82,7 @@ public class ResumeHandlerTests
     [Fact]
     public async Task GetEngagementsAsync_returns_mapped_list()
     {
-        var id = Guid.NewGuid();
-        var engagement = new EngagementDocument
-        {
-            Id = id,
-            Kind = EngagementKind.Employment,
-            Institution = "Strivo",
-            Start = new DateOnly(2023, 1, 1),
-            Titles = new List<TitleEpoch>
-            {
-                new() { TitleId = Guid.NewGuid(), Text = "Consultant", From = new DateOnly(2023, 1, 1) },
-            },
-        };
-        var handler = CreateHandler(engagementRepository: StubEngagementRepo(new[] { engagement }));
+        var handler = CreateHandler(engagementRepository: StubEngagementRepo([Engagement(Guid.NewGuid())]));
 
         var result = await handler.GetEngagementsAsync(CancellationToken.None);
 
@@ -106,7 +95,7 @@ public class ResumeHandlerTests
     public async Task GetEngagementAsync_returns_NotFound_when_missing()
     {
         var repo = Substitute.For<IEngagementRepository>();
-        repo.GetAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns((EngagementDocument?) null);
+        repo.GetAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns((CareerEngagementDto?) null);
         var handler = CreateHandler(engagementRepository: repo);
 
         var result = await handler.GetEngagementAsync(Guid.NewGuid(), CancellationToken.None);
@@ -118,20 +107,10 @@ public class ResumeHandlerTests
     public async Task GetEngagementAsync_returns_Ok_when_found()
     {
         var id = Guid.NewGuid();
-        var engagement = new EngagementDocument
-        {
-            Id = id,
-            Kind = EngagementKind.Employment,
-            Institution = "Strivo",
-            Start = new DateOnly(2023, 1, 1),
-            Titles = new List<TitleEpoch>
-            {
-                new() { TitleId = Guid.NewGuid(), Text = "Consultant", From = new DateOnly(2023, 1, 1) },
-            },
-        };
+        var engagement = Engagement(id);
         var repo = Substitute.For<IEngagementRepository>();
         repo.GetAsync(id, Arg.Any<CancellationToken>()).Returns(engagement);
-        repo.ListAsync(Arg.Any<CancellationToken>()).Returns(new[] { engagement });
+        repo.ListAsync(Arg.Any<CancellationToken>()).Returns([engagement]);
         var handler = CreateHandler(engagementRepository: repo);
 
         var result = await handler.GetEngagementAsync(id, CancellationToken.None);
@@ -145,7 +124,7 @@ public class ResumeHandlerTests
     public async Task GetProjectAsync_returns_NotFound_when_missing()
     {
         var repo = Substitute.For<IProjectRepository>();
-        repo.GetAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns((ProjectDocument?) null);
+        repo.GetAsync(Arg.Any<Guid>(), Arg.Any<CancellationToken>()).Returns((CareerProjectDto?) null);
         var handler = CreateHandler(projectRepository: repo);
 
         var result = await handler.GetProjectAsync(Guid.NewGuid(), CancellationToken.None);
@@ -157,10 +136,10 @@ public class ResumeHandlerTests
     public async Task GetSkillsAsync_returns_mapped_list()
     {
         var skillRepository = Substitute.For<ISkillRepository>();
-        skillRepository.ListAsync(Arg.Any<CancellationToken>()).Returns(new List<SkillDocument>
+        skillRepository.ListAsync(Arg.Any<CancellationToken>()).Returns(new List<CareerSkillDto>
         {
-            new() { Id = Guid.NewGuid(), Name = "C#", Category = SkillCategory.Language },
-            new() { Id = Guid.NewGuid(), Name = ".NET", Category = SkillCategory.Framework },
+            new(Guid.NewGuid(), "C#", SkillCategory.Language, [], null, false, null, Maturity.Aware),
+            new(Guid.NewGuid(), ".NET", SkillCategory.Framework, [], null, false, null, Maturity.Aware),
         });
         var handler = CreateHandler(skillRepository: skillRepository);
 

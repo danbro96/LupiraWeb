@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
-using LupiraWeb.Domain;
+using LupiraWeb.Server.Contracts;
 using LupiraWeb.Server.Integration.CareerApi.Dtos;
 
 namespace LupiraWeb.Server.Tests.Resume;
@@ -96,7 +96,7 @@ internal sealed class CareerApiStubHandler : HttpMessageHandler
         null,
         false,
         Start,
-        LupiraWeb.Domain.Maturity.Working);
+        LupiraWeb.Server.Contracts.Maturity.Working);
 
     private static CareerResumeDto Resume =>
         new(Profile, [Engagement], [Project], [Skill]);
@@ -107,7 +107,7 @@ internal sealed class CareerApiStubHandler : HttpMessageHandler
         "C#",
         [
             new CareerSkillTimelineEntryDto("Learned", Start, SkillContextKind.InEngagement,
-                ResumeTestFactory.SeededEngagementId, null, null, LupiraWeb.Domain.Maturity.Working, null, null),
+                ResumeTestFactory.SeededEngagementId, null, null, LupiraWeb.Server.Contracts.Maturity.Working, null, null),
             new CareerSkillTimelineEntryDto("Applied", Start, SkillContextKind.InProject,
                 ResumeTestFactory.SeededProjectId, null, Intensity.Regular, null, null, null),
         ]);
@@ -115,8 +115,8 @@ internal sealed class CareerApiStubHandler : HttpMessageHandler
     private static CareerSkillMaturityDto Maturity => new(
         ResumeTestFactory.SeededSkillId,
         OwnerPrincipalId,
-        LupiraWeb.Domain.Maturity.Working,
-        [new CareerSkillMaturityPointDto(Start, LupiraWeb.Domain.Maturity.Working, "Learned")]);
+        LupiraWeb.Server.Contracts.Maturity.Working,
+        [new CareerSkillMaturityPointDto(Start, LupiraWeb.Server.Contracts.Maturity.Working, "Learned")]);
 
     private static CareerExperienceItemDto[] Experience =>
     [

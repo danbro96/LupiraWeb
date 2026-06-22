@@ -1,11 +1,11 @@
-using LupiraWeb.Domain;
+using LupiraWeb.Server.Contracts;
 
 namespace LupiraWeb.Server.Integration.CareerApi.Dtos;
 
 // Wire DTOs mirroring LupiraCareerApi's read responses. Defined locally (not referenced from the
 // CareerApi assembly) so this service owns its view of the contract. The enums and value types
-// (EngagementKind, Location, Maturity, …) are reused from LupiraWeb.Domain because they are
-// byte-identical to CareerApi's, which keeps the mapping to the public DTOs trivial.
+// (EngagementKind, Location, Maturity, …) live in LupiraWeb.Server.Contracts — a string-keyed copy
+// of CareerApi's, which keeps the mapping to the public DTOs trivial.
 
 public sealed record CareerMeDto(Guid Id, string Email, string? DisplayName);
 

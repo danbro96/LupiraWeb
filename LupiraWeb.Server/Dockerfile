@@ -1,7 +1,6 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-COPY LupiraWeb.Domain/ ./LupiraWeb.Domain/
 COPY LupiraWeb.Server/ ./LupiraWeb.Server/
 
 WORKDIR /src/LupiraWeb.Server

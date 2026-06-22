@@ -1,9 +1,7 @@
 using LupiraWeb.Server.Data.Repositories;
 using LupiraWeb.Server.Endpoints.Resume.Dtos;
+using LupiraWeb.Server.Integration.CareerApi.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
-using EngagementDocument = LupiraWeb.Domain.Engagement;
-using ProjectDocument = LupiraWeb.Domain.Project;
-using SkillDocument = LupiraWeb.Domain.Skill;
 
 namespace LupiraWeb.Server.Endpoints.Resume;
 
@@ -15,10 +13,10 @@ public class ResumeHandler(
 {
     public async Task<Results<Ok<MyInfo>, NotFound>> GetMeAsync(CancellationToken ct)
     {
-        var myInfo = await myInfoRepository.GetAsync(ct);
-        if (myInfo is null)
+        var owner = await myInfoRepository.GetAsync(ct);
+        if (owner is null)
             return TypedResults.NotFound();
-        return TypedResults.Ok(MyInfo.From(myInfo));
+        return TypedResults.Ok(MyInfo.From(owner));
     }
 
     public async Task<Ok<IReadOnlyList<Engagement>>> GetEngagementsAsync(CancellationToken ct)
@@ -72,7 +70,7 @@ public class ResumeHandler(
         return new ResumeContext(skills, projects, engagements);
     }
 
-    private static Engagement ToEngagementDto(EngagementDocument e, ResumeContext ctx)
+    private static Engagement ToEngagementDto(CareerEngagementDto e, ResumeContext ctx)
     {
         var skills = e.SkillIds
             .Where(ctx.SkillsById.ContainsKey)
@@ -83,7 +81,7 @@ public class ResumeHandler(
         return Engagement.From(e, skills, projects);
     }
 
-    private static Project ToProjectDto(ProjectDocument p, ResumeContext ctx)
+    private static Project ToProjectDto(CareerProjectDto p, ResumeContext ctx)
     {
         var skills = p.SkillIds
             .Where(ctx.SkillsById.ContainsKey)
@@ -92,13 +90,13 @@ public class ResumeHandler(
         if (p.EngagementId is Guid eid
             && ctx.EngagementsById.TryGetValue(eid, out var eng))
         {
-            engagementInstitution = eng.Institution;
+            engagementInstitution = eng.OrganizationName;
         }
         return Project.From(p, skills, engagementInstitution);
     }
 
     private sealed record ResumeContext(
-        IReadOnlyDictionary<Guid, SkillDocument> SkillsById,
-        IReadOnlyList<ProjectDocument> Projects,
-        IReadOnlyDictionary<Guid, EngagementDocument> EngagementsById);
+        IReadOnlyDictionary<Guid, CareerSkillDto> SkillsById,
+        IReadOnlyList<CareerProjectDto> Projects,
+        IReadOnlyDictionary<Guid, CareerEngagementDto> EngagementsById);
 }

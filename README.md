@@ -3,8 +3,8 @@
 Personal portfolio site by Daniel Broström. The code doubles as a DevOps showcase: reproducible builds, a build-time OpenAPI contract, containerized dev/prod, and tests across every layer.
 
 - **Frontend** — [lupiraweb.client/](lupiraweb.client/) — Next.js 16 (App Router), Tailwind v4, Orval-generated API client.
-- **Backend** — [LupiraWeb.Server/](LupiraWeb.Server/) — .NET 10 minimal API, emits OpenAPI at build time.
-- **Containers** — [docker-compose.yml](docker-compose.yml) (base / prod) + [docker-compose.override.yml](docker-compose.override.yml) (dev override) + [docker-compose.dcproj](docker-compose.dcproj) (VS integration).
+- **Backend** — [LupiraWeb.Server/](LupiraWeb.Server/) — .NET 10 minimal API, a stateless BFF over LupiraCareerApi (HTTP, no database), emits OpenAPI at build time.
+- **Containers** — [docker-compose.yml](docker-compose.yml) (base) + [docker-compose.override.yml](docker-compose.override.yml) (dev override) + [docker-compose.dcproj](docker-compose.dcproj) (VS integration). Backend + frontend only; backend points at CareerApi via `CAREERAPI_BASE_URL`.
 
 Architecture overview and working rules live in [CLAUDE.md](CLAUDE.md). Deployment details live in [ReadmeDocker.md](ReadmeDocker.md). CI/CD and TrueNAS deployment guide in [docs/CICD.md](docs/CICD.md). Roadmap in [docs/ROADMAP.md](docs/ROADMAP.md).
 

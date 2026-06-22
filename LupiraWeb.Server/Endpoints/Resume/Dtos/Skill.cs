@@ -1,5 +1,5 @@
-using LupiraWeb.Domain;
-using SkillDocument = LupiraWeb.Domain.Skill;
+using LupiraWeb.Server.Contracts;
+using LupiraWeb.Server.Integration.CareerApi.Dtos;
 
 namespace LupiraWeb.Server.Endpoints.Resume.Dtos;
 
@@ -9,7 +9,7 @@ public sealed class Skill
     public required string Name { get; set; }
     public required SkillCategory Category { get; set; }
 
-    public static Skill From(SkillDocument s) => new()
+    public static Skill From(CareerSkillDto s) => new()
     {
         Id = s.Id,
         Name = s.Name,

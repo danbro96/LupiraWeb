@@ -1,4 +1,4 @@
-using MyInfoDocument = LupiraWeb.Domain.MyInfo;
+using LupiraWeb.Server.Data.Repositories;
 
 namespace LupiraWeb.Server.Endpoints.Resume.Dtos;
 
@@ -14,16 +14,16 @@ public sealed class MyInfo
     public string? LinkedInUrl { get; set; }
     public string? WebsiteUrl { get; set; }
 
-    public static MyInfo From(MyInfoDocument m) => new()
+    public static MyInfo From(OwnerInfo o) => new()
     {
-        Id = m.Id,
-        FullName = m.FullName,
-        Email = m.Email,
-        Tagline = m.Tagline,
-        Bio = m.Bio,
-        Location = m.Location,
-        GithubUrl = m.GithubUrl,
-        LinkedInUrl = m.LinkedInUrl,
-        WebsiteUrl = m.WebsiteUrl,
+        Id = o.Id,
+        FullName = o.FullName,
+        Email = o.Email,
+        Tagline = o.Tagline,
+        Bio = o.Bio,
+        Location = o.Location,
+        GithubUrl = o.GithubUrl,
+        LinkedInUrl = o.LinkedInUrl,
+        WebsiteUrl = o.WebsiteUrl,
     };
 }

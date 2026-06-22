@@ -1,4 +1,4 @@
-using LupiraWeb.Domain;
+using LupiraWeb.Server.Contracts;
 using LupiraWeb.Server.Endpoints.Skills.Dtos;
 using LupiraWeb.Server.Tests.Resume;
 using System.Net;

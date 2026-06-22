@@ -1,23 +1,4 @@
 services:
-  postgres:
-    image: postgres:17-alpine
-    container_name: lupiraweb-postgres-dev
-    environment:
-      POSTGRES_DB: lupiraweb
-      POSTGRES_USER: lupira
-      POSTGRES_PASSWORD: lupira
-    ports:
-      - "5432:5432"
-    volumes:
-      - lupira-pg-dev:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U lupira -d lupiraweb"]
-      interval: 5s
-      timeout: 2s
-      retries: 20
-    networks:
-      - lupira-net
-
   backend:
     build:
       context: .
@@ -27,12 +8,10 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
-      - ConnectionStrings__AppDb=Host=postgres;Port=5432;Database=lupiraweb;Username=lupira;Password=lupira
+      - CareerApi__BaseUrl=${CAREERAPI_BASE_URL:-http://host.docker.internal:63063}
+      - CareerApi__DevUser=${CAREERAPI_DEV_USER:-daniel.brostrom@hotmail.se}
     ports:
       - "5188:80"
-    depends_on:
-      postgres:
-        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:80/readyz || exit 1"]
       interval: 5s
@@ -59,32 +38,6 @@ services:
     networks:
       - lupira-net
 
-  admin-backend:
-    build:
-      context: .
-      dockerfile: LupiraWeb.Admin.Server/Dockerfile
-      target: final
-    container_name: lupiraweb-admin-backend
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:80
-      - ConnectionStrings__AppDb=Host=postgres;Port=5432;Database=lupiraweb;Username=lupira;Password=lupira
-    ports:
-      - "5189:80"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:80/readyz || exit 1"]
-      interval: 5s
-      timeout: 2s
-      retries: 20
-    networks:
-      - lupira-net
-
 networks:
   lupira-net:
     driver: bridge
-
-volumes:
-  lupira-pg-dev:

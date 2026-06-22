@@ -1,5 +1,5 @@
-using LupiraWeb.Domain;
-using EngagementDocument = LupiraWeb.Domain.Engagement;
+using LupiraWeb.Server.Contracts;
+using LupiraWeb.Server.Integration.CareerApi.Dtos;
 
 namespace LupiraWeb.Server.Endpoints.Resume.Dtos;
 
@@ -18,13 +18,13 @@ public sealed class Engagement
     public required IReadOnlyList<Project> Projects { get; set; }
 
     public static Engagement From(
-        EngagementDocument e,
+        CareerEngagementDto e,
         IEnumerable<Skill> skills,
         IEnumerable<Project> projects) => new()
         {
             Id = e.Id,
             Kind = e.Kind,
-            Institution = e.Institution,
+            Institution = e.OrganizationName ?? "",
             Title = e.CurrentTitle,
             Titles = e.Titles.Select(t => new TitleEpochDto
             {
