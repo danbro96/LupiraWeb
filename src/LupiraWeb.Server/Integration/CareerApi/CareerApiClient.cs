@@ -5,64 +5,70 @@ using LupiraWeb.Server.Integration.CareerApi.Dtos;
 namespace LupiraWeb.Server.Integration.CareerApi;
 
 /// <summary>
-/// HTTP implementation of <see cref="ICareerApiClient"/>. The auth header (dev <c>X-Dev-User</c> or prod
-/// bearer) is attached by <see cref="Auth.CareerApiAuthHandler"/> in the client's message pipeline, so
-/// this class is unaware of how the call is authenticated.
+/// HTTP implementation of <see cref="ICareerApiClient"/>. Reads CareerApi's public, handle-addressed surface
+/// (<c>/public/{handle}/…</c>) — the owner is selected by <c>CareerApi:PublicHandle</c>, the items are already
+/// filtered to the published subset upstream, and the call is gated by a machine token attached by
+/// <see cref="Auth.CareerApiAuthHandler"/>, so this class is unaware of how it is authenticated.
 /// </summary>
-internal sealed class CareerApiClient(HttpClient http) : ICareerApiClient
+internal sealed class CareerApiClient : ICareerApiClient
 {
-    public Task<CareerMeDto?> GetMeAsync(CancellationToken ct) =>
-        GetAsync<CareerMeDto>("/api/me", ct);
+    private readonly HttpClient _http;
+    private readonly string _prefix;
+
+    public CareerApiClient(HttpClient http, IConfiguration configuration)
+    {
+        _http = http;
+        var handle = configuration["CareerApi:PublicHandle"]
+            ?? throw new InvalidOperationException("CareerApi:PublicHandle is required");
+        _prefix = $"/public/{handle}";
+    }
 
     public Task<CareerProfileDto?> GetProfileAsync(CancellationToken ct) =>
-        GetAsync<CareerProfileDto>("/api/profile", ct);
-
-    public Task<CareerResumeDto?> GetResumeAsync(CancellationToken ct) =>
-        GetAsync<CareerResumeDto>("/api/resume", ct);
+        GetAsync<CareerProfileDto>($"{_prefix}/profile", ct);
 
     public Task<IReadOnlyList<CareerEngagementDto>> GetEngagementsAsync(CancellationToken ct) =>
-        GetListAsync<CareerEngagementDto>("/api/engagements", ct);
+        GetListAsync<CareerEngagementDto>($"{_prefix}/engagements", ct);
 
     public Task<CareerEngagementDto?> GetEngagementAsync(Guid id, CancellationToken ct) =>
-        GetAsync<CareerEngagementDto>($"/api/engagements/{id}", ct);
+        GetAsync<CareerEngagementDto>($"{_prefix}/engagements/{id}", ct);
 
     public Task<IReadOnlyList<CareerProjectDto>> GetProjectsAsync(Guid? engagementId, CancellationToken ct) =>
-        GetListAsync<CareerProjectDto>(
-            engagementId is Guid eid ? $"/api/projects?engagementId={eid}" : "/api/projects", ct);
+        // The public surface lists all published projects; it has no per-engagement filter (callers pass null).
+        GetListAsync<CareerProjectDto>($"{_prefix}/projects", ct);
 
     public Task<CareerProjectDto?> GetProjectAsync(Guid id, CancellationToken ct) =>
-        GetAsync<CareerProjectDto>($"/api/projects/{id}", ct);
+        GetAsync<CareerProjectDto>($"{_prefix}/projects/{id}", ct);
 
     public Task<IReadOnlyList<CareerSkillDto>> GetSkillsAsync(CancellationToken ct) =>
-        GetListAsync<CareerSkillDto>("/api/skills", ct);
+        GetListAsync<CareerSkillDto>($"{_prefix}/skills", ct);
 
     public Task<CareerSkillDto?> GetSkillAsync(Guid id, CancellationToken ct) =>
-        GetAsync<CareerSkillDto>($"/api/skills/{id}", ct);
+        GetAsync<CareerSkillDto>($"{_prefix}/skills/{id}", ct);
 
     public Task<CareerSkillTimelineDto?> GetSkillTimelineAsync(Guid id, CancellationToken ct) =>
-        GetAsync<CareerSkillTimelineDto>($"/api/skills/{id}/timeline", ct);
+        GetAsync<CareerSkillTimelineDto>($"{_prefix}/skills/{id}/timeline", ct);
 
     public Task<CareerSkillMaturityDto?> GetSkillMaturityAsync(Guid id, CancellationToken ct) =>
-        GetAsync<CareerSkillMaturityDto>($"/api/skills/{id}/maturity", ct);
+        GetAsync<CareerSkillMaturityDto>($"{_prefix}/skills/{id}/maturity", ct);
 
     public Task<IReadOnlyList<CareerExperienceItemDto>> GetExperienceAsync(CancellationToken ct) =>
-        GetListAsync<CareerExperienceItemDto>("/api/experience", ct);
+        GetListAsync<CareerExperienceItemDto>($"{_prefix}/experience", ct);
 
     public Task<IReadOnlyList<CareerMediaDto>> GetMediaAsync(CancellationToken ct) =>
-        GetListAsync<CareerMediaDto>("/api/media", ct);
+        GetListAsync<CareerMediaDto>($"{_prefix}/media", ct);
 
     public Task<CareerMediaDto?> GetMediaAsync(Guid id, CancellationToken ct) =>
-        GetAsync<CareerMediaDto>($"/api/media/{id}", ct);
+        GetAsync<CareerMediaDto>($"{_prefix}/media/{id}", ct);
 
     public Task<IReadOnlyList<CareerArtifactDto>> GetArtifactsAsync(CancellationToken ct) =>
-        GetListAsync<CareerArtifactDto>("/api/artifacts", ct);
+        GetListAsync<CareerArtifactDto>($"{_prefix}/artifacts", ct);
 
     public Task<CareerArtifactDto?> GetArtifactAsync(Guid id, CancellationToken ct) =>
-        GetAsync<CareerArtifactDto>($"/api/artifacts/{id}", ct);
+        GetAsync<CareerArtifactDto>($"{_prefix}/artifacts/{id}", ct);
 
     private async Task<T?> GetAsync<T>(string path, CancellationToken ct) where T : class
     {
-        using var response = await http.GetAsync(path, ct);
+        using var response = await _http.GetAsync(path, ct);
         if (response.StatusCode == HttpStatusCode.NotFound)
             return null;
         response.EnsureSuccessStatusCode();
@@ -71,7 +77,7 @@ internal sealed class CareerApiClient(HttpClient http) : ICareerApiClient
 
     private async Task<IReadOnlyList<T>> GetListAsync<T>(string path, CancellationToken ct)
     {
-        var list = await http.GetFromJsonAsync<List<T>>(path, CareerApiJson.Options, ct);
+        var list = await _http.GetFromJsonAsync<List<T>>(path, CareerApiJson.Options, ct);
         return list ?? [];
     }
 }

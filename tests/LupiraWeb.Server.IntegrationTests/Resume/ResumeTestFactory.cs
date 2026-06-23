@@ -28,6 +28,7 @@ public class ResumeTestFactory : WebApplicationFactory<Program>
             {
                 ["CareerApi:BaseUrl"] = "http://career.test",
                 ["CareerApi:DevUser"] = "test@example.com",
+                ["CareerApi:PublicHandle"] = "test",
             });
         });
 

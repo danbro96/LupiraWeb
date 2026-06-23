@@ -3,14 +3,12 @@ using LupiraWeb.Server.Integration.CareerApi.Dtos;
 namespace LupiraWeb.Server.Integration.CareerApi;
 
 /// <summary>
-/// Typed read client over LupiraCareerApi. Single-item gets return <c>null</c> when CareerApi answers
-/// 404, so callers can preserve their own NotFound branches.
+/// Typed read client over LupiraCareerApi's public, handle-addressed surface. Single-item gets return
+/// <c>null</c> when CareerApi answers 404, so callers can preserve their own NotFound branches.
 /// </summary>
 public interface ICareerApiClient
 {
-    Task<CareerMeDto?> GetMeAsync(CancellationToken ct);
     Task<CareerProfileDto?> GetProfileAsync(CancellationToken ct);
-    Task<CareerResumeDto?> GetResumeAsync(CancellationToken ct);
 
     Task<IReadOnlyList<CareerEngagementDto>> GetEngagementsAsync(CancellationToken ct);
     Task<CareerEngagementDto?> GetEngagementAsync(Guid id, CancellationToken ct);

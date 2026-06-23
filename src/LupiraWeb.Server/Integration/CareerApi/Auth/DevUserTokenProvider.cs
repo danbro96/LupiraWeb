@@ -12,4 +12,6 @@ internal sealed class DevUserTokenProvider(IConfiguration configuration) : ICare
         Task.FromResult<AuthenticationHeaderValue?>(null);
 
     public string? DevUserEmail => configuration["CareerApi:DevUser"];
+
+    public void Invalidate() { }
 }

@@ -2,8 +2,9 @@ using LupiraWeb.Server.Data.Repositories;
 
 namespace LupiraWeb.Server.Integration.CareerApi.Repositories;
 
-/// <summary>Composes the owner's profile (CareerApi <c>/profile</c>) with their identity
-/// (<c>/me</c>, for the email) into the flat <see cref="OwnerInfo"/> the résumé exposes.</summary>
+/// <summary>Maps the owner's public profile (CareerApi <c>/public/{handle}/profile</c>) to the flat
+/// <see cref="OwnerInfo"/> the résumé exposes. Email is intentionally absent from the public surface (it is
+/// owner-scoped identity, not published profile data), so it is left empty here.</summary>
 internal sealed class MyInfoRepository(ICareerApiClient client) : IMyInfoRepository
 {
     public async Task<OwnerInfo?> GetAsync(CancellationToken ct)
@@ -12,12 +13,10 @@ internal sealed class MyInfoRepository(ICareerApiClient client) : IMyInfoReposit
         if (profile is null)
             return null;
 
-        var me = await client.GetMeAsync(ct);
-
         return new OwnerInfo(
             profile.OwnerPrincipalId,
             profile.FullName,
-            me?.Email ?? "",
+            "",
             profile.Tagline,
             profile.Bio,
             profile.Location,

@@ -7,8 +7,6 @@ namespace LupiraWeb.Server.Integration.CareerApi.Dtos;
 // (EngagementKind, Location, Maturity, …) live in LupiraWeb.Server.Contracts — a string-keyed copy
 // of CareerApi's, which keeps the mapping to the public DTOs trivial.
 
-public sealed record CareerMeDto(Guid Id, string Email, string? DisplayName);
-
 public sealed record CareerProfileDto(
     Guid OwnerPrincipalId,
     string FullName,
@@ -56,12 +54,6 @@ public sealed record CareerSkillDto(
     bool Retired,
     DateOnly? FirstLearnedOn,
     Maturity CurrentMaturity);
-
-public sealed record CareerResumeDto(
-    CareerProfileDto Profile,
-    IReadOnlyList<CareerEngagementDto> Engagements,
-    IReadOnlyList<CareerProjectDto> Projects,
-    IReadOnlyList<CareerSkillDto> Skills);
 
 public sealed record CareerExperienceItemDto(
     ExperienceKind Kind,

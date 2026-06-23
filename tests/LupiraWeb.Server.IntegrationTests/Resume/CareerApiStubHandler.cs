@@ -27,23 +27,22 @@ internal sealed class CareerApiStubHandler : HttpMessageHandler
         return Task.FromResult(Route(segments));
     }
 
+    // The public, handle-addressed surface (/public/{handle}/…); the handle segment is ignored by the stub.
     private static HttpResponseMessage Route(string[] segments) => segments switch
     {
         ["livez"] => Empty(),
-        ["api", "me"] => Json(Me),
-        ["api", "profile"] => Json(Profile),
-        ["api", "resume"] => Json(Resume),
-        ["api", "engagements"] => Json(new[] { Engagement }),
-        ["api", "engagements", var id] => MatchOr404(id, ResumeTestFactory.SeededEngagementId, Engagement),
-        ["api", "projects"] => Json(new[] { Project }),
-        ["api", "projects", var id] => MatchOr404(id, ResumeTestFactory.SeededProjectId, Project),
-        ["api", "skills"] => Json(new[] { Skill }),
-        ["api", "skills", var id] => MatchOr404(id, ResumeTestFactory.SeededSkillId, Skill),
-        ["api", "skills", var id, "timeline"] => MatchOr404(id, ResumeTestFactory.SeededSkillId, Timeline),
-        ["api", "skills", var id, "maturity"] => MatchOr404(id, ResumeTestFactory.SeededSkillId, Maturity),
-        ["api", "experience"] => Json(Experience),
-        ["api", "media"] => Json(Array.Empty<CareerMediaDto>()),
-        ["api", "artifacts"] => Json(Array.Empty<CareerArtifactDto>()),
+        ["public", _, "profile"] => Json(Profile),
+        ["public", _, "engagements"] => Json(new[] { Engagement }),
+        ["public", _, "engagements", var id] => MatchOr404(id, ResumeTestFactory.SeededEngagementId, Engagement),
+        ["public", _, "projects"] => Json(new[] { Project }),
+        ["public", _, "projects", var id] => MatchOr404(id, ResumeTestFactory.SeededProjectId, Project),
+        ["public", _, "skills"] => Json(new[] { Skill }),
+        ["public", _, "skills", var id] => MatchOr404(id, ResumeTestFactory.SeededSkillId, Skill),
+        ["public", _, "skills", var id, "timeline"] => MatchOr404(id, ResumeTestFactory.SeededSkillId, Timeline),
+        ["public", _, "skills", var id, "maturity"] => MatchOr404(id, ResumeTestFactory.SeededSkillId, Maturity),
+        ["public", _, "experience"] => Json(Experience),
+        ["public", _, "media"] => Json(Array.Empty<CareerMediaDto>()),
+        ["public", _, "artifacts"] => Json(Array.Empty<CareerArtifactDto>()),
         _ => new HttpResponseMessage(HttpStatusCode.NotFound),
     };
 
@@ -56,8 +55,6 @@ internal sealed class CareerApiStubHandler : HttpMessageHandler
 
     private static HttpResponseMessage Json<T>(T value) =>
         new(HttpStatusCode.OK) { Content = JsonContent.Create(value, options: JsonOpts) };
-
-    private static CareerMeDto Me => new(OwnerPrincipalId, "test@example.com", "Test User");
 
     private static CareerProfileDto Profile =>
         new(OwnerPrincipalId, "Test User", "Tester", null, null, null, null, null);
@@ -97,9 +94,6 @@ internal sealed class CareerApiStubHandler : HttpMessageHandler
         false,
         Start,
         LupiraWeb.Server.Contracts.Maturity.Working);
-
-    private static CareerResumeDto Resume =>
-        new(Profile, [Engagement], [Project], [Skill]);
 
     private static CareerSkillTimelineDto Timeline => new(
         ResumeTestFactory.SeededSkillId,

@@ -66,5 +66,7 @@ public class CareerApiAuthHandlerTests
             Task.FromResult(authorization);
 
         public string? DevUserEmail => devUser;
+
+        public void Invalidate() { }
     }
 }

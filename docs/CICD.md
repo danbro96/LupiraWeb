@@ -88,7 +88,8 @@ Prerequisites: `lupira-career-api` and the `medelynas-otel` Custom App already e
    - `IMAGE_TAG=latest` (or pin a `sha-*` for reproducibility).
    - `FRONTEND_PORT=40080`, `BACKEND_PORT=40081` — host ports the reverse proxy targets.
    - `CAREERAPI_BASE_URL=http://lupira-career-api:8080` (service name over `medelynas_data`), or `https://career-api.lupira.com` if not co-located.
-   - `CAREERAPI_AUTH_TOKEN=<owner bearer>` — Authentik OIDC JWT for audience `lupira-career`. Blank until a token is issued.
+   - `CAREERAPI_PUBLIC_HANDLE=danbro` — which published portfolio to read (CareerApi `Profile.PublicHandle`).
+   - `CAREERAPI_CLIENT_SECRET` + `CAREERAPI_SVC_TOKEN` — the backend mints a machine token (client_credentials, `aud: lupira-career`) from Authentik and refreshes it; no static JWT to rotate. `CAREERAPI_CLIENT_ID`, `CAREERAPI_SVC_USERNAME`, `CAREERAPI_TOKEN_ENDPOINT`, `CAREERAPI_SCOPE` default to the `lupira-web` values.
    - `DEMOS_*_BASE_URL` / `DEMOS_*_API_KEY` for the Chat / TextToSpeech / Vision demo upstreams (required base URLs).
    - `OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:5080/api/default` (OpenObserve hostname alias on `medelynas_telemetry`).
    - `OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf`.
@@ -147,7 +148,7 @@ Find the previous `sha-*` in the commit history (`git log --oneline`) or in the 
 **Backend boots but `/readyz` stays red.** The backend can't reach CareerApi. Check:
 - `CAREERAPI_BASE_URL` resolves (service name `lupira-career-api` on `medelynas_data`, or the public `career-api.lupira.com`).
 - The backend container is on the `medelynas_data` network: `docker network inspect medelynas_data`.
-- `CAREERAPI_AUTH_TOKEN` is a valid owner bearer for audience `lupira-career` (a 401 from CareerApi also fails readiness).
+- The minting credentials (`CAREERAPI_CLIENT_SECRET`, `CAREERAPI_SVC_TOKEN`) are valid and `CAREERAPI_PUBLIC_HANDLE` names a published portfolio — otherwise career data loads empty/errors even while `/readyz` (which only pings `/livez`) stays green.
 
 **No traces or metrics in OpenObserve for `lupira-web`.** Telemetry is silently failing or the wrong target. Check:
 - `OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:5080/api/default` — note `http`, not `https`, OpenObserve's HTTP port `5080`, and the `/api/default` org segment.

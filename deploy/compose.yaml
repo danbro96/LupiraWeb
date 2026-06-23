@@ -13,10 +13,17 @@ services:
       OTEL_METRIC_EXPORT_INTERVAL: ${OTEL_METRIC_EXPORT_INTERVAL:-300000}
       OTEL_EXPORTER_OTLP_HEADERS: ${OTEL_EXPORTER_OTLP_HEADERS:-}
       OTEL_RESOURCE_ATTRIBUTES: ${OTEL_RESOURCE_ATTRIBUTES:-deployment.environment=prod,host.name=medelynas}
-      # Career/résumé data source over HTTP. Auth = Authentik OIDC JWT, audience lupira-career.
+      # Career/résumé data source — CareerApi's public read surface at /public/{handle}/…
       # This stack holds no database; CareerApi owns the event store.
       CareerApi__BaseUrl: ${CAREERAPI_BASE_URL:?CAREERAPI_BASE_URL is required}
-      CareerApi__Auth__Token: ${CAREERAPI_AUTH_TOKEN:-}
+      CareerApi__PublicHandle: ${CAREERAPI_PUBLIC_HANDLE:-danbro}
+      # Machine token minted from Authentik (client_credentials): sub = lupira-web-svc, aud = lupira-career.
+      CareerApi__Auth__TokenEndpoint: ${CAREERAPI_TOKEN_ENDPOINT:-https://auth.lupira.com/application/o/token/}
+      CareerApi__Auth__ClientId: ${CAREERAPI_CLIENT_ID:-lupira-web}
+      CareerApi__Auth__ClientSecret: ${CAREERAPI_CLIENT_SECRET:?CAREERAPI_CLIENT_SECRET is required}
+      CareerApi__Auth__ServiceAccountUsername: ${CAREERAPI_SVC_USERNAME:-lupira-web-svc}
+      CareerApi__Auth__ServiceAccountToken: ${CAREERAPI_SVC_TOKEN:?CAREERAPI_SVC_TOKEN is required}
+      CareerApi__Auth__Scope: ${CAREERAPI_SCOPE:-openid lupira-career-aud}
       Demos__Chat__BaseUrl: ${DEMOS_CHAT_BASE_URL:?DEMOS_CHAT_BASE_URL is required}
       Demos__Chat__ApiKey: ${DEMOS_CHAT_API_KEY:-}
       Demos__TextToSpeech__BaseUrl: ${DEMOS_TTS_BASE_URL:?DEMOS_TTS_BASE_URL is required}

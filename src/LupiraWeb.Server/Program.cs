@@ -33,14 +33,18 @@ var careerApiBaseUrl = builder.Configuration["CareerApi:BaseUrl"]
 var careerApiTimeout = TimeSpan.FromSeconds(
     builder.Configuration.GetValue<int?>("CareerApi:TimeoutSeconds") ?? 30);
 
-// Auth seam: development/Testing present CareerApi's X-Dev-User header; production presents the owner
-// bearer token. Swapping the production credential mechanism is a single line here (see plan risk R1).
+// Auth seam: development/Testing present CareerApi's X-Dev-User header; production mints a machine
+// (client-credentials) bearer token from Authentik and refreshes it.
 if (builder.Environment.IsProduction())
-    builder.Services.AddSingleton<ICareerApiTokenProvider, OwnerBearerTokenProvider>();
+    builder.Services.AddSingleton<ICareerApiTokenProvider, ClientCredentialsTokenProvider>();
 else
     builder.Services.AddSingleton<ICareerApiTokenProvider, DevUserTokenProvider>();
 
 builder.Services.AddTransient<CareerApiAuthHandler>();
+
+// Token-mint client for the client-credentials grant (production). No auth handler; short timeout.
+builder.Services.AddHttpClient(ClientCredentialsTokenProvider.TokenClientName,
+    c => c.Timeout = TimeSpan.FromSeconds(10));
 
 builder.Services.AddHttpClient<ICareerApiClient, CareerApiClient>(c =>
 {
