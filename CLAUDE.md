@@ -16,7 +16,7 @@ The OpenAPI contract flows **backend csproj → build-time JSON → Orval → ty
 ## Roadmap (summary — full detail in [docs/ROADMAP.md](docs/ROADMAP.md))
 
 - **Public UI views**: timeline, grouped-by-employment, grouped-by-skill toggles. (LupiraWeb owns this.)
-- Career domain (event-sourced Employments/Projects/Skills) + the writer/admin live in [LupiraCareerApi + LupiraFamilyWeb](https://github.com/danbro96/LupiraFamilyWeb), not here.
+- Career domain (event-sourced Employments/Projects/Skills) lives in [LupiraCareerApi](https://github.com/danbro96/LupiraCareerApi); the writer/admin (React + .NET BFF SSO) is [LupiraFamilyWeb](https://github.com/danbro96/LupiraFamilyWeb), not here.
 
 ## How to run
 

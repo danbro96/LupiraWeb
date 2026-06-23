@@ -2,7 +2,7 @@
 
 Short-lived document: as items ship, collapse them into `CLAUDE.md`'s architecture section and delete from here. Kept out of `CLAUDE.md` so the brief stays short.
 
-LupiraWeb is now a read-only BFF + frontend. The career domain (event-sourced Employments/Projects/Skills, query-shape endpoints) lives in **[LupiraCareerApi](https://github.com/danbro96/LupiraFamilyWeb)**; the authenticated writer lives in **[LupiraFamilyWeb](https://github.com/danbro96/LupiraFamilyWeb)** (a .NET 10 Razor Pages admin that writes the domain by calling CareerApi over HTTP). What remains below is what LupiraWeb itself still owns.
+LupiraWeb is now a read-only BFF + frontend. The career domain (event-sourced Employments/Projects/Skills, query-shape endpoints) lives in **[LupiraCareerApi](https://github.com/danbro96/LupiraCareerApi)**; the authenticated writer lives in **[LupiraFamilyWeb](https://github.com/danbro96/LupiraFamilyWeb)** (a React + .NET BFF SSO admin that writes the domain by calling CareerApi over HTTP). What remains below is what LupiraWeb itself still owns.
 
 ## Public UI views
 
@@ -15,7 +15,7 @@ Shared data fetch in an RSC reading from the public API; view-mode is a URL quer
 
 ## Moved elsewhere
 
-- **Career domain + event sourcing** (Employments, WorkProjects, Skills, Experiences; commands → events → projections) → [LupiraCareerApi](https://github.com/danbro96/LupiraFamilyWeb).
+- **Career domain + event sourcing** (Employments, WorkProjects, Skills, Experiences; commands → events → projections) → [LupiraCareerApi](https://github.com/danbro96/LupiraCareerApi).
 - **Query-shape API** (chronological / by-skill / by-employment, lookup lists) → CareerApi; LupiraWeb consumes it via the typed client and re-exposes the read shapes its UI needs.
 - **Admin / writer + any RN port** → [LupiraFamilyWeb](https://github.com/danbro96/LupiraFamilyWeb).
 
