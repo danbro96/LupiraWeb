@@ -4,16 +4,16 @@ using System.Text.Json.Serialization;
 
 namespace LupiraWeb.Server.Endpoints.Demos.Chat;
 
-public sealed class ChatHandler(HttpClient client, ILogger<ChatHandler> logger)
+public sealed class ChatHandler(HttpClient client, IConfiguration config, ILogger<ChatHandler> logger)
 {
-    private const string Model = "qwen3-8b";
+    private readonly string model = config["Demos:Chat:Model"] ?? "qwen3-14b";
 
     public async Task<Results<Ok<ChatResponse>, ProblemHttpResult>> SendAsync(
         ChatRequest req, CancellationToken ct)
     {
         var upstream = new UpstreamRequest
         {
-            Model = Model,
+            Model = model,
             Messages = [new UpstreamMessage { Role = "user", Content = req.Prompt }],
         };
 
