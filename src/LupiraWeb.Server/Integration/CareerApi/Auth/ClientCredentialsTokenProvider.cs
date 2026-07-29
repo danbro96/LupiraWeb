@@ -5,15 +5,14 @@ using System.Text.Json.Serialization;
 namespace LupiraWeb.Server.Integration.CareerApi.Auth;
 
 /// <summary>
-/// Production provider: mints a machine (OAuth2 client-credentials) access token from Authentik and presents it
-/// as a bearer to CareerApi's public read surface. The token's <c>sub</c> is the <c>lupira-web-svc</c> service
-/// account (not the portfolio owner) and it carries <c>aud: lupira-career</c> via the <c>lupira-career-aud</c>
-/// scope mapping; the owner is chosen by the public handle in the URL, so this credential is a gate, not an identity.
-/// <para>
+/// Production provider: mints a machine (OAuth2 client-credentials) access token from Authentik and presents it as
+/// a bearer to CareerApi's public read surface. Its <c>sub</c> is the <c>lupira-web-svc</c> service account, not
+/// the portfolio owner, and it carries <c>aud: lupira-career</c> via the <c>lupira-career-aud</c> scope mapping —
+/// the owner is chosen by the public handle in the URL, so this credential is a gate, not an identity.
+///
 /// Authentik's client-credentials grant uses the service-account flavour: <c>client_id</c>/<c>client_secret</c>
 /// plus the service account's <c>username</c> + token as <c>password</c>. The token is cached and refreshed shortly
 /// before expiry; <see cref="Invalidate"/> drops the cache so the auth handler can recover from a 401.
-/// </para>
 /// </summary>
 internal sealed class ClientCredentialsTokenProvider(
     IHttpClientFactory httpFactory,
