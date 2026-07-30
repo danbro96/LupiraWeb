@@ -92,6 +92,7 @@ public class ResumeHandler(
         {
             engagementInstitution = eng.OrganizationName;
         }
+
         return Project.From(p, skills, engagementInstitution);
     }
 

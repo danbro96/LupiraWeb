@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using LupiraWeb.Server.Data.Repositories;
 using LupiraWeb.Server.Endpoints;
 using LupiraWeb.Server.Endpoints.Artifacts;
@@ -13,7 +14,6 @@ using LupiraWeb.Server.Integration.CareerApi.Auth;
 using LupiraWeb.Server.Integration.CareerApi.Repositories;
 using LupiraWeb.Server.Observability;
 using Scalar.AspNetCore;
-using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 

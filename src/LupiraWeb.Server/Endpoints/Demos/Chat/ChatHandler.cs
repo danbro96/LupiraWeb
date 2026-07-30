@@ -1,6 +1,6 @@
+using System.Text.Json.Serialization;
 using LupiraWeb.Server.Endpoints.Demos.Chat.Dtos;
 using Microsoft.AspNetCore.Http.HttpResults;
-using System.Text.Json.Serialization;
 
 namespace LupiraWeb.Server.Endpoints.Demos.Chat;
 

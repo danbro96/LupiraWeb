@@ -18,7 +18,7 @@ public class ExperiencesHandler(ICareerApiClient client)
         // TODO(escalation): CareerApi's /api/experience has no server-side filters, so we fetch the full
         // timeline and filter in-memory. Its rows also omit a project's parent engagement, so engagementId
         // can only match engagement rows (project rows carry no EngagementId upstream).
-        var rows = (IEnumerable<CareerExperienceItemDto>)await client.GetExperienceAsync(ct);
+        var rows = (IEnumerable<CareerExperienceItemDto>) await client.GetExperienceAsync(ct);
 
         if (from is DateOnly fromDate)
             rows = rows.Where(r => r.OccurredOn >= fromDate);

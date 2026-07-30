@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Json;
 using LupiraWeb.Server.Integration.CareerApi.Dtos;
 
 namespace LupiraWeb.Server.Integration.CareerApi;

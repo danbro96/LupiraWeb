@@ -21,7 +21,7 @@ internal sealed class CareerApiHealthCheck(IHttpClientFactory httpClientFactory)
             using var response = await client.GetAsync("/livez", cancellationToken);
             return response.IsSuccessStatusCode
                 ? HealthCheckResult.Healthy("CareerApi reachable.")
-                : HealthCheckResult.Unhealthy($"CareerApi /livez returned {(int)response.StatusCode}.");
+                : HealthCheckResult.Unhealthy($"CareerApi /livez returned {(int) response.StatusCode}.");
         }
         catch (Exception ex)
         {
