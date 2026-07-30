@@ -26,6 +26,7 @@ services:
       CareerApi__Auth__Scope: ${CAREERAPI_SCOPE:-openid lupira-career-aud}
       Demos__Chat__BaseUrl: ${DEMOS_CHAT_BASE_URL:?DEMOS_CHAT_BASE_URL is required}
       Demos__Chat__ApiKey: ${DEMOS_CHAT_API_KEY:-}
+      Demos__Chat__Model: ${DEMOS_CHAT_MODEL:-qwen3-14b}
       Demos__TextToSpeech__BaseUrl: ${DEMOS_TTS_BASE_URL:?DEMOS_TTS_BASE_URL is required}
       Demos__TextToSpeech__ApiKey: ${DEMOS_TTS_API_KEY:-}
       Demos__Vision__BaseUrl: ${DEMOS_VISION_BASE_URL:?DEMOS_VISION_BASE_URL is required}
