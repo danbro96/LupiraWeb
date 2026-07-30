@@ -19,7 +19,12 @@ public static class OpenTelemetryExtensions
             .ConfigureResource(r => r.AddService(serviceName, serviceVersion: serviceVersion))
             .WithTracing(t =>
             {
-                t.AddAspNetCoreInstrumentation(o => o.RecordException = true)
+                t.AddAspNetCoreInstrumentation(o =>
+                {
+                    o.RecordException = true;
+                    // Health probes are polled constantly by docker + devops-monitor; their spans add nothing.
+                    o.Filter = ctx => ctx.Request.Path != "/livez" && ctx.Request.Path != "/readyz";
+                })
                  .AddHttpClientInstrumentation();
                 if (isDev) t.AddConsoleExporter();
                 if (!string.IsNullOrWhiteSpace(otlpEndpoint)) t.AddOtlpExporter();
