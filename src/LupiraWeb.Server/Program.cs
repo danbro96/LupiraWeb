@@ -21,7 +21,10 @@ builder.Services.AddOpenApi();
 
 // Emit enums as their names (not ints) in responses and the generated OpenAPI doc → typed string unions in the client.
 builder.Services.ConfigureHttpJsonOptions(o =>
-    o.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+{
+    o.SerializerOptions.NumberHandling = JsonNumberHandling.Strict;
+    o.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 // --- LupiraCareerApi integration: the career/résumé data now lives in CareerApi, read over HTTP.
 //     This replaces the local Marten/Postgres store entirely. ---

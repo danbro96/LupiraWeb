@@ -16,9 +16,6 @@ interface OcrResult { kind: "ocr"; text: string }
 interface DetectResult { kind: "detect"; items: Detection[] }
 type Result = CaptionResult | OcrResult | DetectResult;
 
-const num = (v: number | string): number =>
-  typeof v === "number" ? v : parseFloat(v);
-
 export default function VisionDemoPage() {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -110,8 +107,7 @@ export default function VisionDemoPage() {
                   preserveAspectRatio="none"
                 >
                   {result.items.map((d, i) => {
-                    const x1 = num(d.x1), y1 = num(d.y1);
-                    const x2 = num(d.x2), y2 = num(d.y2);
+                    const { x1, y1, x2, y2 } = d;
                     return (
                       <g key={i}>
                         <rect
@@ -199,8 +195,8 @@ export default function VisionDemoPage() {
             <ul className="list-disc list-inside text-slate-200">
               {result.items.map((d, i) => (
                 <li key={i}>
-                  {d.label} — ({Math.round(num(d.x1))}, {Math.round(num(d.y1))})
-                  → ({Math.round(num(d.x2))}, {Math.round(num(d.y2))})
+                  {d.label} — ({Math.round(d.x1)}, {Math.round(d.y1)})
+                  → ({Math.round(d.x2)}, {Math.round(d.y2)})
                 </li>
               ))}
             </ul>
