@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using LupiraWeb.Server.Data.Repositories;
+using LupiraWeb.Server.Dependencies;
 using LupiraWeb.Server.Endpoints;
 using LupiraWeb.Server.Endpoints.Artifacts;
 using LupiraWeb.Server.Endpoints.Demos.Chat;
@@ -105,6 +106,16 @@ builder.Services.AddHttpClient<VisionHandler>(c =>
     c.Timeout = TimeSpan.FromSeconds(60);
 });
 
+// Non-gating dependency probe (/depz): edges derive from the same config keys the demo clients bind.
+builder.Services.Configure<DepzOptions>(builder.Configuration.GetSection(DepzOptions.SectionName));
+var depzOpts = builder.Configuration.GetSection(DepzOptions.SectionName).Get<DepzOptions>() ?? new DepzOptions();
+builder.Services.AddSingleton(DependencyTargets.From(builder.Configuration));
+builder.Services.AddSingleton<DependencyReportCache>();
+builder.Services.AddSingleton<DependencyProbe>();
+builder.Services.AddHttpClient(DependencyProbe.ProbeClientName, c => c.Timeout = depzOpts.ProbeTimeout);
+if (depzOpts.Enabled)
+    builder.Services.AddHostedService<DependencyPollWorker>();
+
 // Liveness (/livez) + readiness (/readyz, pings CareerApi) probes.
 builder.Services.AddAppHealthChecks();
 
@@ -121,6 +132,7 @@ if (!app.Environment.IsProduction())
 app.UseHttpsRedirection();
 
 app.MapAppHealthChecks(app.Environment);
+app.MapDepz();
 
 app.MapResumeEndpoints();
 app.MapSkillsEndpoints();

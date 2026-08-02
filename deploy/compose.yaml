@@ -6,6 +6,8 @@ services:
     image: danbro96/lupiraweb-backend:${IMAGE_TAG:-latest}
     container_name: lupira-backend
     environment:
+      # /depz gate (X-Probe-Key from devops-monitor); empty = /depz off.
+      Depz__ProbeKey: ${DEPZ_PROBE_KEY:-}
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:80
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}

@@ -23,7 +23,8 @@ public static class OpenTelemetryExtensions
                 {
                     o.RecordException = true;
                     // Health probes are polled constantly by docker + devops-monitor; their spans add nothing.
-                    o.Filter = ctx => ctx.Request.Path != "/livez" && ctx.Request.Path != "/readyz";
+                    o.Filter = ctx => ctx.Request.Path != "/livez" && ctx.Request.Path != "/readyz"
+                        && ctx.Request.Path != "/depz";
                 })
                  .AddHttpClientInstrumentation();
                 if (isDev) t.AddConsoleExporter();
@@ -31,6 +32,7 @@ public static class OpenTelemetryExtensions
             })
             .WithMetrics(m =>
             {
+                m.AddMeter("LupiraWeb.*");
                 m.AddAspNetCoreInstrumentation()
                  .AddHttpClientInstrumentation()
                  .AddRuntimeInstrumentation();
