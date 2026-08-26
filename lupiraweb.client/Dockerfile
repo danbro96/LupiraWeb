@@ -1,6 +1,7 @@
 FROM node:24-alpine AS deps
 WORKDIR /app
-COPY package*.json ./
+COPY package*.json .npmrc ./
+RUN npm i -g npm@12
 RUN npm ci
 
 FROM node:24-alpine AS builder

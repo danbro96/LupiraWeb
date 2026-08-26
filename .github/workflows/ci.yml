@@ -52,6 +52,7 @@ jobs:
       - name: Regenerate + diff API client
         working-directory: lupiraweb.client
         run: |
+          npm i -g npm@12
           npm ci
           npm run generate:api
           if ! git diff --exit-code -- src/api/lupiraWebServerApi.ts src/api/models; then
@@ -72,6 +73,7 @@ jobs:
           node-version-file: lupiraweb.client/.node-version
           cache: npm
           cache-dependency-path: lupiraweb.client/package-lock.json
+      - run: npm i -g npm@12
       - run: npm ci
       - run: npm run lint
       - run: npm test
