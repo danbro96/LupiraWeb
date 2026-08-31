@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Topbar from "@/src/components/Topbar";
 import Footer from "@/src/components/Footer";
 import "./globals.css";
@@ -8,6 +8,12 @@ export const metadata: Metadata = {
     template: "%s - Lupira",
     default: "Lupira",
   },
+};
+
+// The mark is served from app/icon.svg by the App Router file convention, which emits the
+// <link rel="icon"> this page previously lacked — browsers were falling back to /favicon.ico.
+export const viewport: Viewport = {
+  themeColor: "#E76F51",
 };
 
 export default function RootLayout({
