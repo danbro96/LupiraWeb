@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using LupiraWeb.Server.Data.Repositories;
 using LupiraWeb.Server.Dependencies;
@@ -18,7 +19,27 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    // A nullable use of an enum (SkillContextKind?) makes the framework append null to the shared
+    // component schema, although the property's own oneOf already carries the nullability.
+    // Generators read that null onto the enum type itself, so non-nullable uses inherit it too.
+    options.AddSchemaTransformer((schema, context, _) =>
+    {
+        if (schema.Enum is { Count: > 0 } members)
+        {
+            for (var i = members.Count - 1; i >= 0; i--)
+            {
+                if (members[i] is null || members[i]!.GetValueKind() == JsonValueKind.Null)
+                {
+                    members.RemoveAt(i);
+                }
+            }
+        }
+
+        return Task.CompletedTask;
+    });
+});
 
 // Emit enums as their names (not ints) in responses and the generated OpenAPI doc → typed string unions in the client.
 builder.Services.ConfigureHttpJsonOptions(o =>

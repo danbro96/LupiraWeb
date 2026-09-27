@@ -5,7 +5,7 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type SkillContextKind = typeof SkillContextKind[keyof typeof SkillContextKind] | null;
+export type SkillContextKind = typeof SkillContextKind[keyof typeof SkillContextKind];
 
 
 export const SkillContextKind = {

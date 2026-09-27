@@ -993,8 +993,7 @@
         "enum": [
           "Touched",
           "Regular",
-          "Core",
-          null
+          "Core"
         ]
       },
       "Location": {
@@ -1036,8 +1035,7 @@
           "Working",
           "Fluent",
           "Expert",
-          "Teaching",
-          null
+          "Teaching"
         ]
       },
       "MediaAssetDto": {
@@ -1312,8 +1310,7 @@
         "enum": [
           "InEngagement",
           "InProject",
-          "External",
-          null
+          "External"
         ]
       },
       "SkillMaturityPointDto": {

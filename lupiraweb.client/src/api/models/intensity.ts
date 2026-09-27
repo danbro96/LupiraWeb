@@ -5,7 +5,7 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type Intensity = typeof Intensity[keyof typeof Intensity] | null;
+export type Intensity = typeof Intensity[keyof typeof Intensity];
 
 
 export const Intensity = {
