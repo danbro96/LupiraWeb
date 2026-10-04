@@ -13,20 +13,19 @@ Personal portfolio site by Daniel Broström. The code doubles as a DevOps showca
 
 The OpenAPI contract flows **backend csproj → build-time JSON → Orval → typed client**. Changing an API endpoint means: edit the feature's endpoint class, `dotnet build`, `npm run generate:api`. The custom fetcher lives at [lupiraweb.client/src/api/fetcher.ts](lupiraweb.client/src/api/fetcher.ts) and resolves base URL based on `typeof window`.
 
-## Roadmap (summary — full detail in [docs/ROADMAP.md](docs/ROADMAP.md))
+## Roadmap
 
-- **Public UI views**: timeline, grouped-by-employment, grouped-by-skill toggles. (LupiraWeb owns this.)
-- Career domain (event-sourced Employments/Projects/Skills) lives in [LupiraCareerApi](https://github.com/danbro96/LupiraCareerApi); the writer/admin (React + .NET BFF SSO) is [LupiraFamilyWeb](https://github.com/danbro96/LupiraFamilyWeb), not here.
+[docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## How to run
 
 ```bash
 # Generate the OpenAPI spec + typed client
-dotnet build LupiraWeb.Server
+dotnet build src/LupiraWeb.Server
 cd lupiraweb.client && npm ci && npm run generate:api
 
 # Dev (two terminals)
-dotnet run --project LupiraWeb.Server --urls http://localhost:5188
+dotnet run --project src/LupiraWeb.Server --urls http://localhost:5188
 cd lupiraweb.client && npm run dev        # → http://localhost:3000
 
 # Or via Docker (auto-merges docker-compose.yml + docker-compose.override.yml)
@@ -62,35 +61,15 @@ Non-TDD edits are fine for: config/tooling, docs, styling-only tweaks, renames, 
 - Don't introduce abstractions or "just in case" error handling beyond what the current task requires.
 - No `git push`, `git reset --hard`, `git push --force`, or other destructive ops without explicit confirmation.
 - Static pages are RSCs by default; `"use client"` only when the component actually uses hooks, event handlers, or browser APIs.
-- Every new backend endpoint: edit the feature's endpoint class (see Backend conventions), `dotnet build` (regenerates the OpenAPI spec), `npm run generate:api`, add a test.
+- Every new backend endpoint: edit the feature's endpoint class, `dotnet build` (regenerates the OpenAPI spec), `npm run generate:api`, add a test.
+- lupiraweb.client stays on ESLint 9 until `npm view eslint-plugin-react peerDependencies.eslint` includes 10: `eslint-config-next` relies on that plugin, and ESLint 10 removed `context.getFilename()`.
 
 ## Backend conventions
 
-Rules every backend change must follow. These exist to keep the OpenAPI contract accurate, keep handlers testable in isolation, and keep the CareerApi client out of the request path.
+.NET API rules (thin endpoints, `Handlers/`, `TypedResults` + `Results<...>` unions, one type per file) are in `~/.claude/CLAUDE.md`. Repo-specific:
 
-1. **Endpoints grouped in endpoint extension classes, one folder per feature.** Structure:
-   ```
-   LupiraWeb.Server/Endpoints/
-     Resume/
-       ResumeEndpoints.cs   // static class with MapResumeEndpoints(this IEndpointRouteBuilder)
-       ResumeHandler.cs     // handler methods
-   ```
-   `Program.cs` wires groups by calling the extension: `app.MapResumeEndpoints();`. No inline `app.MapGet(...)` in `Program.cs`.
-
-2. **Endpoints delegate to handler classes.** The endpoint class only maps routes, applies filters/auth/tags. The handler class contains the logic and takes its dependencies via DI parameters. Handlers are unit-testable without booting the web host.
-
-3. **Handlers always return `TypedResults`, never `Results.*` or raw `IResult`.** `TypedResults.Ok(value)`, `TypedResults.NotFound()`, `TypedResults.ValidationProblem(...)`, etc. This keeps the generated OpenAPI schema accurate — each status code shows up with its real response type.
-
-4. **Strict typing on status code responses.** Handler return types must enumerate the possible outcomes, e.g.:
-   ```csharp
-   public static async Task<Results<Ok<Experience>, NotFound>> GetAsync(
-       Guid id, IExperienceRepository repo, CancellationToken ct) { ... }
-   ```
-   Never `Task<IResult>`. The `Results<T1, T2, ...>` discriminated union is what makes the OpenAPI contract honest.
-
-5. **Repositories are thin adapters over the CareerApi typed client.** No EF, no Marten, no `DbContext`, no local store anywhere in this repo. Handlers depend on `IFooRepository` interfaces ([Data/Repositories/](LupiraWeb.Server/Data/Repositories/)) whose implementations ([Integration/CareerApi/Repositories/](LupiraWeb.Server/Integration/CareerApi/Repositories/)) call `ICareerApiClient` and return CareerApi DTOs. Interfaces expose intent-named methods (`GetByEngagementAsync`, not `Query().Where(...)`). This keeps handlers trivially mockable and the HTTP fan-out named.
-
-6. **OpenTelemetry on every endpoint.** The API must register OTel with ASP.NET Core auto-instrumentation so every request is traced and logged. Wire-up lives in `Program.cs` via `AddOpenTelemetry().WithTracing(...).WithMetrics(...)` plus `OpenTelemetry.Instrumentation.AspNetCore`. In dev, the console exporter is enough; prod uses OTLP to whatever collector is configured via `OTEL_EXPORTER_OTLP_ENDPOINT`. Handler code does not manually call `ILogger.LogInformation("entering endpoint ...")` — auto-instrumentation covers that.
+- Repositories are thin adapters over `ICareerApiClient`: interfaces in [src/LupiraWeb.Server/Data/Repositories/](src/LupiraWeb.Server/Data/Repositories/), implementations in [src/LupiraWeb.Server/Integration/CareerApi/Repositories/](src/LupiraWeb.Server/Integration/CareerApi/Repositories/). No EF, Marten, `DbContext` or local store. Methods are intent-named (`GetByEngagementAsync`, not `Query().Where(...)`).
+- OpenTelemetry via ASP.NET Core auto-instrumentation in `Program.cs` covers every endpoint; handlers do not log "entering endpoint". Dev uses the console exporter, prod OTLP via `OTEL_EXPORTER_OTLP_ENDPOINT`.
 
 ## Deployment
 
