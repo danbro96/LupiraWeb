@@ -16,6 +16,19 @@ interface OcrResult { kind: "ocr"; text: string }
 interface DetectResult { kind: "detect"; items: Detection[] }
 type Result = CaptionResult | OcrResult | DetectResult;
 
+async function runVisionTask(task: Task, image: File): Promise<Result> {
+  if (task === "caption") {
+    const res = await demoVisionCaption({ image });
+    return { kind: "caption", caption: res.data.caption };
+  }
+  if (task === "ocr") {
+    const res = await demoVisionOcr({ image });
+    return { kind: "ocr", text: res.data.text };
+  }
+  const res = await demoVisionDetect({ image });
+  return { kind: "detect", items: res.data.items };
+}
+
 export default function VisionDemoPage() {
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -48,22 +61,10 @@ export default function VisionDemoPage() {
     setLoading(true);
     setError(null);
     setResult(null);
-    try {
-      if (task === "caption") {
-        const res = await demoVisionCaption({ image: file });
-        setResult({ kind: "caption", caption: res.data.caption });
-      } else if (task === "ocr") {
-        const res = await demoVisionOcr({ image: file });
-        setResult({ kind: "ocr", text: res.data.text });
-      } else {
-        const res = await demoVisionDetect({ image: file });
-        setResult({ kind: "detect", items: res.data.items });
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setLoading(false);
-    }
+    await runVisionTask(task, file)
+      .then(setResult)
+      .catch((err) => setError(err instanceof Error ? err.message : String(err)))
+      .finally(() => setLoading(false));
   }
 
   return (

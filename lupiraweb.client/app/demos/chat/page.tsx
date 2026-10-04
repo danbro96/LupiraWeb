@@ -15,14 +15,10 @@ export default function ChatDemoPage() {
     setLoading(true);
     setError(null);
     setReply(null);
-    try {
-      const res = await demoChatSendMessage({ prompt });
-      setReply(res.data.reply);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setLoading(false);
-    }
+    await demoChatSendMessage({ prompt })
+      .then((res) => setReply(res.data.reply))
+      .catch((err) => setError(err instanceof Error ? err.message : String(err)))
+      .finally(() => setLoading(false));
   }
 
   return (

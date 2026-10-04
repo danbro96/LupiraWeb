@@ -46,18 +46,14 @@ export default function TextToSpeechDemoPage() {
       URL.revokeObjectURL(audioUrl);
       setAudioUrl(null);
     }
-    try {
-      const blob = await synthesizeSpeech({
-        text,
-        voice: voiceId || undefined,
-        speed,
-      });
-      setAudioUrl(URL.createObjectURL(blob));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setLoading(false);
-    }
+    await synthesizeSpeech({
+      text,
+      voice: voiceId || undefined,
+      speed,
+    })
+      .then((blob) => setAudioUrl(URL.createObjectURL(blob)))
+      .catch((err) => setError(err instanceof Error ? err.message : String(err)))
+      .finally(() => setLoading(false));
   }
 
   return (
