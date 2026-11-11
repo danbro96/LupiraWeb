@@ -21,7 +21,7 @@ services:
       - lupira-net
 
   frontend:
-    image: node:24
+    image: node:26
     container_name: lupiraweb-frontend-dev
     working_dir: /app
     volumes:
